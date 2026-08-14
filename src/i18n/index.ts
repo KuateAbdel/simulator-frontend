@@ -98,6 +98,15 @@ export const translations = {
     // Configuration (US-B1/B2/B3)
     cfg_title: 'Configuration du Loader',
     cfg_subtitle: 'Chaque valeur porte son origine — défaut CDC, surcharge ou paramétré',
+    cfg_aide_titre: 'Comment ça marche ?',
+    cfg_aide_1:
+      '1 — Ce que tu VOIS : la configuration résolue du prochain run. Chaque chiffre porte un tag gris (« défaut CDC » = la valeur du contrat, rien n’a été touché) ou vert (quelqu’un l’a surchargée).',
+    cfg_aide_2:
+      '2 — Ce que tu MODIFIES : tape une valeur dans un champ vide pour surcharger ce paramètre. Les champs laissés vides ne changent RIEN — seul ce que tu as touché part au serveur quand tu cliques « Enregistrer ».',
+    cfg_aide_3:
+      '3 — Les fourchettes « min – max » (companies, kiosques, personnel) : le run tirera un nombre au hasard DANS cette fourchette, pays par pays. Les plafonds (branches, agences, agents) limitent ce que la géographie décide.',
+    cfg_aide_4:
+      '4 — Les chips de pays : vert = le pays participe au prochain run. Désactiver exige un motif (tracé) et ne touche jamais config-service. Les quotas verrouillés (femmes, corporate) sont des exigences du CDC — le backend refuse de les changer.',
     cfg_nb_clients: 'Clients à générer (total)',
     cfg_repartition: 'Répartition entre pays actifs',
     cfg_pays_actifs: 'Pays du périmètre (EF-05)',
@@ -287,6 +296,15 @@ export const translations = {
     // Configuration (US-B1/B2/B3)
     cfg_title: 'Loader configuration',
     cfg_subtitle: 'Every value carries its origin — CDC default, override or set',
+    cfg_aide_titre: 'How does this work?',
+    cfg_aide_1:
+      '1 — What you SEE: the resolved configuration of the next run. Every number carries a grey tag (“CDC default” = the contract value, untouched) or a green one (someone overrode it).',
+    cfg_aide_2:
+      '2 — What you CHANGE: type a value into an empty field to override that parameter. Empty fields change NOTHING — only what you touched is sent when you click “Save”.',
+    cfg_aide_3:
+      '3 — The “min – max” ranges (companies, kiosks, staff): the run will draw a random number WITHIN that range, per country. The caps (branches, agencies, agents) bound what geography decides.',
+    cfg_aide_4:
+      '4 — Country chips: green = the country takes part in the next run. Deactivating requires a reason (traced) and never touches config-service. The locked quotas (women, corporate) are CDC requirements — the backend refuses changes.',
     cfg_nb_clients: 'Clients to generate (total)',
     cfg_repartition: 'Split across active countries',
     cfg_pays_actifs: 'Scope countries (EF-05)',

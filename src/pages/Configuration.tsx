@@ -9,7 +9,7 @@
 // Quotas EF-22/EF-23 : montres VERROUILLES, avec l'exigence citee.
 
 import { useCallback, useEffect, useState } from 'react'
-import { Lock, Save } from 'lucide-react'
+import { HelpCircle, Lock, Save } from 'lucide-react'
 import { Card, SectionHeader } from '../components/ui'
 import {
   Banniere,
@@ -214,6 +214,28 @@ export function Configuration() {
   return (
     <div className="animate-fade-in">
       <SectionHeader title={t('cfg_title')} subtitle={t('cfg_subtitle')} />
+
+      {/* Aide « comment ca marche » — retour Yaniv du 14/08 : l'ecran doit
+          s'expliquer lui-meme, pas supposer la doctrine connue. */}
+      <details
+        className="card mb-4"
+        style={{ padding: '10px 16px', boxShadow: 'none', borderStyle: 'dashed' }}
+      >
+        <summary
+          className="text-xs font-semibold flex items-center gap-2"
+          style={{ color: 'var(--primary-dark)', cursor: 'pointer', listStyle: 'none' }}
+        >
+          <HelpCircle size={14} />
+          {t('cfg_aide_titre')}
+        </summary>
+        <div className="mt-2 space-y-1.5">
+          {(['cfg_aide_1', 'cfg_aide_2', 'cfg_aide_3', 'cfg_aide_4'] as const).map((cle) => (
+            <p key={cle} className="text-xs" style={{ color: 'var(--text-secondary)' }}>
+              {t(cle)}
+            </p>
+          ))}
+        </div>
+      </details>
 
       {verrouEf55 && (
         <div className="mb-4">
