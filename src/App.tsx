@@ -15,13 +15,19 @@ import { Login } from './pages/Login'
 import { ChangePassword } from './pages/ChangePassword'
 import { TableauDeBord } from './pages/TableauDeBord'
 import { Configuration } from './pages/Configuration'
+import { RunsPreparer } from './pages/RunsPreparer'
+import { RunsProgression } from './pages/RunsProgression'
+import { RunsHistorique } from './pages/RunsHistorique'
 import { EnConstruction } from './pages/EnConstruction'
 
 function Router() {
   const { currentPage } = useApp()
   if (currentPage === 'tableau-de-bord') return <TableauDeBord />
   if (currentPage === 'configuration') return <Configuration />
-  // Phases 3→7 : chaque ecran remplacera son squelette, un par un.
+  if (currentPage === 'runs-preparer') return <RunsPreparer />
+  if (currentPage === 'runs-progression') return <RunsProgression />
+  if (currentPage === 'runs-historique') return <RunsHistorique />
+  // Phases 4→7 : chaque ecran remplacera son squelette, un par un.
   return <EnConstruction page={currentPage} />
 }
 

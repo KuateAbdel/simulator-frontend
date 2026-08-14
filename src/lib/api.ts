@@ -263,3 +263,74 @@ export function changerEtatPays(code: string, actif: boolean, motif: string): Pr
     body: { actif, motif },
   })
 }
+
+// --------------------------------------------------------------------------
+// Runs — le rite D-01 (US-C1..C6), contrat de app/routes/admin_runs.py
+// --------------------------------------------------------------------------
+
+export type StatutRun = 'PENDING' | 'RUNNING' | 'PAUSED' | 'COMPLETED' | 'FAILED' | 'PARTIAL'
+
+/** Un palier pose par l'orchestrateur a la fin de chaque phase. */
+export type Palier = {
+  phase: string
+  horodatage: string
+  detail: {
+    issue?: string
+    detail?: unknown
+    duree_s?: number
+    mode?: string
+  } & Record<string, unknown>
+}
+
+export type FicheRun = {
+  run_id: string
+  mode: 'DRY_RUN' | 'REAL'
+  statut: StatutRun
+  sim_start_date: string
+  sim_end_date: string
+  nb_checkpoints: number
+  /** L'empreinte D-10 de la configuration, FIGEE avec le run. */
+  configuration: Record<string, unknown>
+}
+
+export type DetailRun = FicheRun & {
+  checkpoints: Palier[]
+  rapport: string
+}
+
+export type ProgressionRun = {
+  run_id: string
+  statut: StatutRun
+  mode?: 'DRY_RUN' | 'REAL'
+  paliers: Palier[]
+  en_cours_dans_ce_processus?: boolean
+}
+
+/** US-C1 — la preparation : DRY_RUN toujours, 202 immediat. */
+export function preparerRun(): Promise<{ run_id: string; mode: string; statut: StatutRun }> {
+  return api('/admin/runs', { method: 'POST', body: { mode: 'DRY_RUN' } })
+}
+
+/** US-C2 — le REAL sur le perimetre FIGE de la preparation (409 si change). */
+export function confirmerRun(
+  preparationId: string,
+): Promise<{ run_id: string; mode: string; statut: StatutRun; preparation_id: string }> {
+  return api(`/admin/runs/${encodeURIComponent(preparationId)}/confirmer`, { method: 'POST' })
+}
+
+export function listerRuns(): Promise<{ runs: FicheRun[] }> {
+  return api('/admin/runs')
+}
+
+/** Le detail peut etre PARTIEL quand le run est encore PENDING (pas en base). */
+export function lireRun(runId: string): Promise<Partial<DetailRun> & { run_id: string; statut: StatutRun }> {
+  return api(`/admin/runs/${encodeURIComponent(runId)}`)
+}
+
+export function lireProgression(runId: string): Promise<ProgressionRun> {
+  return api(`/admin/runs/${encodeURIComponent(runId)}/progression`)
+}
+
+export function arreterRun(runId: string): Promise<{ run_id: string; action: string; consequence: string }> {
+  return api(`/admin/runs/${encodeURIComponent(runId)}/arreter`, { method: 'POST' })
+}

@@ -129,6 +129,51 @@ export const translations = {
     cfg_min: 'min',
     cfg_max: 'max',
 
+    // Runs — le rite D-01 (US-C1→C6)
+    run_rite_titre: 'Le rite D-01',
+    run_rite_sous_titre:
+      'Aucun REAL sans préparation lue — ce n’est pas une consigne, c’est l’absence structurelle du chemin.',
+    run_etape_preparer: 'Préparer (à blanc)',
+    run_etape_lire: 'Lire le rapport',
+    run_etape_confirmer: 'Confirmer le RÉEL',
+    run_preparer_action: 'Lancer la préparation (DRY_RUN)',
+    run_preparer_note:
+      'Un run complet à blanc, sur l’intention persistée — AUCUNE écriture ne part vers FinZuu.',
+    run_en_preparation: 'Préparation en cours…',
+    run_rapport_titre: 'Le rapport de préparation',
+    run_derniere_occasion:
+      'La dernière occasion de dire non — ce rapport décrit EXACTEMENT ce que le RÉEL exécutera, sur ce périmètre figé.',
+    run_empreinte: 'Empreinte figée (D-10)',
+    run_confirmer_action: 'Confirmer → RÉEL',
+    run_re_preparer: 'Re-préparer',
+    run_confirmer_titre: 'Confirmer l’exécution RÉELLE ?',
+    run_confirmer_texte:
+      'Les écritures partiront vers les 9 services FinZuu, sur le périmètre figé de cette préparation. Trois services n’ont aucun DELETE — cette action ne se défait pas d’un clic.',
+    run_confirme_toast: 'RÉEL lancé — suivi dans Progression.',
+    run_perimetre_change:
+      'Le périmètre a changé depuis la préparation — le rapport lu ne décrit plus ce qui va s’exécuter. Re-préparez.',
+    run_statut: 'Statut',
+    run_paliers: 'Paliers',
+    run_aucun: 'Aucun run — le premier geste du rite est la préparation.',
+    run_suivi_titre: 'Progression du run',
+    run_arreter: 'Arrêter le run',
+    run_arreter_titre: 'Arrêter ce run ?',
+    run_arreter_texte:
+      'Le run sera clos en FAILED — un état terminal et VRAI, jamais un RUNNING fantôme. La réconciliation du prochain run dira ce qui reste à vérifier.',
+    run_arret_demande: 'Arrêt demandé — le run se clôt en FAILED.',
+    run_pas_en_cours: 'Aucun run en cours dans ce processus.',
+    run_duree: 'durée',
+    run_issue: 'issue',
+    run_historique_titre: 'Historique des runs',
+    run_historique_note:
+      'Append-only : aucune route de suppression n’existe — l’histoire ne se réécrit pas.',
+    run_periode_sim: 'Période simulée',
+    run_voir_rapport: 'Voir le rapport',
+    run_rapport_integral: 'Rapport intégral',
+    run_rapport_vide: 'Rapport pas encore rangé (run en cours ou interrompu très tôt).',
+    run_retour_liste: 'Retour à la liste',
+    run_actualiser: 'Actualiser',
+
     // Pages en construction (phases 2→7)
     under_construction: 'En construction',
     delivered_in_phase: 'Livré en phase',
@@ -272,6 +317,51 @@ export const translations = {
     cfg_fourchette_invalide: 'min ≤ max required, between 1 and 10,000',
     cfg_min: 'min',
     cfg_max: 'max',
+
+    // Runs — the D-01 rite (US-C1→C6)
+    run_rite_titre: 'The D-01 rite',
+    run_rite_sous_titre:
+      'No REAL without a read preparation — not a guideline: the path structurally does not exist.',
+    run_etape_preparer: 'Prepare (dry)',
+    run_etape_lire: 'Read the report',
+    run_etape_confirmer: 'Confirm REAL',
+    run_preparer_action: 'Launch preparation (DRY_RUN)',
+    run_preparer_note:
+      'A full dry run on the persisted intent — NO write ever goes to FinZuu.',
+    run_en_preparation: 'Preparing…',
+    run_rapport_titre: 'Preparation report',
+    run_derniere_occasion:
+      'The last chance to say no — this report describes EXACTLY what REAL will execute, on this frozen scope.',
+    run_empreinte: 'Frozen fingerprint (D-10)',
+    run_confirmer_action: 'Confirm → REAL',
+    run_re_preparer: 'Re-prepare',
+    run_confirmer_titre: 'Confirm the REAL execution?',
+    run_confirmer_texte:
+      'Writes will go to the 9 FinZuu services, on this preparation’s frozen scope. Three services have no DELETE — this cannot be undone with a click.',
+    run_confirme_toast: 'REAL launched — follow it in Progress.',
+    run_perimetre_change:
+      'The scope changed since preparation — the report you read no longer describes what will run. Re-prepare.',
+    run_statut: 'Status',
+    run_paliers: 'Checkpoints',
+    run_aucun: 'No run yet — the rite starts with a preparation.',
+    run_suivi_titre: 'Run progress',
+    run_arreter: 'Stop the run',
+    run_arreter_titre: 'Stop this run?',
+    run_arreter_texte:
+      'The run will close as FAILED — a terminal, TRUE state, never a ghost RUNNING. The next run’s reconciliation will say what remains to check.',
+    run_arret_demande: 'Stop requested — the run closes as FAILED.',
+    run_pas_en_cours: 'No run currently running in this process.',
+    run_duree: 'duration',
+    run_issue: 'outcome',
+    run_historique_titre: 'Run history',
+    run_historique_note:
+      'Append-only: no delete route exists — history does not get rewritten.',
+    run_periode_sim: 'Simulated period',
+    run_voir_rapport: 'View report',
+    run_rapport_integral: 'Full report',
+    run_rapport_vide: 'Report not stored yet (run in progress or interrupted very early).',
+    run_retour_liste: 'Back to the list',
+    run_actualiser: 'Refresh',
 
     // Under-construction pages (phases 2→7)
     under_construction: 'Under construction',

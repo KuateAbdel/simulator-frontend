@@ -194,6 +194,117 @@ export function NumberField({
   )
 }
 
+// ── Stepper — le rite en etapes (D-01 : preparer → lire → confirmer) ────────
+export function Stepper({
+  etapes,
+  courante,
+}: {
+  etapes: string[]
+  courante: number // index 0-based de l'etape active
+}) {
+  return (
+    <ol className="flex flex-wrap items-center gap-2 mb-5" aria-label="progression du rite">
+      {etapes.map((etape, i) => {
+        const faite = i < courante
+        const active = i === courante
+        return (
+          <li key={etape} className="flex items-center gap-2">
+            <span
+              className="flex items-center justify-center rounded-full font-mono text-xs font-bold"
+              style={{
+                width: 26,
+                height: 26,
+                background: faite ? 'var(--secondary)' : active ? 'var(--primary)' : 'var(--border)',
+                color: faite || active ? '#fff' : 'var(--text-muted)',
+              }}
+              aria-current={active ? 'step' : undefined}
+            >
+              {faite ? '✓' : i + 1}
+            </span>
+            <span
+              className="text-xs font-semibold"
+              style={{ color: active ? 'var(--text-primary)' : 'var(--text-muted)' }}
+            >
+              {etape}
+            </span>
+            {i < etapes.length - 1 && (
+              <span className="w-6 border-t" style={{ borderColor: 'var(--border)' }} aria-hidden />
+            )}
+          </li>
+        )
+      })}
+    </ol>
+  )
+}
+
+// ── ConfirmDialog — l'action sensible se confirme, jamais en un clic ────────
+export function ConfirmDialog({
+  ouvert,
+  titre,
+  children,
+  libelleConfirmer,
+  libelleAnnuler,
+  danger = false,
+  enCours = false,
+  onConfirmer,
+  onAnnuler,
+}: {
+  ouvert: boolean
+  titre: string
+  children: React.ReactNode
+  libelleConfirmer: string
+  libelleAnnuler: string
+  danger?: boolean
+  enCours?: boolean
+  onConfirmer: () => void
+  onAnnuler: () => void
+}) {
+  if (!ouvert) return null
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center px-4"
+      style={{ background: 'rgba(26,10,46,0.55)', backdropFilter: 'blur(3px)' }}
+      onClick={onAnnuler}
+      role="dialog"
+      aria-modal="true"
+      aria-label={titre}
+    >
+      <div
+        className="card p-5 animate-fade-in w-full"
+        style={{ maxWidth: 430, borderRadius: 16 }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <h3 className="font-display font-bold text-sm mb-2" style={{ color: 'var(--text-primary)' }}>
+          {titre}
+        </h3>
+        <div className="text-xs mb-4" style={{ color: 'var(--text-secondary)' }}>
+          {children}
+        </div>
+        <div className="flex justify-end gap-2">
+          <button className="btn-ghost text-xs" style={{ height: 32 }} onClick={onAnnuler} disabled={enCours}>
+            {libelleAnnuler}
+          </button>
+          <button
+            className="text-xs font-semibold rounded-lg px-4"
+            style={{
+              height: 32,
+              border: 'none',
+              cursor: enCours ? 'default' : 'pointer',
+              background: danger ? '#b91c1c' : 'var(--primary)',
+              color: '#fff',
+              opacity: enCours ? 0.6 : 1,
+            }}
+            onClick={onConfirmer}
+            disabled={enCours}
+          >
+            {libelleConfirmer}
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 // ── Toast — retour succes/erreur en portail, auto-dismiss ───────────────────
 type ToastMessage = { id: number; ton: 'succes' | 'erreur'; texte: string }
 
