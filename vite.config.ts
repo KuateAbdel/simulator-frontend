@@ -24,7 +24,7 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'prompt', // la mise a jour se PROPOSE (toast), ne s'impose pas
-      includeAssets: ['finzuu-icon.svg'],
+      includeAssets: ['favicon.png', 'logo-finzuu.png'],
       manifest: {
         name: 'FinZuu Loader',
         short_name: 'Loader',

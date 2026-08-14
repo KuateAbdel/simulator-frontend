@@ -4,7 +4,7 @@
 // NOMMEE du backend (401 volontairement muet sur sa cause) / succes.
 
 import React, { useState } from 'react'
-import { Building2, Eye, EyeOff, LogIn } from 'lucide-react'
+import { Eye, EyeOff, LogIn } from 'lucide-react'
 import { useApp } from '../context/AppContext'
 import { ApiError } from '../lib/api'
 
@@ -45,16 +45,19 @@ export function Login() {
       <div className="w-full animate-fade-in" style={{ maxWidth: 400 }}>
         {/* Marque */}
         <div className="flex flex-col items-center mb-6">
+          {/* Le VRAI logo FinZuu (fond transparent), sur pastille blanche
+              pour rester lisible sur le degrade sombre */}
           <div
             className="flex items-center justify-center rounded-2xl mb-3"
             style={{
-              width: 56,
-              height: 56,
-              background: 'var(--primary)',
-              boxShadow: '0 8px 24px rgba(198,140,255,0.5)',
+              width: 64,
+              height: 64,
+              background: '#fff',
+              boxShadow: '0 8px 24px rgba(198,140,255,0.45)',
+              padding: 8,
             }}
           >
-            <Building2 size={28} color="#fff" />
+            <img src="/logo-finzuu.png" alt="FinZuu" style={{ maxWidth: '100%', maxHeight: '100%' }} />
           </div>
           <h1 className="font-display font-bold text-2xl text-white tracking-tight">
             {t('app_name')}

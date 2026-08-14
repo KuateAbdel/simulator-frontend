@@ -3,7 +3,7 @@
 // La sidebar JJB (degrade sombre, accent violet, repliable) rendue sur
 // l'arbre de navigation du LOADER (nav.ts — 6 epopees, sous-groupes).
 
-import { Building2, ChevronLeft, ChevronRight, LogOut } from 'lucide-react'
+import { ChevronLeft, ChevronRight, LogOut } from 'lucide-react'
 import { useApp } from '../../context/AppContext'
 import { NAV_GROUPS } from './nav'
 
@@ -27,11 +27,12 @@ export function Sidebar() {
           style={{
             width: 32,
             height: 32,
-            background: 'var(--primary)',
+            background: '#fff',
             boxShadow: '0 4px 12px rgba(198,140,255,0.5)',
+            padding: 4,
           }}
         >
-          <Building2 size={16} color="#fff" />
+          <img src="/logo-finzuu.png" alt="FinZuu" style={{ maxWidth: '100%', maxHeight: '100%' }} />
         </div>
         {sidebarOpen && (
           <div className="ml-3 overflow-hidden">
