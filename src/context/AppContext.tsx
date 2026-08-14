@@ -19,9 +19,12 @@ import * as api from '../lib/api'
 const SESSION_KEY = 'finzuu-loader-session'
 const LANG_KEY = 'finzuu-loader-lang'
 
+// localStorage (pas sessionStorage) : la session survit au refresh ET a la
+// fermeture — contrairement a la plateforme FinZuu qui deconnecte au F5.
+// La seule autorite de fin de session est la peremption du jeton (4 h).
 function lireSession(): Session | null {
   try {
-    const brut = sessionStorage.getItem(SESSION_KEY)
+    const brut = localStorage.getItem(SESSION_KEY)
     if (!brut || !api.getToken()) return null
     const session = JSON.parse(brut) as Session
     if (session.expiresAt <= Date.now()) return null
@@ -76,7 +79,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   const seDeconnecter = useCallback((motif?: 'expiree') => {
     api.logout()
-    sessionStorage.removeItem(SESSION_KEY)
+    localStorage.removeItem(SESSION_KEY)
     setSession(null)
     setCurrentPage('tableau-de-bord')
     setMotifDeconnexion(motif ?? null)
@@ -88,7 +91,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       expiresAt: Date.now() + jeton.expires_in * 1000,
       mustChangePassword: jeton.must_change_password,
     }
-    sessionStorage.setItem(SESSION_KEY, JSON.stringify(nouvelle))
+    localStorage.setItem(SESSION_KEY, JSON.stringify(nouvelle))
     setSession(nouvelle)
     setMotifDeconnexion(null)
   }, [])

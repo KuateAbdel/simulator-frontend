@@ -6,7 +6,7 @@
 // cote UI (12 caracteres min, nouveau ≠ ancien) mais SON erreur fait foi.
 
 import React, { useState } from 'react'
-import { KeyRound } from 'lucide-react'
+import { Eye, EyeOff, KeyRound } from 'lucide-react'
 import { useApp } from '../context/AppContext'
 import { ApiError } from '../lib/api'
 
@@ -19,6 +19,7 @@ export function ChangePassword() {
   const [confirmation, setConfirmation] = useState('')
   const [enCours, setEnCours] = useState(false)
   const [erreur, setErreur] = useState<string | null>(null)
+  const [visibles, setVisibles] = useState<Record<string, boolean>>({})
 
   const soumettre = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -108,15 +109,37 @@ export function ChangePassword() {
                 >
                   {champ.label}
                 </label>
-                <input
-                  id={champ.id}
-                  type="password"
-                  required
-                  autoComplete={champ.autoComplete}
-                  className="input-base"
-                  value={champ.valeur}
-                  onChange={(e) => champ.poser(e.target.value)}
-                />
+                <div className="relative">
+                  <input
+                    id={champ.id}
+                    type={visibles[champ.id] ? 'text' : 'password'}
+                    required
+                    autoComplete={champ.autoComplete}
+                    className="input-base"
+                    style={{ paddingRight: 38 }}
+                    value={champ.valeur}
+                    onChange={(e) => champ.poser(e.target.value)}
+                  />
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setVisibles((v) => ({ ...v, [champ.id]: !v[champ.id] }))
+                    }
+                    aria-label={visibles[champ.id] ? t('hide_password') : t('show_password')}
+                    title={visibles[champ.id] ? t('hide_password') : t('show_password')}
+                    className="absolute right-2 top-1/2 -translate-y-1/2"
+                    style={{
+                      background: 'none',
+                      border: 'none',
+                      color: 'var(--text-muted)',
+                      cursor: 'pointer',
+                      padding: 4,
+                      display: 'flex',
+                    }}
+                  >
+                    {visibles[champ.id] ? <EyeOff size={15} /> : <Eye size={15} />}
+                  </button>
+                </div>
               </div>
             ))}
 

@@ -49,6 +49,11 @@ export const translations = {
     change_password_action: 'Changer le mot de passe',
     passwords_differ: 'Les deux saisies du nouveau mot de passe diffèrent.',
     password_too_short: 'Le mot de passe doit faire au moins 12 caractères.',
+    show_password: 'Afficher le mot de passe',
+    hide_password: 'Masquer le mot de passe',
+    forgot_password: 'Mot de passe oublié ?',
+    forgot_password_info:
+      'Par sécurité, il n’existe pas de réinitialisation par email en v1 : elle se fait par l’opérateur, directement sur le serveur (scripts/reinitialiser_admin.py). Contactez l’administrateur de la plateforme — un mot de passe provisoire à usage unique vous sera remis.',
     session_expires_in: 'Session',
     session_expired: 'Session expirée — reconnectez-vous.',
     logout: 'Se déconnecter',
@@ -130,6 +135,11 @@ export const translations = {
     change_password_action: 'Change password',
     passwords_differ: 'The two new-password entries differ.',
     password_too_short: 'The password must be at least 12 characters long.',
+    show_password: 'Show password',
+    hide_password: 'Hide password',
+    forgot_password: 'Forgot password?',
+    forgot_password_info:
+      'For security, there is no email reset in v1: it is done by the operator, directly on the server (scripts/reinitialiser_admin.py). Contact the platform administrator — a one-time temporary password will be issued to you.',
     session_expires_in: 'Session',
     session_expired: 'Session expired — please sign in again.',
     logout: 'Sign out',

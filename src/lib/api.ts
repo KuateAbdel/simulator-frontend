@@ -11,15 +11,19 @@ const BASE =
 
 const TOKEN_KEY = 'finzuu-loader-token'
 
+// localStorage, PAS sessionStorage — decision du 14/08 (retour Yaniv) : la
+// plateforme FinZuu deconnecte au refresh, le Loader NON. La session survit
+// au F5, a la fermeture de l'onglet et de la fenetre PWA ; c'est la
+// peremption du jeton (4 h, verifiee dans AppContext) qui fait foi.
 export function getToken(): string | null {
   if (typeof window === 'undefined') return null
-  return sessionStorage.getItem(TOKEN_KEY)
+  return localStorage.getItem(TOKEN_KEY)
 }
 export function setToken(token: string): void {
-  if (typeof window !== 'undefined') sessionStorage.setItem(TOKEN_KEY, token)
+  if (typeof window !== 'undefined') localStorage.setItem(TOKEN_KEY, token)
 }
 export function clearToken(): void {
-  if (typeof window !== 'undefined') sessionStorage.removeItem(TOKEN_KEY)
+  if (typeof window !== 'undefined') localStorage.removeItem(TOKEN_KEY)
 }
 
 export class ApiError extends Error {
