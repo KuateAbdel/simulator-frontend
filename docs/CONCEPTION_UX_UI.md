@@ -208,7 +208,65 @@ avatar/déconnexion. Toast en portail en haut à droite.
 - **Micro-UX** : fade-in au montage, stagger des grilles, hover qui soulève
   les cartes, transitions douces — la signature JJB.
 
-## 6. Ordre de construction (phases, chacune déployable)
+## 6. QA, invariants d'interface & responsive (discipline senior QA lead)
+
+La même exigence que le backend s'applique à l'écran : des invariants tenus,
+zéro bug d'interface, une adaptation à toute taille d'écran.
+
+### 6.1 Les invariants d'interface (le backend reste l'AUTORITÉ)
+L'UI **anticipe** les règles pour un retour immédiat, mais ne se substitue
+JAMAIS au backend — elle double, elle ne remplace pas (comme le GET-avant-POST
+double l'index unique).
+- **Hiérarchie « rien en l'air »** (EF-02) : le champ Ville est désactivé tant
+  qu'une région n'est pas choisie ; Région tant qu'un pays ne l'est pas.
+- **Formats** : `iso_name` 2/3 lettres majuscules, indicatif numérique, email
+  valide, MSISDN conforme au regex du telco — vérifiés AVANT l'envoi.
+- **Telco** : regex compilable ET ancrée (`^…$`), somme des parts ≤ 100 —
+  calculée en direct, le bouton reste bloqué sinon.
+- **Unicité** : le formulaire prévient (« ce code existe déjà ») dès la saisie
+  quand c'est lisible, mais le **409 du backend fait foi** et s'affiche nommé.
+- **Verrou EF-55** : un run en cours passe les écrans d'écriture en lecture
+  seule (bandeau), sans attendre le 409 — mais le 409 reste géré.
+- **Règle d'or** : toute validation d'UI est un CONFORT ; l'erreur nommée du
+  backend est la vérité, toujours affichée telle quelle.
+
+### 6.2 Zéro bug d'interface (robustesse défensive)
+- **TypeScript strict** : `strict: true`, pas de `any` non maîtrisé, les types
+  des réponses backend explicités.
+- **Rendu défensif** : jamais de plantage sur une donnée absente
+  (`?.`, valeurs par défaut) ; une liste vide n'est pas une erreur.
+- **Error Boundary** global : une exception de rendu affiche un écran de
+  secours, jamais une page blanche.
+- **Chaque appel** a ses 4 états (chargement/vide/erreur/succès) — un état
+  oublié est un bug, on ne l'oublie pas.
+- **Idempotence UI** : double-clic sur « Confirmer » ne lance pas deux runs
+  (bouton désactivé pendant l'appel).
+- **Lint + type-check en CI** : rien ne se déploie qui ne compile pas
+  proprement (miroir du ruff+mypy backend).
+
+### 6.3 Responsive — s'adapte à N'IMPORTE QUELLE taille
+- **Mobile-first**, breakpoints Tailwind (`sm 640` / `md 768` / `lg 1024` /
+  `xl 1280` / `2xl`).
+- **Sidebar** : repliée en rail d'icônes < `lg`, tiroir superposé sur mobile
+  (déjà dans le design JJB, on le pousse jusqu'au bout).
+- **Grilles KPI** : 6 colonnes en `xl`, 3 en `md`, 2 en `sm`, 1 sur mobile —
+  reflow fluide.
+- **Tables** (`DataTable`) : défilement horizontal dans leur propre conteneur
+  (`overflow-x-auto`), jamais la page qui déborde.
+- **Charts recharts** : `ResponsiveContainer`, se redimensionnent seuls.
+- **Formulaires** : une colonne sur mobile, deux sur large. Cibles tactiles
+  ≥ 44 px.
+- **Cible testée** : de 360 px (téléphone) à 1920 px (large), sans casse.
+
+### 6.4 Accessibilité & tests
+- **A11y** : rôles/labels ARIA, focus visibles, contrastes AA, navigation
+  clavier complète (le rite D-01 se fait au clavier).
+- **Tests de composants** (Vitest + Testing Library) sur les briques critiques :
+  garde d'auth, calcul « somme des parts ≤ 100 », `CountrySelect`, le
+  `Stepper` du rite, la coloration des 4 statuts. **Un comportement = un test**,
+  comme le backend.
+
+## 7. Ordre de construction (phases, chacune déployable)
 
 1. Fondation : design system adapté, auth guard, i18n, layout + nav 6 épopées.
 2. Tableau de bord (US-E1) + Configuration (US-B1/2/3).
