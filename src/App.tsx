@@ -1,36 +1,79 @@
 // src/App.tsx
+//
+// La garde d'auth du Loader (US-A1/A2) + le routeur des 6 epopees.
+//   sans session          → Login
+//   must_change_password  → ChangePassword (seule route ouverte, portee
+//                           password_only cote backend)
+//   session pleine        → Layout + page courante
+// L'ErrorBoundary global tient l'invariant « jamais une page blanche ».
+
 import React from 'react'
 import { AppProvider, useApp } from './context/AppContext'
 import { Layout } from './components/Layout/Layout'
-import { Overview } from './pages/Overview'
-import { Onboarding } from './pages/Onboarding'
-import { Bulk } from './pages/Bulk'
-import { Clients } from './pages/Clients'
-import { Lender } from './pages/Lender'
-import { Analytics } from './pages/Analytics'
-import { BackOffice } from './pages/BackOffice'
+import { Login } from './pages/Login'
+import { ChangePassword } from './pages/ChangePassword'
+import { TableauDeBord } from './pages/TableauDeBord'
+import { EnConstruction } from './pages/EnConstruction'
 
 function Router() {
   const { currentPage } = useApp()
+  if (currentPage === 'tableau-de-bord') return <TableauDeBord />
+  // Phases 2→7 : chaque ecran remplacera son squelette, un par un.
+  return <EnConstruction page={currentPage} />
+}
 
-  switch (currentPage) {
-    case 'overview':    return <Overview />
-    case 'onboarding':  return <Onboarding />
-    case 'bulk':        return <Bulk />
-    case 'clients':     return <Clients />
-    case 'lender':      return <Lender />
-    case 'analytics':   return <Analytics />
-    case 'backoffice':  return <BackOffice />
-    default:            return <Overview />
+function Garde() {
+  const { session } = useApp()
+  if (!session) return <Login />
+  if (session.mustChangePassword) return <ChangePassword />
+  return (
+    <Layout>
+      <Router />
+    </Layout>
+  )
+}
+
+class ErrorBoundary extends React.Component<
+  { children: React.ReactNode },
+  { erreur: Error | null }
+> {
+  state = { erreur: null as Error | null }
+
+  static getDerivedStateFromError(erreur: Error) {
+    return { erreur }
+  }
+
+  render() {
+    if (this.state.erreur) {
+      return (
+        <div className="min-h-screen flex items-center justify-center px-4" style={{ background: 'var(--surface)' }}>
+          <div className="card p-6 text-center" style={{ maxWidth: 420 }}>
+            <p className="font-display font-bold text-base mb-2" style={{ color: 'var(--text-primary)' }}>
+              FinZuu Loader
+            </p>
+            <p className="text-sm mb-4" style={{ color: 'var(--text-secondary)' }}>
+              L&apos;interface a rencontré une erreur de rendu. / The interface hit a render error.
+            </p>
+            <p className="text-xs font-mono mb-4" style={{ color: '#b91c1c' }}>
+              {this.state.erreur.message}
+            </p>
+            <button className="btn-primary mx-auto" onClick={() => window.location.reload()}>
+              Recharger / Reload
+            </button>
+          </div>
+        </div>
+      )
+    }
+    return this.props.children
   }
 }
 
 export default function App() {
   return (
-    <AppProvider>
-      <Layout>
-        <Router />
-      </Layout>
-    </AppProvider>
+    <ErrorBoundary>
+      <AppProvider>
+        <Garde />
+      </AppProvider>
+    </ErrorBoundary>
   )
 }

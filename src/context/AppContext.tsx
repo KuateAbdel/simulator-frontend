@@ -1,92 +1,151 @@
 // src/context/AppContext.tsx
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react'
-import type { Page, FilterState, StaffProfile, Alert } from '../types'
-import type { Lang } from '../i18n'
+//
+// L'etat global du Loader : langue (FR/EN), navigation, et LA SESSION.
+// Plus aucun mock — la session vient du backend (US-A1/A2), le jeton vit
+// dans sessionStorage (via lib/api), la peremption 4 h est comptee a rebours.
+
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from 'react'
+import type { Page, Session } from '../types'
+import type { Lang, TranslationKey } from '../i18n'
 import { translations } from '../i18n'
+import * as api from '../lib/api'
+
+const SESSION_KEY = 'finzuu-loader-session'
+const LANG_KEY = 'finzuu-loader-lang'
+
+function lireSession(): Session | null {
+  try {
+    const brut = sessionStorage.getItem(SESSION_KEY)
+    if (!brut || !api.getToken()) return null
+    const session = JSON.parse(brut) as Session
+    if (session.expiresAt <= Date.now()) return null
+    return session
+  } catch {
+    return null
+  }
+}
 
 interface AppContextType {
   lang: Lang
   setLang: (l: Lang) => void
-  t: (key: keyof typeof translations['fr']) => string
+  t: (key: TranslationKey) => string
   currentPage: Page
   setCurrentPage: (p: Page) => void
   sidebarOpen: boolean
   setSidebarOpen: (v: boolean) => void
-  filters: FilterState
-  setFilters: (f: FilterState) => void
-  resetFilters: () => void
-  staff: StaffProfile
-  alerts: Alert[]
-  markAlertRead: (id: string) => void
-  sessionSeconds: number
-  selectedClientId: string | null
-  setSelectedClientId: (id: string | null) => void
+  /** null = pas connecte → ecran de login. */
+  session: Session | null
+  /** Secondes restantes avant peremption du jeton (4 h max). */
+  sessionSecondsLeft: number
+  seConnecter: (email: string, motDePasse: string) => Promise<void>
+  changerMotDePasse: (ancien: string, nouveau: string) => Promise<void>
+  seDeconnecter: (motif?: 'expiree') => void
+  /** Motif affiche sur l'ecran de login (ex. session expiree). */
+  motifDeconnexion: 'expiree' | null
 }
-
-const defaultFilters: FilterState = {
-  clientId: '',
-  score: '',
-  segment: '',
-  category: '',
-  branch: '',
-  phone: '',
-  operator: '',
-}
-
-const defaultStaff: StaffProfile = {
-  id: 'STF-00421',
-  name: 'Sophie Renard',
-  role: 'Portfolio Manager',
-  branch: 'Dakar Centre',
-  enrollmentDate: '2022-03-10',
-  phone: '+221 77 000 1234',
-  email: 'sophie.renard@finzuu.io',
-}
-
-const defaultAlerts: Alert[] = [
-  { id: 'A1', type: 'danger', message: 'CLI-002 PAR 60 — Paiement en retard', time: '10:32', read: false },
-  { id: 'A2', type: 'warning', message: '3 offres expirent dans 48h', time: '09:15', read: false },
-  { id: 'A3', type: 'info', message: 'Rapport mensuel disponible', time: '08:00', read: true },
-  { id: 'A4', type: 'success', message: 'Décaissement LP-002 validé', time: '07:45', read: true },
-]
 
 const AppContext = createContext<AppContextType>({} as AppContextType)
 
 export function AppProvider({ children }: { children: React.ReactNode }) {
-  const [lang, setLang] = useState<Lang>('fr')
-  const [currentPage, setCurrentPage] = useState<Page>('overview')
+  const [lang, setLangState] = useState<Lang>(() => {
+    const memorisee = localStorage.getItem(LANG_KEY)
+    return memorisee === 'en' ? 'en' : 'fr'
+  })
+  const [currentPage, setCurrentPage] = useState<Page>('tableau-de-bord')
   const [sidebarOpen, setSidebarOpen] = useState(true)
-  const [filters, setFilters] = useState<FilterState>(defaultFilters)
-  const [alerts, setAlerts] = useState<Alert[]>(defaultAlerts)
-  const [sessionSeconds, setSessionSeconds] = useState(0)
-  const [selectedClientId, setSelectedClientId] = useState<string | null>(null)
+  const [session, setSession] = useState<Session | null>(lireSession)
+  const [sessionSecondsLeft, setSessionSecondsLeft] = useState(0)
+  const [motifDeconnexion, setMotifDeconnexion] = useState<'expiree' | null>(null)
 
+  const setLang = useCallback((l: Lang) => {
+    setLangState(l)
+    localStorage.setItem(LANG_KEY, l)
+  }, [])
+
+  const t = useCallback(
+    (key: TranslationKey): string =>
+      (translations[lang] as Record<string, string>)[key] ?? key,
+    [lang],
+  )
+
+  const seDeconnecter = useCallback((motif?: 'expiree') => {
+    api.logout()
+    sessionStorage.removeItem(SESSION_KEY)
+    setSession(null)
+    setCurrentPage('tableau-de-bord')
+    setMotifDeconnexion(motif ?? null)
+  }, [])
+
+  const installerSession = useCallback((email: string, jeton: api.SessionJeton) => {
+    const nouvelle: Session = {
+      email,
+      expiresAt: Date.now() + jeton.expires_in * 1000,
+      mustChangePassword: jeton.must_change_password,
+    }
+    sessionStorage.setItem(SESSION_KEY, JSON.stringify(nouvelle))
+    setSession(nouvelle)
+    setMotifDeconnexion(null)
+  }, [])
+
+  const seConnecter = useCallback(
+    async (email: string, motDePasse: string) => {
+      const jeton = await api.login(email, motDePasse)
+      installerSession(email.trim().toLowerCase(), jeton)
+    },
+    [installerSession],
+  )
+
+  const changerMotDePasse = useCallback(
+    async (ancien: string, nouveau: string) => {
+      if (!session) return
+      const jeton = await api.changerMotDePasse(ancien, nouveau)
+      installerSession(session.email, jeton)
+    },
+    [session, installerSession],
+  )
+
+  // Compte a rebours de la session : a zero, la deconnexion est DITE (jamais
+  // un ecran qui echoue en silence avec un jeton mort).
   useEffect(() => {
-    const timer = setInterval(() => setSessionSeconds(s => s + 1), 1000)
+    if (!session) {
+      setSessionSecondsLeft(0)
+      return
+    }
+    const calculer = () =>
+      Math.max(0, Math.round((session.expiresAt - Date.now()) / 1000))
+    setSessionSecondsLeft(calculer())
+    const timer = setInterval(() => {
+      const restant = calculer()
+      setSessionSecondsLeft(restant)
+      if (restant <= 0) seDeconnecter('expiree')
+    }, 1000)
     return () => clearInterval(timer)
-  }, [])
-
-  const t = useCallback((key: keyof typeof translations['fr']): string => {
-    return (translations[lang] as Record<string, string>)[key] ?? key
-  }, [lang])
-
-  const resetFilters = useCallback(() => setFilters(defaultFilters), [])
-
-  const markAlertRead = useCallback((id: string) => {
-    setAlerts(prev => prev.map(a => a.id === id ? { ...a, read: true } : a))
-  }, [])
+  }, [session, seDeconnecter])
 
   return (
-    <AppContext.Provider value={{
-      lang, setLang, t,
-      currentPage, setCurrentPage,
-      sidebarOpen, setSidebarOpen,
-      filters, setFilters, resetFilters,
-      staff: defaultStaff,
-      alerts, markAlertRead,
-      sessionSeconds,
-      selectedClientId, setSelectedClientId,
-    }}>
+    <AppContext.Provider
+      value={{
+        lang,
+        setLang,
+        t,
+        currentPage,
+        setCurrentPage,
+        sidebarOpen,
+        setSidebarOpen,
+        session,
+        sessionSecondsLeft,
+        seConnecter,
+        changerMotDePasse,
+        seDeconnecter,
+        motifDeconnexion,
+      }}
+    >
       {children}
     </AppContext.Provider>
   )

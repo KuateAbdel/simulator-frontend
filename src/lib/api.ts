@@ -86,8 +86,7 @@ export type SessionJeton = {
   access_token: string
   token_type: string
   expires_in: number
-  scope?: string
-  must_change_password?: boolean
+  must_change_password: boolean
 }
 
 export const apiBase = () => BASE
@@ -96,14 +95,25 @@ export const apiBase = () => BASE
 // Auth (US-A1/A2)
 // --------------------------------------------------------------------------
 
-export async function login(email: string, password: string): Promise<SessionJeton> {
+export async function login(email: string, motDePasse: string): Promise<SessionJeton> {
+  // Le champ s'appelle `mot_de_passe` cote backend (DemandeConnexion) — pas `password`.
   const jeton = await api<SessionJeton>('/admin/auth/login', {
     method: 'POST',
     auth: false,
-    body: { email, password },
+    body: { email, mot_de_passe: motDePasse },
   })
   setToken(jeton.access_token)
   return jeton
+}
+
+// --------------------------------------------------------------------------
+// Sante (route publique — la preuve de vie du backend)
+// --------------------------------------------------------------------------
+
+export type Sante = { status: string }
+
+export function health(): Promise<Sante> {
+  return api<Sante>('/health', { auth: false })
 }
 
 export async function changerMotDePasse(ancien: string, nouveau: string): Promise<SessionJeton> {

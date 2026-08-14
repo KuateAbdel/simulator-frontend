@@ -1,79 +1,71 @@
-# Finzuu Dashboard
+# FinZuu Loader — Frontend
 
-A comprehensive financial dashboard built with **TypeScript + Vite + React**.
+Le cockpit du **Loader FinZuu** : l'interface Super-Admin qui pilote le
+backend de simulation (`https://simul.api.fintech4esg.com`). PWA installable,
+bilingue FR/EN, **TypeScript + Vite + React 18**, design system de JJB.
 
-## Color Charter
-- **Background**: `#ffffff` (white)
-- **Primary Accent**: `#c68cff` (violet)
-- **Secondary / Contrast**: `#19af58` (green)
-- **Dark surface** (sidebar): `#1a0a2e → #2d1456`
+> Vérité produit : les 6 épopées du backlog canonique (Confluence 67665922).
+> Vérité technique : les 38 endpoints du backend
+> ([simulator-backend-loader](https://github.com/KuateAbdel/simulator-backend-loader)).
+> Principe : **le Loader est plus riche que la plateforme — l'écran le montre.**
+> Conception détaillée : `docs/CONCEPTION_UX_UI.md` · plan : `docs/PLAN_FRONTEND.md`.
 
-## Fonts
-- **Display**: Sora (headings)
-- **Body**: DM Sans
-- **Mono**: JetBrains Mono (IDs, figures)
-
-## Features
-- 🌍 **Multi-language**: French & English toggle (top bar)
-- 📐 **Retractable sidebar** with smooth animation
-- 📊 **7 full pages**: Overview, Onboarding, Bulk Payment, Clients, Lender, Analytics, Back-Office
-- 📱 **Fully responsive** (mobile-first)
-- ⏱️ **Live session timer** in header
-- 🔔 **Alert center** with unread badges
-- 👤 **Staff profile** dropdown (ID, role, enrollment date, phone, QR code)
-- 🔍 **Global filter bar**: Client ID, Score, Segment, Category, Branch, Phone, Operator
-
-## Quick Start
+## Démarrage
 
 ```bash
 npm install
-npm run dev
+cp .env.example .env   # VITE_API_URL (défaut : simul.api.fintech4esg.com)
+npm run dev            # http://localhost:5173
 ```
 
-Then open http://localhost:5173
+Build de production : `npm run build` (tsc strict puis vite build), aperçu :
+`npm run preview`.
 
-## Build
+## Ce que c'est
 
-```bash
-npm run build
-npm run preview
-```
+- **Auth réelle** (US-A1/US-A2) : login Super-Admin, mot de passe forcé à la
+  première connexion, session 4 h avec compte à rebours visible, garde d'auth.
+- **Navigation = les 6 épopées** : Tableau de bord, Configuration,
+  Référentiels (géographie/pays & monnaies/telcos/catalogue), Entités
+  (company/produit/groupe), Runs (le rite D-01 : préparer → lire → confirmer),
+  Écosystème, Population, Inventaire (réconciliation 4 statuts + adoption),
+  Traçabilité, Purge. Chaque écran porte sa user story dans le header.
+- **PWA** : installable depuis le navigateur (icône bureau, fenêtre
+  autonome). La coquille est en cache ; **les données ne le sont jamais** —
+  elles viennent du backend en direct (NetworkOnly sur l'API).
+- **Zéro mock** : le backend est l'autorité ; ses erreurs nommées s'affichent
+  telles quelles ; chaque appel tient ses 4 états (chargement/vide/erreur/
+  succès).
 
-## Project Structure
+## Design system (JJB)
+
+- Couleurs : violet `#c68cff`/`#a855f7`, vert `#19af58`, surface `#faf7ff`,
+  sidebar sombre `#1a0a2e → #2d1456`. Radius 12 px, ombres douces.
+- Polices : Sora (titres), DM Sans (corps), JetBrains Mono (ids, montants).
+- Responsive 360 → 1920 px, sidebar repliable, a11y AA.
+
+## Structure
 
 ```
 src/
 ├── components/
-│   ├── Layout/        # Sidebar, Header, Layout wrapper
-│   └── ui/            # Reusable: StatCard, TabBar, badges, charts
-├── context/
-│   └── AppContext.tsx  # Global state (lang, page, filters, session)
-├── data/
-│   └── mockData.ts    # Demo data (clients, loans, transactions, programs)
-├── i18n/
-│   └── index.ts       # FR/EN translations
-├── pages/
-│   ├── Overview.tsx   # KPIs, charts, risk, offers
-│   ├── Onboarding.tsx # Client workflow (Individual/Company/Institutional)
-│   ├── Bulk.tsx       # Bulk payment & metrics
-│   ├── Clients.tsx    # Banking profile, loans, analytics
-│   ├── Lender.tsx     # Programs, beneficiaries, cashflow
-│   ├── Analytics.tsx  # PAR, exposure, volatility, radar
-│   └── BackOffice.tsx # Admin, products, reporting, marketing
-├── types/
-│   └── index.ts       # TypeScript types
-├── App.tsx            # Router
-└── main.tsx           # Entry point
+│   ├── Layout/        # Sidebar (6 épopées), Header (session, FR/EN), nav.ts
+│   └── ui/            # Card, SectionHeader, badges, TabBar…
+├── context/AppContext.tsx  # Langue, navigation, SESSION (JWT 4 h)
+├── i18n/index.ts      # FR/EN — tout passe par t()
+├── lib/api.ts         # Client API réel (Bearer, ApiError nommée)
+├── pages/             # Login, ChangePassword, TableauDeBord, écrans à venir
+├── pwa.ts             # Service worker (mise à jour proposée, jamais imposée)
+└── types/index.ts     # Pages + Session
 ```
 
-## Pages Summary
+## Avancement (8 phases, chacune déployable)
 
-| Page | Sections |
-|------|----------|
-| **Overview** | 6 KPI cards, portfolio chart, score donut, PAR risk, payments, active offers |
-| **Onboarding** | Multi-step form (Individual/Company/Institutional), client list, loan graph |
-| **Bulk** | Payment table with multi-select, program metrics, cashflow bar chart |
-| **Clients** | Client list, banking profile, transactions, loan profile with progress |
-| **Lender** | Program cards, cashflow composed chart, beneficiary table |
-| **Analytics** | PAR bars, exposure by segment, volatility stack, radar, defaults trend |
-| **Back-Office** | User CRUD + RBAC, country/company setup, plugins, products, export/import, SMS + social |
+1. ✅ **Fondation** : auth, garde, nav 6 épopées, i18n, PWA, Error Boundary.
+2. Tableau de bord (US-E1) + Configuration (US-B1/2/3)
+3. Runs — le rite D-01 (US-C1→C6)
+4. Référentiels (arbre géo, créations pays/monnaie/telco)
+5. Entités (US-D1/D2)
+6. Écosystème + Population (US-E2/E3)
+7. Inventaire + Traçabilité + Purge
+8. Polish : responsive final, a11y, tests, CI/CD → `simul.fintech4esg.com`
