@@ -266,6 +266,30 @@ double l'index unique).
   `Stepper` du rite, la coloration des 4 statuts. **Un comportement = un test**,
   comme le backend.
 
+## 6-bis. PWA — installable comme une app (exigence JJB)
+
+Le Loader doit s'**installer depuis le navigateur** et se comporter comme une
+app de bureau, tout en restant servi par le web (il ne « vit » pas dans la
+machine — pas de confusion : le contenu passe toujours par le réseau, l'app
+n'est qu'une coquille installée).
+
+- **`vite-plugin-pwa`** : génère le `manifest.webmanifest` (nom « FinZuu
+  Loader », icônes 192/512, thème violet `#c68cff`, `display: standalone`,
+  couleur de fond) + un service worker.
+- **Installable** : bandeau « Installer l'application » (event
+  `beforeinstallprompt`), icône sur le bureau / le dock, fenêtre autonome sans
+  barre d'URL.
+- **Cache de coquille** (app shell) : le HTML/JS/CSS et les assets sont mis en
+  cache pour un démarrage instantané. **Les DONNÉES ne sont jamais mises en
+  cache** — elles viennent toujours du backend en direct (le Loader manipule
+  de l'état vivant, un cache de données serait un mensonge). Réseau requis pour
+  agir : si hors-ligne, écran clair « backend requis ».
+- **Mise à jour** : le SW détecte une nouvelle version → toast « nouvelle
+  version disponible, recharger ».
+- **Le frontend = le rendu visuel de TOUT le système** : l'orchestration
+  (paliers, runs), l'architecture (arbre écosystème), les référentiels, la
+  réconciliation — tout se voit, dans le bon ordre, interactif et responsive.
+
 ## 7. Ordre de construction (phases, chacune déployable)
 
 1. Fondation : design system adapté, auth guard, i18n, layout + nav 6 épopées.
