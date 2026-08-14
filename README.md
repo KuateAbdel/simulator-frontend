@@ -1,15 +1,79 @@
-# FinZuu Loader — Frontend
+# Finzuu Dashboard
 
-Interface Super-Admin du Loader FinZuu (Next.js 16 / React 19 / Tailwind 4 /
-shadcn-ui). Consomme le backend `simulator-backend-loader` via son API REST
-(`https://simul.api.fintech4esg.com`, contrat OpenAPI sur `/docs`).
+A comprehensive financial dashboard built with **TypeScript + Vite + React**.
 
-Base initiale : squelette de Folong-zidane (FINZUU_LOADER), complété et branché
-au vrai backend. Déployé sur `https://simul.fintech4esg.com`.
+## Color Charter
+- **Background**: `#ffffff` (white)
+- **Primary Accent**: `#c68cff` (violet)
+- **Secondary / Contrast**: `#19af58` (green)
+- **Dark surface** (sidebar): `#1a0a2e → #2d1456`
 
-## Développement
+## Fonts
+- **Display**: Sora (headings)
+- **Body**: DM Sans
+- **Mono**: JetBrains Mono (IDs, figures)
+
+## Features
+- 🌍 **Multi-language**: French & English toggle (top bar)
+- 📐 **Retractable sidebar** with smooth animation
+- 📊 **7 full pages**: Overview, Onboarding, Bulk Payment, Clients, Lender, Analytics, Back-Office
+- 📱 **Fully responsive** (mobile-first)
+- ⏱️ **Live session timer** in header
+- 🔔 **Alert center** with unread badges
+- 👤 **Staff profile** dropdown (ID, role, enrollment date, phone, QR code)
+- 🔍 **Global filter bar**: Client ID, Score, Segment, Category, Branch, Phone, Operator
+
+## Quick Start
+
 ```bash
-pnpm install
-pnpm dev        # http://localhost:3000
+npm install
+npm run dev
 ```
-`NEXT_PUBLIC_API_URL` pointe le backend (voir `.env.example`).
+
+Then open http://localhost:5173
+
+## Build
+
+```bash
+npm run build
+npm run preview
+```
+
+## Project Structure
+
+```
+src/
+├── components/
+│   ├── Layout/        # Sidebar, Header, Layout wrapper
+│   └── ui/            # Reusable: StatCard, TabBar, badges, charts
+├── context/
+│   └── AppContext.tsx  # Global state (lang, page, filters, session)
+├── data/
+│   └── mockData.ts    # Demo data (clients, loans, transactions, programs)
+├── i18n/
+│   └── index.ts       # FR/EN translations
+├── pages/
+│   ├── Overview.tsx   # KPIs, charts, risk, offers
+│   ├── Onboarding.tsx # Client workflow (Individual/Company/Institutional)
+│   ├── Bulk.tsx       # Bulk payment & metrics
+│   ├── Clients.tsx    # Banking profile, loans, analytics
+│   ├── Lender.tsx     # Programs, beneficiaries, cashflow
+│   ├── Analytics.tsx  # PAR, exposure, volatility, radar
+│   └── BackOffice.tsx # Admin, products, reporting, marketing
+├── types/
+│   └── index.ts       # TypeScript types
+├── App.tsx            # Router
+└── main.tsx           # Entry point
+```
+
+## Pages Summary
+
+| Page | Sections |
+|------|----------|
+| **Overview** | 6 KPI cards, portfolio chart, score donut, PAR risk, payments, active offers |
+| **Onboarding** | Multi-step form (Individual/Company/Institutional), client list, loan graph |
+| **Bulk** | Payment table with multi-select, program metrics, cashflow bar chart |
+| **Clients** | Client list, banking profile, transactions, loan profile with progress |
+| **Lender** | Program cards, cashflow composed chart, beneficiary table |
+| **Analytics** | PAR bars, exposure by segment, volatility stack, radar, defaults trend |
+| **Back-Office** | User CRUD + RBAC, country/company setup, plugins, products, export/import, SMS + social |
