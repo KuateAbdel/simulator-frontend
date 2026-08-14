@@ -48,6 +48,8 @@ interface AppContextType {
   sessionSecondsLeft: number
   seConnecter: (email: string, motDePasse: string) => Promise<void>
   changerMotDePasse: (ancien: string, nouveau: string) => Promise<void>
+  /** US-A4 v2 — consomme le code recu par email, ouvre une session pleine. */
+  reinitialiserParCode: (email: string, code: string, nouveau: string) => Promise<void>
   seDeconnecter: (motif?: 'expiree') => void
   /** Motif affiche sur l'ecran de login (ex. session expiree). */
   motifDeconnexion: 'expiree' | null
@@ -113,6 +115,14 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     [session, installerSession],
   )
 
+  const reinitialiserParCode = useCallback(
+    async (email: string, code: string, nouveau: string) => {
+      const jeton = await api.reinitialiserParCode(email, code, nouveau)
+      installerSession(email.trim().toLowerCase(), jeton)
+    },
+    [installerSession],
+  )
+
   // Un 401 du backend sur un appel authentifie = jeton mort cote serveur
   // (revoque, ou horloge en avance) → la MEME sortie que l'expiration locale.
   useEffect(() => {
@@ -151,6 +161,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         sessionSecondsLeft,
         seConnecter,
         changerMotDePasse,
+        reinitialiserParCode,
         seDeconnecter,
         motifDeconnexion,
       }}

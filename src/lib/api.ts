@@ -142,6 +142,30 @@ export function logout(): void {
   clearToken()
 }
 
+// US-A4 v2 — reinitialisation par email (code Mailjet a 8 chiffres).
+
+export function motDePasseOublie(email: string): Promise<{ detail: string; validite_minutes: number }> {
+  return api('/admin/auth/mot-de-passe-oublie', {
+    method: 'POST',
+    auth: false,
+    body: { email },
+  })
+}
+
+export async function reinitialiserParCode(
+  email: string,
+  code: string,
+  nouveau: string,
+): Promise<SessionJeton> {
+  const jeton = await api<SessionJeton>('/admin/auth/reinitialiser', {
+    method: 'POST',
+    auth: false,
+    body: { email, code, nouveau },
+  })
+  setToken(jeton.access_token)
+  return jeton
+}
+
 // --------------------------------------------------------------------------
 // Dashboard (US-E1) — contrat extrait de app/routes/admin_dashboard.py
 // --------------------------------------------------------------------------

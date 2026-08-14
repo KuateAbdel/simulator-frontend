@@ -52,8 +52,13 @@ export const translations = {
     show_password: 'Afficher le mot de passe',
     hide_password: 'Masquer le mot de passe',
     forgot_password: 'Mot de passe oublié ?',
-    forgot_password_info:
-      'Par sécurité, il n’existe pas de réinitialisation par email en v1 : elle se fait par l’opérateur, directement sur le serveur (scripts/reinitialiser_admin.py). Contactez l’administrateur de la plateforme — un mot de passe provisoire à usage unique vous sera remis.',
+    forgot_title: 'Réinitialisation par email',
+    forgot_send_code: 'Recevoir un code par email',
+    forgot_code_sent:
+      'Si un compte existe pour cet email, un code à 8 chiffres a été envoyé — valide 15 minutes, 5 essais.',
+    forgot_code_label: 'Code reçu (8 chiffres)',
+    forgot_reset_action: 'Réinitialiser et se connecter',
+    forgot_back: 'Retour à la connexion',
     session_expires_in: 'Session',
     session_expired: 'Session expirée — reconnectez-vous.',
     logout: 'Se déconnecter',
@@ -191,8 +196,13 @@ export const translations = {
     show_password: 'Show password',
     hide_password: 'Hide password',
     forgot_password: 'Forgot password?',
-    forgot_password_info:
-      'For security, there is no email reset in v1: it is done by the operator, directly on the server (scripts/reinitialiser_admin.py). Contact the platform administrator — a one-time temporary password will be issued to you.',
+    forgot_title: 'Reset by email',
+    forgot_send_code: 'Receive a code by email',
+    forgot_code_sent:
+      'If an account exists for this email, an 8-digit code has been sent — valid 15 minutes, 5 attempts.',
+    forgot_code_label: 'Received code (8 digits)',
+    forgot_reset_action: 'Reset and sign in',
+    forgot_back: 'Back to sign-in',
     session_expires_in: 'Session',
     session_expired: 'Session expired — please sign in again.',
     logout: 'Sign out',
