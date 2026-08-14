@@ -42,6 +42,13 @@ type Options = {
   auth?: boolean // defaut: true — attache le Bearer
 }
 
+// Jeton perime ou revoque : l'app doit reagir PARTOUT pareil (retour au
+// login, motif dit) — le contexte s'enregistre ici, l'api l'appelle.
+let surJetonInvalide: (() => void) | null = null
+export function enregistrerSurJetonInvalide(cb: () => void): void {
+  surJetonInvalide = cb
+}
+
 /** Appel bas niveau. Attache le jeton, parse le JSON, leve ApiError typee. */
 export async function api<T = unknown>(chemin: string, opts: Options = {}): Promise<T> {
   const { method = 'GET', body, auth = true } = opts
@@ -72,6 +79,8 @@ export async function api<T = unknown>(chemin: string, opts: Options = {}): Prom
   }
 
   if (!res.ok) {
+    // Un 401 sur un appel AUTHENTIFIE = jeton mort → deconnexion dite.
+    if (res.status === 401 && auth) surJetonInvalide?.()
     // Le backend renvoie {detail: "..."} — on remonte le motif nomme tel quel.
     const detail =
       data && typeof data === 'object' && 'detail' in data
@@ -131,4 +140,102 @@ export async function changerMotDePasse(ancien: string, nouveau: string): Promis
 
 export function logout(): void {
   clearToken()
+}
+
+// --------------------------------------------------------------------------
+// Dashboard (US-E1) — contrat extrait de app/routes/admin_dashboard.py
+// --------------------------------------------------------------------------
+
+export type SondeService = {
+  nom: string
+  etat: 'up' | 'down'
+  http: number | null
+  latence_ms: number
+  erreur?: string
+}
+
+export type DernierRun = {
+  run_id: string
+  mode: 'DRY_RUN' | 'REAL'
+  statut: 'PENDING' | 'RUNNING' | 'PAUSED' | 'COMPLETED' | 'FAILED' | 'PARTIAL'
+  nb_checkpoints: number
+}
+
+export type VueDashboard = {
+  services: SondeService[]
+  dernier_run: DernierRun | null
+  /** branches/agences/kiosques/agents/clients + faker_par_pays + ecritures_par_type. */
+  compteurs: Partial<{
+    branches: number
+    agences: number
+    kiosques: number
+    agents: number
+    clients: number
+    faker_par_pays: Record<string, number>
+    ecritures_par_type: Record<string, number>
+  }>
+  alertes: string[]
+}
+
+export function lireDashboard(): Promise<VueDashboard> {
+  return api<VueDashboard>('/admin/dashboard')
+}
+
+// --------------------------------------------------------------------------
+// Configuration (US-B1/B2/B3) — contrat de app/routes/admin_configuration.py
+// --------------------------------------------------------------------------
+
+export type ValeurOrigine<T = number | null> = { valeur: T; origine: string }
+
+export type PaysConfiguration = {
+  actif: boolean
+  motif_inactivite: string | null
+  quantites: Record<string, ValeurOrigine>
+  surcharges_regions: string[]
+  surcharges_villes: string[]
+}
+
+export type VueConfiguration = {
+  nb_clients: ValeurOrigine<number>
+  repartition_clients: Record<string, number>
+  pays: Record<string, PaysConfiguration>
+  quotas_contractuels: Record<string, ValeurOrigine>
+  conforme_au_cdc: boolean
+  ecarts_au_cdc: string[]
+  version: number
+  modifie_par: string | null
+  modifie_le: string | null
+}
+
+/** Fourchette (min, max) — EF-10/EF-16/UC-09. */
+export type Fourchette = [number, number]
+
+export type SurchargePaysDemande = {
+  clients?: number
+  companies?: Fourchette
+  kiosques?: Fourchette
+  staff?: Fourchette
+  branches?: number
+  agences?: number
+  agents?: number
+}
+
+export type ConfigurationDemande = {
+  nb_clients?: number
+  pays?: Record<string, SurchargePaysDemande>
+}
+
+export function lireConfiguration(): Promise<VueConfiguration> {
+  return api<VueConfiguration>('/admin/configuration')
+}
+
+export function modifierConfiguration(demande: ConfigurationDemande): Promise<VueConfiguration> {
+  return api<VueConfiguration>('/admin/configuration', { method: 'PUT', body: demande })
+}
+
+export function changerEtatPays(code: string, actif: boolean, motif: string): Promise<VueConfiguration> {
+  return api<VueConfiguration>(`/admin/configuration/pays/${encodeURIComponent(code)}`, {
+    method: 'PUT',
+    body: { actif, motif },
+  })
 }

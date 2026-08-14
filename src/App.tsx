@@ -9,16 +9,19 @@
 
 import React from 'react'
 import { AppProvider, useApp } from './context/AppContext'
+import { ToastProvider } from './components/ui/loader'
 import { Layout } from './components/Layout/Layout'
 import { Login } from './pages/Login'
 import { ChangePassword } from './pages/ChangePassword'
 import { TableauDeBord } from './pages/TableauDeBord'
+import { Configuration } from './pages/Configuration'
 import { EnConstruction } from './pages/EnConstruction'
 
 function Router() {
   const { currentPage } = useApp()
   if (currentPage === 'tableau-de-bord') return <TableauDeBord />
-  // Phases 2→7 : chaque ecran remplacera son squelette, un par un.
+  if (currentPage === 'configuration') return <Configuration />
+  // Phases 3→7 : chaque ecran remplacera son squelette, un par un.
   return <EnConstruction page={currentPage} />
 }
 
@@ -72,7 +75,9 @@ export default function App() {
   return (
     <ErrorBoundary>
       <AppProvider>
-        <Garde />
+        <ToastProvider>
+          <Garde />
+        </ToastProvider>
       </AppProvider>
     </ErrorBoundary>
   )

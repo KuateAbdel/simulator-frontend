@@ -113,6 +113,12 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     [session, installerSession],
   )
 
+  // Un 401 du backend sur un appel authentifie = jeton mort cote serveur
+  // (revoque, ou horloge en avance) → la MEME sortie que l'expiration locale.
+  useEffect(() => {
+    api.enregistrerSurJetonInvalide(() => seDeconnecter('expiree'))
+  }, [seDeconnecter])
+
   // Compte a rebours de la session : a zero, la deconnexion est DITE (jamais
   // un ecran qui echoue en silence avec un jeton mort).
   useEffect(() => {
