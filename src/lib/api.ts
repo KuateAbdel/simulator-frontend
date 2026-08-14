@@ -334,3 +334,129 @@ export function lireProgression(runId: string): Promise<ProgressionRun> {
 export function arreterRun(runId: string): Promise<{ run_id: string; action: string; consequence: string }> {
   return api(`/admin/runs/${encodeURIComponent(runId)}/arreter`, { method: 'POST' })
 }
+
+// --------------------------------------------------------------------------
+// Referentiels (US-B4..B7) — contrat de app/routes/admin_referentiels.py
+// --------------------------------------------------------------------------
+
+export type VilleGeo = {
+  id: string
+  nom: string
+  latitude: number | null
+  longitude: number | null
+  quartiers: string[]
+}
+export type RegionGeo = { id: string; nom: string; capitale: string; villes: VilleGeo[] }
+export type PaysGeo = { pays: string; regions: RegionGeo[] }
+export type VueGeographie = {
+  pays: PaysGeo[]
+  surcouche: { resume: Record<string, unknown>; journal: unknown[]; version: number }
+}
+
+export function lireGeographie(): Promise<VueGeographie> {
+  return api('/admin/referentiels/geographie')
+}
+
+/** `config_service.envoye=false` porte toujours sa RAISON — l'ecran l'affiche. */
+export type EnvoiConfigService = { envoye: boolean; raison?: string } & Record<string, unknown>
+
+export function ajouterRegion(demande: {
+  pays: string
+  nom: string
+  capitale?: string
+  population?: number
+}): Promise<{ config_service: EnvoiConfigService; region: Record<string, unknown> }> {
+  return api('/admin/referentiels/regions', { method: 'POST', body: demande })
+}
+
+export function ajouterVille(demande: {
+  region_id: string
+  nom: string
+  latitude?: number
+  longitude?: number
+  population?: number
+  poids_economique?: number
+}): Promise<{
+  config_service: EnvoiConfigService
+  ville: Record<string, unknown>
+  avertissements: string[]
+}> {
+  return api('/admin/referentiels/villes', { method: 'POST', body: demande })
+}
+
+export function ajouterQuartier(demande: {
+  city_id: string
+  nom: string
+  zone_type?: string
+  population?: number
+}): Promise<{ config_service: EnvoiConfigService; quartier: Record<string, unknown> }> {
+  return api('/admin/referentiels/quartiers', { method: 'POST', body: demande })
+}
+
+export type Telco = { nom: string; code: string; regex_msisdn: string; part_marche: number }
+
+export function lireTelcos(): Promise<{ telcos: Record<string, Telco[]> }> {
+  return api('/admin/referentiels/telcos')
+}
+
+export function ajouterTelco(demande: {
+  pays: string
+  network_name: string
+  short_name: string
+  regex_msisdn: string
+  part_marche: number
+  exemple_msisdn: string
+  ussd_base_code?: string
+}): Promise<{
+  config_service: EnvoiConfigService
+  telco: Record<string, unknown>
+  somme_parts_du_pays: number
+}> {
+  return api('/admin/referentiels/telcos', { method: 'POST', body: demande })
+}
+
+export type CatalogueStatique = {
+  comptes: Record<string, number>
+  industries: string[]
+  secteurs: Record<string, string[]>
+  formes_juridiques: string[]
+  groupes: Record<string, { profil_defaut: string; professions: string[]; variants: number }>
+  profils_revenu: Record<string, { mu: number; sigma: number; definition: string }>
+  pays: string[]
+  fonctions_dirigeant: { rang: number; francais: string; anglais: string; abreviation: string }[]
+}
+
+export function lireCatalogueStatique(): Promise<CatalogueStatique> {
+  return api('/admin/referentiels/catalogue-statique')
+}
+
+/** La matiere qu'un 5e pays exigerait — chaque manque avec sa raison (US-B6). */
+export type MatiereRequise = { matiere: string; pourquoi: string }
+
+export function creerDevise(demande: {
+  iso_name: string
+  name_en: string
+  name_fr: string
+  accepts_decimal: boolean
+}): Promise<{ devise: Record<string, unknown>; statut: string; note: string }> {
+  return api('/admin/referentiels/devises', { method: 'POST', body: demande })
+}
+
+export function creerPays(demande: {
+  iso_name: string
+  name_en: string
+  name_fr: string
+  dial_code: string
+  region: string
+  continent?: string
+  devise_iso: string
+  cities: string[]
+  telcos_ids?: string[]
+}): Promise<{
+  pays: Record<string, unknown>
+  statut: string
+  note: string
+  matiere_pour_generer: MatiereRequise[]
+}> {
+  return api('/admin/referentiels/pays', { method: 'POST', body: demande })
+}

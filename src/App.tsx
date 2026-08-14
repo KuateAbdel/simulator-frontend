@@ -18,6 +18,10 @@ import { Configuration } from './pages/Configuration'
 import { RunsPreparer } from './pages/RunsPreparer'
 import { RunsProgression } from './pages/RunsProgression'
 import { RunsHistorique } from './pages/RunsHistorique'
+import { RefGeographie } from './pages/RefGeographie'
+import { RefPaysMonnaies } from './pages/RefPaysMonnaies'
+import { RefTelcos } from './pages/RefTelcos'
+import { RefCatalogue } from './pages/RefCatalogue'
 import { EnConstruction } from './pages/EnConstruction'
 
 function Router() {
@@ -27,7 +31,11 @@ function Router() {
   if (currentPage === 'runs-preparer') return <RunsPreparer />
   if (currentPage === 'runs-progression') return <RunsProgression />
   if (currentPage === 'runs-historique') return <RunsHistorique />
-  // Phases 4→7 : chaque ecran remplacera son squelette, un par un.
+  if (currentPage === 'ref-geographie') return <RefGeographie />
+  if (currentPage === 'ref-pays-monnaies') return <RefPaysMonnaies />
+  if (currentPage === 'ref-telcos') return <RefTelcos />
+  if (currentPage === 'ref-catalogue') return <RefCatalogue />
+  // Phases 5→7 : chaque ecran remplacera son squelette, un par un.
   return <EnConstruction page={currentPage} />
 }
 
