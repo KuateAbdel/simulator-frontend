@@ -163,7 +163,6 @@ export function RefGeographie() {
   }
 
   const { vue } = etat
-  const resume = vue.surcouche.resume as Record<string, unknown>
   const toutesRegions = vue.pays.flatMap((p) => p.regions.map((r) => ({ ...r, pays: p.pays })))
   const toutesVilles = toutesRegions.flatMap((r) =>
     r.villes.map((v) => ({ ...v, region: r.nom, pays: r.pays })),
@@ -206,11 +205,9 @@ export function RefGeographie() {
           {vue.pays.length} pays · {toutesRegions.length} {t('geo_regions')} · {nbVilles}{' '}
           {t('geo_villes')} · {nbQuartiers} {t('geo_quartiers')}
         </span>
-        {'ajouts' in resume && (
-          <span className="text-[10px] font-mono self-center" style={{ color: 'var(--text-muted)' }}>
-            {JSON.stringify(resume)}
-          </span>
-        )}
+        <span className="text-[10px] font-mono self-center" style={{ color: 'var(--text-muted)' }}>
+          {vue.surcouche.resume}
+        </span>
       </div>
 
       {/* Formulaire d'ajout (un seul a la fois, hierarchie EF-02 imposee) */}

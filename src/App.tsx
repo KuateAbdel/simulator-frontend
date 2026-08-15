@@ -39,13 +39,47 @@ function Router() {
   return <EnConstruction page={currentPage} />
 }
 
+/** Un crash d'ECRAN reste local : la sidebar survit, l'erreur est nommee sur
+ * place, et changer de page (key) reinitialise la frontiere. */
+class PageBoundary extends React.Component<
+  { pageKey: string; children: React.ReactNode },
+  { erreur: Error | null }
+> {
+  state = { erreur: null as Error | null }
+
+  static getDerivedStateFromError(erreur: Error) {
+    return { erreur }
+  }
+
+  render() {
+    if (this.state.erreur) {
+      return (
+        <div className="card p-5" role="alert">
+          <p className="font-display font-bold text-sm mb-2" style={{ color: 'var(--text-primary)' }}>
+            Cet écran a rencontré une erreur de rendu — le reste du cockpit fonctionne.
+          </p>
+          <p className="text-xs font-mono mb-3" style={{ color: '#b91c1c' }}>
+            {this.state.erreur.message}
+          </p>
+          <button className="btn-primary text-xs" onClick={() => this.setState({ erreur: null })}>
+            Réessayer / Retry
+          </button>
+        </div>
+      )
+    }
+    return this.props.children
+  }
+}
+
 function Garde() {
-  const { session } = useApp()
+  const { session, currentPage } = useApp()
   if (!session) return <Login />
   if (session.mustChangePassword) return <ChangePassword />
   return (
     <Layout>
-      <Router />
+      <PageBoundary pageKey={currentPage} key={currentPage}>
+        <Router />
+      </PageBoundary>
     </Layout>
   )
 }

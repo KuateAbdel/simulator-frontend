@@ -350,7 +350,8 @@ export type RegionGeo = { id: string; nom: string; capitale: string; villes: Vil
 export type PaysGeo = { pays: string; regions: RegionGeo[] }
 export type VueGeographie = {
   pays: PaysGeo[]
-  surcouche: { resume: Record<string, unknown>; journal: unknown[]; version: number }
+  /** `resume` est une PHRASE (surcouche vide ou comptes) — jamais un objet. */
+  surcouche: { resume: string; journal: unknown[]; version: number }
 }
 
 export function lireGeographie(): Promise<VueGeographie> {
