@@ -443,6 +443,102 @@ export function creerDevise(demande: {
   return api('/admin/referentiels/devises', { method: 'POST', body: demande })
 }
 
+// --------------------------------------------------------------------------
+// Entites a l'unite (Lot D + Lot H) — contrat de app/routes/admin_entites.py
+// Le rite en DEUX temps (D-01) : /apercu ne fait AUCUNE ecriture ; la
+// confirmation re-valide les MEMES champs puis pousse et RELIT (FRA-218).
+// --------------------------------------------------------------------------
+
+/** US-D2 — le formulaire produit. COLLECT seulement, 3 interfaces par policy_type. */
+export type ProduitDemande = {
+  nom: string
+  /** Code court du marqueur — DEMO_<code> partira dans short_name (CR-07). */
+  code: string
+  policy_type: 'CASH' | 'CASH_DAT' | 'PRODUCT'
+  categorie: 'INDIVIDUAL' | 'CORPORATE'
+  montant_min: number
+  montant_max: number
+  taux: number
+  /** CASH_DAT seulement — OBLIGATOIRE la, INTERDIT ailleurs (422 nomme). */
+  duree_mois?: number
+  /** PRODUCT seulement — le mil se pese (KILOGRAM), le lait se mesure (LITER). */
+  measure?: 'KILOGRAM' | 'LITER'
+  measure_price?: number
+}
+
+/** Le taux d'usure du CDC — la borne est DOUBLEE en UI, l'autorite reste le 422. */
+export const TAUX_USURE_MAX_ANNUEL_PCT = 24.0
+
+export function apercuProduit(demande: ProduitDemande): Promise<{
+  payload: Record<string, unknown>
+  marqueur: string
+  duree_mois: number | null
+  note: string
+}> {
+  return api('/admin/entites/produits/apercu', { method: 'POST', body: demande })
+}
+
+export function creerProduit(demande: ProduitDemande): Promise<{
+  product_id: string
+  fiche_relue: Record<string, unknown> | null
+  marqueur: string
+  note: string
+}> {
+  return api('/admin/entites/produits', { method: 'POST', body: demande })
+}
+
+/** US-D1 — 3-4 champs saisis, ~40 composes par le Loader (sequence S3-03). */
+export type CompanyDemande = {
+  type_company: 'IMF' | 'BANK' | 'MERCHANT' | 'FONDATION'
+  pays: 'CM' | 'CI' | 'BF' | 'SN'
+  ville: string
+  /** Raison sociale imposee — sinon le Loader la compose (patronyme reel). */
+  nom?: string
+}
+
+export function apercuCompany(demande: CompanyDemande): Promise<{
+  fiche: Record<string, unknown>
+  /** L'EMAIL de l'Admin User annonce — une chaine (RapportOrganisation.admins_crees). */
+  admin_annonce: string | null
+  note: string
+}> {
+  return api('/admin/entites/companies/apercu', { method: 'POST', body: demande })
+}
+
+export function creerCompany(demande: CompanyDemande): Promise<{
+  fiche: Record<string, unknown>
+  /** Les EMAILS des Admin Users crees — des chaines, pas des objets. */
+  admins_crees: string[]
+  cascade_owner_verifiee: boolean
+  note: string
+}> {
+  return api('/admin/entites/companies', { method: 'POST', body: demande })
+}
+
+/** Lot H — creer un groupe : description REQUISE, tag jamais ROOT/A4,
+ * company_id vide = role GLOBAL, permissions par NOM (liste vivante). */
+export type GroupeDemande = {
+  nom: string
+  description: string
+  tag: 'STAFF' | 'COMPANY' | 'CUSTOMER'
+  permissions: string[]
+  company_id?: string
+}
+
+export function creerGroupe(demande: GroupeDemande): Promise<{
+  groupe: { id: string; nom: string; tag: string; permissions: number }
+  statut: string
+  au_registre: boolean
+  note: string
+}> {
+  return api('/admin/entites/groupes', { method: 'POST', body: demande })
+}
+
+/** La liste VIVANTE de user-service — jamais une copie en dur dans l'UI. */
+export function lirePermissions(): Promise<{ permissions: string[]; compte: number; note: string }> {
+  return api('/admin/referentiels/permissions')
+}
+
 export function creerPays(demande: {
   iso_name: string
   name_en: string

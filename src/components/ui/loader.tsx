@@ -103,13 +103,14 @@ export function Banniere({
   ton,
   children,
 }: {
-  ton: 'attention' | 'danger' | 'info'
+  ton: 'attention' | 'danger' | 'info' | 'succes'
   children: React.ReactNode
 }) {
   const styles = {
     attention: { background: '#fef9c3', color: '#92400e' },
     danger: { background: '#fee2e2', color: '#b91c1c' },
     info: { background: 'var(--primary-light)', color: 'var(--primary-dark)' },
+    succes: { background: 'var(--secondary-light)', color: 'var(--secondary-dark)' },
   }[ton]
   return (
     <div

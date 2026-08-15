@@ -22,6 +22,9 @@ import { RefGeographie } from './pages/RefGeographie'
 import { RefPaysMonnaies } from './pages/RefPaysMonnaies'
 import { RefTelcos } from './pages/RefTelcos'
 import { RefCatalogue } from './pages/RefCatalogue'
+import { EntitesCompany } from './pages/EntitesCompany'
+import { EntitesProduit } from './pages/EntitesProduit'
+import { EntitesGroupe } from './pages/EntitesGroupe'
 import { EnConstruction } from './pages/EnConstruction'
 
 function Router() {
@@ -35,7 +38,10 @@ function Router() {
   if (currentPage === 'ref-pays-monnaies') return <RefPaysMonnaies />
   if (currentPage === 'ref-telcos') return <RefTelcos />
   if (currentPage === 'ref-catalogue') return <RefCatalogue />
-  // Phases 5→7 : chaque ecran remplacera son squelette, un par un.
+  if (currentPage === 'entites-company') return <EntitesCompany />
+  if (currentPage === 'entites-produit') return <EntitesProduit />
+  if (currentPage === 'entites-groupe') return <EntitesGroupe />
+  // Phases 6→7 : chaque ecran remplacera son squelette, un par un.
   return <EnConstruction page={currentPage} />
 }
 

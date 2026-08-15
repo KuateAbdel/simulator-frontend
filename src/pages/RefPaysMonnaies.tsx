@@ -48,8 +48,24 @@ export function RefPaysMonnaies() {
       setPNomFr(fiche.nameFr)
       setPNomEn(fiche.nameEn)
       setPIndicatif(fiche.dial)
+      // La monnaie d'un pays est une donnee CONNUE (ISO 4217) — elle se
+      // pre-remplit comme le reste, et reste editable (demande Yaniv 15/08).
+      setPDevise(fiche.devise)
     }
   }
+
+  /** Pre-remplir le formulaire MONNAIE depuis la monnaie connue d'un pays. */
+  const choisirDeviseDePays = (iso: string) => {
+    const fiche = PAYS_AFRIQUE.find((p) => p.iso === iso)
+    if (fiche) {
+      setDIso(fiche.devise)
+      setDNomFr(fiche.deviseFr)
+      setDNomEn(fiche.deviseEn)
+      setDDecimales(fiche.deviseDecimales)
+    }
+  }
+
+  const deviseConnue = PAYS_AFRIQUE.find((p) => p.iso === pIso)
 
   const soumettreDevise = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -125,6 +141,17 @@ export function RefPaysMonnaies() {
             {t('pm_devise_note')}
           </p>
           <form onSubmit={soumettreDevise} className="space-y-3">
+            <div>
+              {label(t('pm_devise_prefill'))}
+              <select className="input-base" defaultValue="" onChange={(e) => choisirDeviseDePays(e.target.value)}>
+                <option value="">{t('geo_choisir')}</option>
+                {PAYS_AFRIQUE.map((p) => (
+                  <option key={p.iso} value={p.iso}>
+                    {p.iso} — {lang === 'fr' ? p.nameFr : p.nameEn} ({p.devise})
+                  </option>
+                ))}
+              </select>
+            </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
                 {label(t('pm_devise_iso'))}
@@ -230,6 +257,12 @@ export function RefPaysMonnaies() {
                   required
                   pattern="[A-Za-z]{3}"
                 />
+                {deviseConnue && pDevise === deviseConnue.devise && (
+                  <p className="text-[10px] mt-1" style={{ color: 'var(--text-muted)' }}>
+                    {lang === 'fr' ? deviseConnue.deviseFr : deviseConnue.deviseEn} —{' '}
+                    {t('pm_devise_connue')}
+                  </p>
+                )}
               </div>
             </div>
 
