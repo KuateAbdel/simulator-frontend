@@ -14,6 +14,7 @@ export const translations = {
     // Nav — les 6 epopees (+ accueil)
     nav_dashboard: 'Tableau de bord',
     nav_configuration: 'Configuration',
+    nav_comptes: 'Utilisateurs',
     nav_group_referentiels: 'Référentiels',
     nav_geographie: 'Géographie',
     nav_pays_monnaies: 'Pays & Monnaies',
@@ -271,6 +272,48 @@ export const translations = {
     cat_variant_bulle: 'cette profession déroge au profil de revenu par défaut du groupe',
     cat_definition: 'définition',
 
+    // Utilisateurs (RBAC, 15/08) + mot de passe libre-service
+    cpt_titre: 'Utilisateurs du Loader',
+    cpt_sous_titre:
+      'Super-Admin est un RÔLE : chaque personne a son compte, son email réel et son mot de passe.',
+    cpt_doctrine:
+      'Le code « mot de passe oublié » part vers l’email DU COMPTE — utilisez des adresses réelles. Chacun change son mot de passe sans toucher les autres. Un compte se désactive (motif tracé), jamais ne se supprime : le journal reste attribuable. Garde-fous : impossible de se désactiver soi-même ou d’éteindre le dernier compte actif.',
+    cpt_email: 'Email de la personne',
+    cpt_email_note:
+      'Adresse RÉELLE — c’est là que partira toute réinitialisation par email.',
+    cpt_creer: 'Créer le compte',
+    cpt_cree: 'Compte créé —',
+    cpt_email_parti: 'L’invitation est partie par email.',
+    cpt_email_pas_parti:
+      'L’email n’est PAS parti (compte Mailjet bloqué) — transmettez le mot de passe initial vous-même, par un canal sûr.',
+    cpt_initial_unique:
+      'Mot de passe initial À USAGE UNIQUE — affiché UNE SEULE fois, le changement sera exigé à sa première connexion :',
+    cpt_copier: 'Copier',
+    cpt_copie: 'Copié dans le presse-papiers.',
+    cpt_copie_echec: 'Copie refusée par le navigateur — sélectionnez et copiez à la main.',
+    cpt_col_email: 'Email',
+    cpt_col_etat: 'État',
+    cpt_col_mdp: 'Mot de passe',
+    cpt_col_cree_par: 'Créé par',
+    cpt_moi: 'moi',
+    cpt_actif: 'actif',
+    cpt_inactif: 'désactivé',
+    cpt_mdp_initial: 'initial (changement exigé)',
+    cpt_mdp_durable: 'durable (choisi par la personne)',
+    cpt_bootstrap: 'bootstrap',
+    cpt_desactiver: 'Désactiver',
+    cpt_reactiver: 'Réactiver',
+    cpt_desactiver_corps:
+      'Son login recevra le même 401 générique que des identifiants faux. Réversible à tout moment — rien n’est supprimé.',
+    cpt_reactiver_corps: 'Le compte retrouvera l’accès — son mot de passe n’a pas changé.',
+    cpt_motif: 'Motif (tracé au journal)',
+    cpt_motif_note: 'Un motif d’au moins 3 caractères est requis.',
+    mdp_changer: 'Mot de passe',
+    mdp_changer_titre: 'Changer mon mot de passe',
+    mdp_changer_note:
+      'Votre mot de passe, à vous seul — le changer ne touche aucun autre compte.',
+    mdp_change: 'Mot de passe changé — votre session continue.',
+
     // Pays & Monnaies — pre-remplissage devise (15/08)
     pm_devise_prefill: 'Pré-remplir depuis un pays (monnaie connue)',
     pm_devise_connue: 'monnaie connue du pays (ISO 4217) — modifiable',
@@ -425,6 +468,7 @@ export const translations = {
     // Nav — the 6 epics (+ home)
     nav_dashboard: 'Dashboard',
     nav_configuration: 'Configuration',
+    nav_comptes: 'Users',
     nav_group_referentiels: 'Reference data',
     nav_geographie: 'Geography',
     nav_pays_monnaies: 'Countries & Currencies',
@@ -681,6 +725,46 @@ export const translations = {
     cat_variants: 'exceptions to the default profile',
     cat_variant_bulle: 'this occupation overrides the group default income profile',
     cat_definition: 'definition',
+
+    // Users (RBAC, Aug 15) + self-service password
+    cpt_titre: 'Loader users',
+    cpt_sous_titre:
+      'Super-Admin is a ROLE: each person has their own account, real email and password.',
+    cpt_doctrine:
+      'The “forgot password” code goes to the ACCOUNT’s email — use real addresses. Everyone changes their own password without touching the others. An account gets deactivated (reason logged), never deleted: the journal stays attributable. Guards: you cannot deactivate yourself or the last active account.',
+    cpt_email: 'Person’s email',
+    cpt_email_note: 'REAL address — any email reset will be sent there.',
+    cpt_creer: 'Create the account',
+    cpt_cree: 'Account created —',
+    cpt_email_parti: 'The invitation email was sent.',
+    cpt_email_pas_parti:
+      'The email did NOT go out (Mailjet account blocked) — hand over the initial password yourself, through a safe channel.',
+    cpt_initial_unique:
+      'ONE-TIME initial password — shown ONCE, a change is required at first sign-in:',
+    cpt_copier: 'Copy',
+    cpt_copie: 'Copied to clipboard.',
+    cpt_copie_echec: 'Clipboard refused by the browser — select and copy manually.',
+    cpt_col_email: 'Email',
+    cpt_col_etat: 'State',
+    cpt_col_mdp: 'Password',
+    cpt_col_cree_par: 'Created by',
+    cpt_moi: 'me',
+    cpt_actif: 'active',
+    cpt_inactif: 'deactivated',
+    cpt_mdp_initial: 'initial (change required)',
+    cpt_mdp_durable: 'durable (chosen by the person)',
+    cpt_bootstrap: 'bootstrap',
+    cpt_desactiver: 'Deactivate',
+    cpt_reactiver: 'Reactivate',
+    cpt_desactiver_corps:
+      'Their sign-in will get the same generic 401 as wrong credentials. Reversible anytime — nothing is deleted.',
+    cpt_reactiver_corps: 'The account regains access — its password has not changed.',
+    cpt_motif: 'Reason (logged)',
+    cpt_motif_note: 'A reason of at least 3 characters is required.',
+    mdp_changer: 'Password',
+    mdp_changer_titre: 'Change my password',
+    mdp_changer_note: 'Your password, yours alone — changing it touches no other account.',
+    mdp_change: 'Password changed — your session continues.',
 
     // Countries & Currencies — currency pre-fill (Aug 15)
     pm_devise_prefill: 'Pre-fill from a country (known currency)',

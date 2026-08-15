@@ -7,6 +7,7 @@
 export type Page =
   | 'tableau-de-bord' // US-E1
   | 'configuration' // US-B1/B2/B3
+  | 'admin-comptes' // RBAC — le role Super-Admin, multi-comptes
   | 'ref-geographie' // US-B5 — l'arbre riche
   | 'ref-pays-monnaies' // creation config-service (US-B6 + devises)
   | 'ref-telcos' // US-B7

@@ -449,6 +449,46 @@ export function creerDevise(demande: {
 }
 
 // --------------------------------------------------------------------------
+// Comptes Super-Admin (RBAC, 15/08) — contrat de app/routes/admin_comptes.py
+// « Super-Admin » est un ROLE : plusieurs comptes, chacun son email REEL,
+// son mot de passe, son cycle A2. Desactivation reversible, jamais de
+// suppression.
+// --------------------------------------------------------------------------
+
+export type CompteAdmin = {
+  email: string
+  actif: boolean
+  must_change_password: boolean
+  cree_par: string | null
+  cree_le: string | null
+}
+
+export function listerComptes(): Promise<{ comptes: CompteAdmin[]; compte: number; note: string }> {
+  return api('/admin/comptes')
+}
+
+export function creerCompte(email: string): Promise<{
+  compte: CompteAdmin
+  /** Affiche UNE fois — jamais rejoue par aucune API. */
+  mot_de_passe_initial: string
+  email_envoye: boolean
+  note: string
+}> {
+  return api('/admin/comptes', { method: 'POST', body: { email } })
+}
+
+export function changerEtatCompte(
+  email: string,
+  actif: boolean,
+  motif: string,
+): Promise<{ compte: CompteAdmin; note: string }> {
+  return api(`/admin/comptes/${encodeURIComponent(email)}/etat`, {
+    method: 'PUT',
+    body: { actif, motif },
+  })
+}
+
+// --------------------------------------------------------------------------
 // Entites a l'unite (Lot D + Lot H) — contrat de app/routes/admin_entites.py
 // Le rite en DEUX temps (D-01) : /apercu ne fait AUCUNE ecriture ; la
 // confirmation re-valide les MEMES champs puis pousse et RELIT (FRA-218).

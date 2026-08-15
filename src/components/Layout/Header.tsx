@@ -4,8 +4,11 @@
 // visible), bascule FR/EN, compte a rebours REEL de session (4 h), sortie.
 // Les gadgets fintech de la base JJB (QR, filtres, alertes mock) sont partis.
 
-import { Clock, Globe, LogOut, Menu } from 'lucide-react'
+import { useState } from 'react'
+import { Clock, Globe, KeyRound, LogOut, Menu } from 'lucide-react'
+import { ConfirmDialog, useToast } from '../ui/loader'
 import { useApp } from '../../context/AppContext'
+import { ApiError } from '../../lib/api'
 import { navItemDe } from './nav'
 
 function formaterCompteARebours(secondes: number): string {
@@ -13,6 +16,104 @@ function formaterCompteARebours(secondes: number): string {
   const m = Math.floor((secondes % 3600) / 60)
   const s = secondes % 60
   return [h, m, s].map((v) => String(v).padStart(2, '0')).join(':')
+}
+
+/** Changer MON mot de passe — libre-service, a tout moment, sans toucher
+ * les autres comptes (RBAC 15/08). Reutilise le contrat US-A2 : le jeton
+ * rendu remplace la session, personne d'autre n'est concerne. */
+function ChangerMonMotDePasse() {
+  const { t, changerMotDePasse } = useApp()
+  const { pousser } = useToast()
+  const [ouvert, setOuvert] = useState(false)
+  const [ancien, setAncien] = useState('')
+  const [nouveau, setNouveau] = useState('')
+  const [confirme, setConfirme] = useState('')
+  const [enCours, setEnCours] = useState(false)
+  const [erreur, setErreur] = useState<string | null>(null)
+
+  const fermer = () => {
+    setOuvert(false)
+    setAncien('')
+    setNouveau('')
+    setConfirme('')
+    setErreur(null)
+  }
+
+  const soumettre = async () => {
+    if (nouveau !== confirme) {
+      setErreur(t('passwords_differ'))
+      return
+    }
+    if (nouveau.length < 12) {
+      setErreur(t('password_too_short'))
+      return
+    }
+    setEnCours(true)
+    setErreur(null)
+    try {
+      await changerMotDePasse(ancien, nouveau)
+      pousser('succes', t('mdp_change'))
+      fermer()
+    } catch (err) {
+      setErreur(
+        err instanceof ApiError ? `${t('error_named')} ${String(err.detail)}` : String(err),
+      )
+    } finally {
+      setEnCours(false)
+    }
+  }
+
+  const champ = (
+    libelle: string,
+    valeur: string,
+    poser: (v: string) => void,
+  ) => (
+    <div className="mb-2">
+      <label className="text-[10px] font-semibold uppercase tracking-wide mb-1 block" style={{ color: 'var(--text-muted)' }}>
+        {libelle}
+      </label>
+      <input
+        className="input-base"
+        type="password"
+        value={valeur}
+        onChange={(e) => poser(e.target.value)}
+        autoComplete="new-password"
+      />
+    </div>
+  )
+
+  return (
+    <>
+      <button
+        className="btn-ghost text-xs px-2"
+        style={{ height: 32 }}
+        onClick={() => setOuvert(true)}
+        title={t('mdp_changer_titre')}
+      >
+        <KeyRound size={13} />
+        <span className="hidden md:inline">{t('mdp_changer')}</span>
+      </button>
+      <ConfirmDialog
+        ouvert={ouvert}
+        titre={t('mdp_changer_titre')}
+        libelleConfirmer={t('change_password_action')}
+        libelleAnnuler={t('cancel')}
+        enCours={enCours}
+        onConfirmer={() => void soumettre()}
+        onAnnuler={fermer}
+      >
+        <p className="mb-3">{t('mdp_changer_note')}</p>
+        {champ(t('old_password'), ancien, setAncien)}
+        {champ(t('new_password'), nouveau, setNouveau)}
+        {champ(t('new_password_confirm'), confirme, setConfirme)}
+        {erreur && (
+          <p className="text-xs mt-1" style={{ color: '#b91c1c' }} role="alert">
+            {erreur}
+          </p>
+        )}
+      </ConfirmDialog>
+    </>
+  )
 }
 
 export function Header() {
@@ -98,6 +199,9 @@ export function Header() {
           <Globe size={13} />
           {lang.toUpperCase()}
         </button>
+
+        {/* Mon mot de passe — libre-service, n'importe quand */}
+        <ChangerMonMotDePasse />
 
         {/* Deconnexion */}
         <button
