@@ -1,0 +1,38 @@
+# CI — la porte du frontend : tsc strict + build Vite (PWA comprise).
+# Ce qui ne compile pas ne part pas. Node 24 = la version du poste de dev.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  qualite:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Dependances (gelees — package-lock fait foi)
+        run: npm ci
+
+      - name: Typecheck strict + build de production
+        run: npm run build
+        env:
+          VITE_API_URL: https://simul.api.fintech4esg.com
+
+      # Le bundle DOIT parler au backend de prod — la preuve, pas la deduction.
+      - name: Verifier l'URL API compilee dans le bundle
+        run: grep -q "simul.api.fintech4esg.com" dist/assets/index-*.js
+
+      - name: Publier le dist pour le deploiement
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+          retention-days: 3

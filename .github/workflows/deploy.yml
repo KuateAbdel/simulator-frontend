@@ -1,0 +1,75 @@
+# CD — deploiement du frontend statique sur simul.fintech4esg.com, DEPUIS
+# GitHub, uniquement quand la CI de main est VERTE. Meme doctrine que le
+# backend : cle dediee par secret, hote verifie par EMPREINTE (jamais de
+# StrictHostKeyChecking=no), et la sante se PROUVE apres coup.
+#
+# Le serveur est PARTAGE (ERPNext, Nextcloud, Newsletter) : le CD ne touche
+# QUE /var/www/loader-frontend (propriete de `apps`) — jamais nginx, jamais
+# les autres services. Le vhost nginx est gere sur l'hote (simul.conf).
+#
+# Secrets requis (Settings -> Secrets and variables -> Actions) :
+#   DEPLOY_HOST         152.53.118.110
+#   DEPLOY_USER         apps (JAMAIS root sur un serveur partage)
+#   DEPLOY_SSH_KEY      cle privee ed25519 DEDIEE au deploiement frontend
+#   DEPLOY_KNOWN_HOSTS  la ligne `ssh-keyscan` du serveur (l'empreinte)
+name: Deploiement
+
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [main]
+  # Redeploiement manuel (bouton « Run workflow ») sans commit factice.
+  workflow_dispatch:
+
+concurrency:
+  group: deploiement-frontend
+  cancel-in-progress: false
+
+jobs:
+  deployer:
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+
+      # Le CD REBATIT depuis main — l'artefact de la CI sert de preuve, le
+      # deploiement part toujours de la source verifiee.
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Build de production
+        run: |
+          npm ci
+          npm run build
+        env:
+          VITE_API_URL: https://simul.api.fintech4esg.com
+
+      - name: Preparer la cle et l'empreinte de l'hote
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s\n' "${{ secrets.DEPLOY_SSH_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          printf '%s\n' "${{ secrets.DEPLOY_KNOWN_HOSTS }}" > ~/.ssh/known_hosts
+
+      - name: Publier les fichiers (rsync atomique vers /var/www/loader-frontend)
+        run: |
+          rsync -az --delete \
+            -e "ssh -i ~/.ssh/deploy_key -o UserKnownHostsFile=~/.ssh/known_hosts" \
+            dist/ "${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}:/var/www/loader-frontend/"
+
+      - name: La preuve, jamais la deduction — le site repond et sert CE build
+        run: |
+          EMPREINTE=$(basename dist/assets/index-*.js)
+          for i in $(seq 1 10); do
+            if curl -fsS https://simul.fintech4esg.com/ | grep -q "$EMPREINTE"; then
+              echo "sante OK : index.html sert $EMPREINTE (tentative $i)"
+              exit 0
+            fi
+            sleep 3
+          done
+          echo "ECHEC : le site ne sert pas le bundle $EMPREINTE apres 30 s"
+          exit 1
