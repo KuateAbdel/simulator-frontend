@@ -42,6 +42,8 @@ interface AppContextType {
   setCurrentPage: (p: Page) => void
   sidebarOpen: boolean
   setSidebarOpen: (v: boolean) => void
+  /** Vrai sous 768px — la sidebar devient un TIROIR superpose (drawer). */
+  estMobile: boolean
   /** null = pas connecte → ecran de login. */
   session: Session | null
   /** Secondes restantes avant peremption du jeton (4 h max). */
@@ -62,8 +64,34 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     const memorisee = localStorage.getItem(LANG_KEY)
     return memorisee === 'en' ? 'en' : 'fr'
   })
-  const [currentPage, setCurrentPage] = useState<Page>('tableau-de-bord')
-  const [sidebarOpen, setSidebarOpen] = useState(true)
+  const [currentPage, setCurrentPageState] = useState<Page>('tableau-de-bord')
+  // Mobile-first REEL : sous 768px la sidebar est un tiroir FERME par defaut
+  // (elle mangeait 230px sur 390 — mesure du 15/08 : main reduit a 160px).
+  const [estMobile, setEstMobile] = useState(
+    () => typeof window !== 'undefined' && window.matchMedia('(max-width: 767px)').matches,
+  )
+  const [sidebarOpen, setSidebarOpen] = useState(() => !estMobile)
+
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 767px)')
+    const surChangement = (e: MediaQueryListEvent) => {
+      setEstMobile(e.matches)
+      // On adapte l'etat au passage de seuil (rotation, redimensionnement).
+      setSidebarOpen(!e.matches)
+    }
+    mq.addEventListener('change', surChangement)
+    return () => mq.removeEventListener('change', surChangement)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  // Naviguer FERME le tiroir sur mobile — le contenu est la destination.
+  const setCurrentPage = useCallback(
+    (p: Page) => {
+      setCurrentPageState(p)
+      if (window.matchMedia('(max-width: 767px)').matches) setSidebarOpen(false)
+    },
+    [],
+  )
   const [session, setSession] = useState<Session | null>(lireSession)
   const [sessionSecondsLeft, setSessionSecondsLeft] = useState(0)
   const [motifDeconnexion, setMotifDeconnexion] = useState<'expiree' | null>(null)
@@ -157,6 +185,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         setCurrentPage,
         sidebarOpen,
         setSidebarOpen,
+        estMobile,
         session,
         sessionSecondsLeft,
         seConnecter,

@@ -293,6 +293,14 @@ export function Login() {
             {lang === 'fr' ? 'English' : 'Français'}
           </button>
         </div>
+
+        {/* La version de la webapp — injectee au build, visible des le login */}
+        <p
+          className="text-center text-[10px] font-mono mt-3"
+          style={{ color: 'rgba(255,255,255,0.35)' }}
+        >
+          Loader v{__APP_VERSION__} · {__APP_COMMIT__}
+        </p>
       </div>
     </div>
   )

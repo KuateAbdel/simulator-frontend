@@ -4,7 +4,7 @@
 // visible), bascule FR/EN, compte a rebours REEL de session (4 h), sortie.
 // Les gadgets fintech de la base JJB (QR, filtres, alertes mock) sont partis.
 
-import { Clock, Globe, LogOut } from 'lucide-react'
+import { Clock, Globe, LogOut, Menu } from 'lucide-react'
 import { useApp } from '../../context/AppContext'
 import { navItemDe } from './nav'
 
@@ -16,7 +16,8 @@ function formaterCompteARebours(secondes: number): string {
 }
 
 export function Header() {
-  const { t, lang, setLang, currentPage, sessionSecondsLeft, seDeconnecter } = useApp()
+  const { t, lang, setLang, currentPage, sessionSecondsLeft, seDeconnecter, estMobile, setSidebarOpen } =
+    useApp()
   const item = navItemDe(currentPage)
 
   // Sous 15 minutes, le minuteur passe en ambre : la peremption se VOIT venir.
@@ -35,8 +36,25 @@ export function Header() {
         minHeight: 56,
       }}
     >
-      {/* Gauche — titre + user story de l'ecran */}
+      {/* Gauche — hamburger (mobile) + titre + user story de l'ecran */}
       <div className="flex items-center gap-3 min-w-0">
+        {estMobile && (
+          <button
+            onClick={() => setSidebarOpen(true)}
+            aria-label="menu"
+            className="flex-shrink-0 flex items-center justify-center rounded-lg"
+            style={{
+              width: 36,
+              height: 36,
+              border: '1px solid var(--border)',
+              background: 'transparent',
+              color: 'var(--text-primary)',
+              cursor: 'pointer',
+            }}
+          >
+            <Menu size={17} />
+          </button>
+        )}
         <h1
           className="font-display font-bold text-base truncate"
           style={{ color: 'var(--text-primary)' }}

@@ -1,6 +1,23 @@
+import { execSync } from 'node:child_process'
+import { readFileSync } from 'node:fs'
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
+
+// VERSIONNING de la webapp (demande Yaniv 15/08) — une seule source de
+// verite : package.json (SemVer, tags git, CHANGELOG). Injectee AU BUILD
+// avec le commit court : la version affichee ne peut pas mentir.
+const pkg = JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 'utf-8')) as {
+  version: string
+}
+let commit = 'dev'
+try {
+  commit = execSync('git rev-parse --short HEAD', { stdio: ['ignore', 'pipe', 'ignore'] })
+    .toString()
+    .trim()
+} catch {
+  // hors depot git (archive) : 'dev' assume
+}
 
 // PWA — exigence JJB/boss : le Loader s'installe depuis le navigateur comme
 // une app (icone bureau, fenetre autonome). DOCTRINE DE CACHE : la coquille
@@ -18,6 +35,10 @@ const proxyApi = {
 }
 
 export default defineConfig({
+  define: {
+    __APP_VERSION__: JSON.stringify(pkg.version),
+    __APP_COMMIT__: JSON.stringify(commit),
+  },
   server: { proxy: proxyApi },
   preview: { proxy: proxyApi },
   plugins: [

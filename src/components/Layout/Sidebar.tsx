@@ -3,22 +3,48 @@
 // La sidebar JJB (degrade sombre, accent violet, repliable) rendue sur
 // l'arbre de navigation du LOADER (nav.ts — 6 epopees, sous-groupes).
 
+import type React from 'react'
 import { ChevronLeft, ChevronRight, LogOut } from 'lucide-react'
 import { useApp } from '../../context/AppContext'
 import { NAV_GROUPS } from './nav'
 
 export function Sidebar() {
-  const { currentPage, setCurrentPage, sidebarOpen, setSidebarOpen, t, session, seDeconnecter } =
-    useApp()
+  const {
+    currentPage,
+    setCurrentPage,
+    sidebarOpen,
+    setSidebarOpen,
+    estMobile,
+    t,
+    session,
+    seDeconnecter,
+  } = useApp()
 
   const initiales = session
     ? session.email.slice(0, 2).toUpperCase()
     : '··'
 
+  // Sur MOBILE la sidebar est un TIROIR superpose : elle glisse par-dessus le
+  // contenu (jamais en flux — elle mangeait 230px sur 390), et le backdrop du
+  // Layout la referme. Sur desktop : en flux, repliable 230/64.
+  const styleAside: React.CSSProperties = estMobile
+    ? {
+        width: 230,
+        position: 'fixed',
+        top: 0,
+        bottom: 0,
+        left: 0,
+        zIndex: 60,
+        transform: sidebarOpen ? 'translateX(0)' : 'translateX(-100%)',
+        transition: 'transform 0.2s ease',
+      }
+    : { width: sidebarOpen ? 230 : 64 }
+
   return (
     <aside
       className="sidebar flex flex-col h-full relative flex-shrink-0"
-      style={{ width: sidebarOpen ? 230 : 64 }}
+      style={styleAside}
+      aria-hidden={estMobile && !sidebarOpen}
     >
       {/* Logo */}
       <div className="flex items-center px-4 py-5 border-b border-white/10">
@@ -147,7 +173,19 @@ export function Sidebar() {
         </div>
       </div>
 
-      {/* Bouton replier/deplier */}
+      {/* La VERSION de la webapp — injectee au build, elle ne peut pas mentir */}
+      {sidebarOpen && (
+        <p
+          className="px-4 pb-2 text-[9px] font-mono text-center"
+          style={{ color: 'rgba(255,255,255,0.3)' }}
+          title={`Loader v${__APP_VERSION__} · ${__APP_COMMIT__}`}
+        >
+          Loader v{__APP_VERSION__} · {__APP_COMMIT__}
+        </p>
+      )}
+
+      {/* Bouton replier/deplier — desktop seulement (mobile : backdrop) */}
+      {!estMobile && (
       <button
         onClick={() => setSidebarOpen(!sidebarOpen)}
         className="absolute -right-3 top-16 z-50 flex items-center justify-center rounded-full border"
@@ -165,6 +203,7 @@ export function Sidebar() {
       >
         {sidebarOpen ? <ChevronLeft size={12} /> : <ChevronRight size={12} />}
       </button>
+      )}
     </aside>
   )
 }
