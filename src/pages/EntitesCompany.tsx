@@ -31,6 +31,7 @@ type Etape =
       phase: 'apercu'
       fiche: Record<string, unknown>
       admin: string | null
+      licenceAnnonce: string | null
       note: string
     }
   | {
@@ -38,6 +39,8 @@ type Etape =
       fiche: Record<string, unknown>
       admins: string[]
       cascade: boolean
+      licenceCreee: boolean
+      licenceDetail: string
       note: string
     }
 
@@ -104,7 +107,13 @@ export function EntitesCompany() {
     setFautes([])
     try {
       const reponse = await apercuCompany(demande())
-      setEtape({ phase: 'apercu', fiche: reponse.fiche, admin: reponse.admin_annonce, note: reponse.note })
+      setEtape({
+        phase: 'apercu',
+        fiche: reponse.fiche,
+        admin: reponse.admin_annonce,
+        licenceAnnonce: reponse.licence_annonce ?? null,
+        note: reponse.note,
+      })
     } catch (err) {
       setFautes(fautesDe(err))
     } finally {
@@ -124,6 +133,8 @@ export function EntitesCompany() {
         fiche: reponse.fiche,
         admins: reponse.admins_crees,
         cascade: reponse.cascade_owner_verifiee,
+        licenceCreee: reponse.licence_creee,
+        licenceDetail: reponse.licence_detail,
         note: reponse.note,
       })
       pousser('succes', t('cmp_creee'))
@@ -266,10 +277,79 @@ export function EntitesCompany() {
               {etape.note}
             </span>
           </div>
+          {/* MODIFIER EN PLACE (16/08, demande Yaniv) : les 4 champs SAISIS
+              restent editables ici — « Recomposer » rejoue l'apercu. Les
+              ~40 champs COMPOSES, eux, ne s'editent pas : c'est le Loader
+              qui compose (fidelite au run), et l'ecran le dit. */}
+          <div
+            className="rounded-xl border p-3 mb-3 grid sm:grid-cols-2 lg:grid-cols-5 gap-2 items-end"
+            style={{ borderColor: 'var(--border)', background: 'var(--surface)' }}
+          >
+            <div>
+              <ChampLabel texte={t('cmp_type')} />
+              <select className="input-base" value={fType} onChange={(e) => setFType(e.target.value as TypeCompany)}>
+                {types.map((choix) => (
+                  <option key={choix.type} value={choix.type}>
+                    {choix.titre}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <ChampLabel texte={t('geo_pays_champ')} />
+              <select
+                className="input-base"
+                value={fPays}
+                onChange={(e) => {
+                  setFPays(e.target.value as Pays)
+                  setFVille('')
+                }}
+              >
+                {PAYS.map((code) => (
+                  <option key={code} value={code}>
+                    {code}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <ChampLabel texte={t('cmp_ville')} />
+              <select className="input-base" value={fVille} onChange={(e) => setFVille(e.target.value)}>
+                <option value="">{t('geo_choisir')}</option>
+                {villesDuPays.map((v) => (
+                  <option key={`${v.region}-${v.ville}`} value={v.ville}>
+                    {v.ville}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <ChampLabel texte={t('cmp_nom')} />
+              <input className="input-base" value={fNom} onChange={(e) => setFNom(e.target.value)} maxLength={80} />
+            </div>
+            <button
+              className="btn-ghost text-xs"
+              style={{ height: 34, opacity: envoi || !formulaireValide ? 0.6 : 1 }}
+              disabled={envoi || !formulaireValide}
+              onClick={() => void voirApercu()}
+            >
+              <RotateCcw size={12} />
+              {envoi ? t('loading') : t('cmp_recomposer')}
+            </button>
+          </div>
+          <p className="text-[10px] mb-2" style={{ color: 'var(--text-muted)' }}>
+            {t('cmp_composes_note')}
+          </p>
           {etape.admin && (
-            <p className="text-xs mb-3" style={{ color: 'var(--text-secondary)' }}>
+            <p className="text-xs mb-1" style={{ color: 'var(--text-secondary)' }}>
               <span className="font-semibold">{t('cmp_admin_annonce')}</span>{' '}
               <span className="font-mono">{etape.admin}</span>
+            </p>
+          )}
+          {etape.licenceAnnonce && (
+            <p className="text-xs mb-3" style={{ color: 'var(--text-secondary)' }}>
+              <span className="font-semibold">{t('cmp_licence_annonce')}</span>{' '}
+              <span className="font-mono">{etape.licenceAnnonce}</span>
             </p>
           )}
           <FicheTable fiche={etape.fiche} titre={t('cmp_fiche_composee')} />
@@ -295,6 +375,12 @@ export function EntitesCompany() {
               title="D-CMP-2"
             >
               {etape.cascade ? t('cmp_cascade_ok') : t('cmp_cascade_ko')}
+            </span>
+            <span
+              className={etape.licenceCreee ? 'badge-secondary' : 'badge-danger'}
+              title={`UC-07 — ${etape.licenceDetail}`}
+            >
+              {etape.licenceCreee ? `${t('cmp_licence_ok')} ${etape.licenceDetail}` : `${t('cmp_licence_ko')} ${etape.licenceDetail}`}
             </span>
           </div>
           <Banniere ton="succes">{etape.note}</Banniere>

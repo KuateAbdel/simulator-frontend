@@ -24,6 +24,7 @@ export const translations = {
     nav_company: 'Company',
     nav_produit: 'Produit',
     nav_groupe: 'Groupe / Rôle',
+    nav_depositaire: 'Dépositaire',
     nav_group_runs: 'Runs',
     nav_runs_preparer: 'Préparer & lancer',
     nav_runs_progression: 'Progression',
@@ -406,6 +407,44 @@ export const translations = {
     cmp_confirmer_corps:
       'Trois écritures partiront (Company, cascade owner vérifiée, Admin User) — journalisées en write-ahead sous RUN_ADMIN. Refusé si un run est en cours (EF-55). C’est la dernière occasion de dire non.',
 
+    // Entites — Depositaire US-D3 (16/08)
+    dep_titre: 'Dépositaire à l’unité',
+    dep_sous_titre:
+      'Un dépositaire ne naît jamais « en l’air » : un QUARTIER + une company À NOUS — le Loader compose le reste.',
+    dep_etape_composer: 'Choisir quartier & company',
+    dep_doctrine:
+      'Le nom devient DEMO_Kiosque <quartier> (comme au run), la devise est DÉRIVÉE du pays du quartier — jamais saisie. La cohérence company↔quartier est vérifiée : pas de kiosque à Douala pour une company de Dakar (422 nommé). Un quartier n’héberge qu’UN kiosque. Aucun DELETE n’existe (D-DEP-3) : un doublon serait permanent — d’où l’aperçu avant tout.',
+    dep_quartier: 'Quartier (pays — ville — quartier)',
+    dep_quartier_note: 'Choisi dans le référentiel (EF-02) — un quartier déjà occupé est refusé.',
+    dep_company: 'Company À NOUS',
+    dep_company_note: 'Le Loader n’accroche jamais un dépositaire à une company étrangère.',
+    dep_aucune_company: 'Aucune company à nous sur la plateforme —',
+    dep_aller_company: 'en créer une d’abord',
+    dep_composition_titre: 'La composition (dérivée, vérifiée)',
+    dep_creer: 'Créer ce dépositaire',
+    dep_cree: 'Dépositaire créé',
+    dep_creer_autre: 'Créer un autre dépositaire',
+    dep_confirmer_titre: 'Créer ce dépositaire sur la plateforme ?',
+    dep_confirmer_corps:
+      'Le POST partira vers depositary-service (write-ahead au journal, relecture prouvée). Le dépositaire naîtra ACTIF, au registre — et AUCUN DELETE n’existe : c’est définitif. Le nœud d’arbre sera rattaché par le prochain run.',
+
+    // Licences UC-07 (16/08)
+    lic_bouton: 'Licences',
+    lic_titre: 'Licences (UC-07)',
+    lic_aucune: 'AUCUNE licence — le catalogue de cette company est FERMÉ (UC-11).',
+    lic_note:
+      'READY_CASH ouvre le crédit, READY_COLLECTE la collecte, ALL les deux. Fenêtre : simulation + 30 jours. Une licence active suffit (409 sinon).',
+    lic_attribuer: 'Attribuer la licence',
+    lic_attribuee: 'Licence attribuée —',
+
+    // Company — licence & recomposer (16/08)
+    cmp_licence_ok: 'licence',
+    cmp_licence_ko: 'licence NON créée :',
+    cmp_licence_annonce: 'Licence qui sera créée (UC-07) :',
+    cmp_recomposer: 'Recomposer l’aperçu',
+    cmp_composes_note:
+      'Les champs ci-dessus sont les SAISIS — modifiables ici, « Recomposer » rejoue l’aperçu. Les champs composés (identité, adresse, secteurs…) ne s’éditent pas : c’est le Loader qui compose, à l’identique d’un run.',
+
     // Entites — Groupe / Role, Lot H (phase 5)
     grp_titre: 'Groupe / Rôle à l’unité',
     grp_sous_titre:
@@ -495,6 +534,7 @@ export const translations = {
     inv_onglet_groupes: 'Groupes',
     inv_onglet_produits: 'Produits',
     inv_onglet_companies: 'Companies',
+    inv_onglet_depositaires: 'Dépositaires',
     inv_a_nous: 'à nous',
     inv_etranger: 'étranger',
     inv_disparu_la_bas: 'disparu là-bas',
@@ -578,6 +618,7 @@ export const translations = {
     nav_company: 'Company',
     nav_produit: 'Product',
     nav_groupe: 'Group / Role',
+    nav_depositaire: 'Depositary',
     nav_group_runs: 'Runs',
     nav_runs_preparer: 'Prepare & launch',
     nav_runs_progression: 'Progress',
@@ -956,6 +997,44 @@ export const translations = {
     cmp_confirmer_corps:
       'Three writes will leave (Company, verified owner cascade, Admin User) — write-ahead journaled under RUN_ADMIN. Refused while a run is active (EF-55). This is the last chance to say no.',
 
+    // Entities — Depositary US-D3 (Aug 16)
+    dep_titre: 'Single depositary',
+    dep_sous_titre:
+      'A depositary is never born “in the air”: a DISTRICT + a company of OURS — the Loader composes the rest.',
+    dep_etape_composer: 'Pick district & company',
+    dep_doctrine:
+      'The name becomes DEMO_Kiosque <district> (as in a run), the currency is DERIVED from the district’s country — never typed. Company↔district coherence is checked: no kiosk in Douala for a Dakar company (named 422). A district hosts ONE kiosk. No DELETE exists (D-DEP-3): a duplicate would be permanent — hence the preview first.',
+    dep_quartier: 'District (country — city — district)',
+    dep_quartier_note: 'Picked from the reference data (EF-02) — an occupied district is refused.',
+    dep_company: 'Company of OURS',
+    dep_company_note: 'The Loader never attaches a depositary to a foreign company.',
+    dep_aucune_company: 'No company of ours on the platform —',
+    dep_aller_company: 'create one first',
+    dep_composition_titre: 'The composition (derived, verified)',
+    dep_creer: 'Create this depositary',
+    dep_cree: 'Depositary created',
+    dep_creer_autre: 'Create another depositary',
+    dep_confirmer_titre: 'Create this depositary on the platform?',
+    dep_confirmer_corps:
+      'The POST goes to depositary-service (write-ahead journal, proven re-read). It is born ACTIVE, registered — and NO DELETE exists: this is permanent. The tree node will be attached by the next run.',
+
+    // Licences UC-07 (Aug 16)
+    lic_bouton: 'Licences',
+    lic_titre: 'Licences (UC-07)',
+    lic_aucune: 'NO licence — this company’s catalogue is CLOSED (UC-11).',
+    lic_note:
+      'READY_CASH opens credit, READY_COLLECTE collection, ALL both. Window: simulation + 30 days. One active licence suffices (409 otherwise).',
+    lic_attribuer: 'Grant the licence',
+    lic_attribuee: 'Licence granted —',
+
+    // Company — licence & recompose (Aug 16)
+    cmp_licence_ok: 'licence',
+    cmp_licence_ko: 'licence NOT created:',
+    cmp_licence_annonce: 'Licence to be created (UC-07):',
+    cmp_recomposer: 'Recompose the preview',
+    cmp_composes_note:
+      'The fields above are the TYPED ones — editable here, “Recompose” replays the preview. Composed fields (identity, address, sectors…) are not editable: the Loader composes, exactly like a run.',
+
     // Entities — Group / Role, Lot H (phase 5)
     grp_titre: 'Single group / role',
     grp_sous_titre:
@@ -1045,6 +1124,7 @@ export const translations = {
     inv_onglet_groupes: 'Groups',
     inv_onglet_produits: 'Products',
     inv_onglet_companies: 'Companies',
+    inv_onglet_depositaires: 'Depositaries',
     inv_a_nous: 'ours',
     inv_etranger: 'foreign',
     inv_disparu_la_bas: 'gone over there',

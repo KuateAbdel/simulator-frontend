@@ -15,6 +15,7 @@ export type Page =
   | 'entites-company' // US-D1
   | 'entites-produit' // US-D2
   | 'entites-groupe' // POST /admin/entites/groupes
+  | 'entites-depositaire' // US-D3 — quartier + company à nous
   | 'runs-preparer' // US-C1/C2 — le rite D-01
   | 'runs-progression' // US-C3/C4
   | 'runs-historique' // US-C6

@@ -9,22 +9,25 @@
 // les services n'ont AUCUN DELETE, et l'ecran le dit.
 
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { HeartHandshake, RotateCcw, Trash2 } from 'lucide-react'
+import { BadgeCheck, HeartHandshake, RotateCcw, Trash2 } from 'lucide-react'
 import { Card, SectionHeader, TabBar } from '../components/ui'
 import { Banniere, ConfirmDialog, Skeleton, useToast } from '../components/ui/loader'
 import { useApp } from '../context/AppContext'
 import {
   adopterGroupes,
+  creerLicenceCompany,
+  licencesDeCompany,
   lireInventaire,
   supprimerGroupe,
   type LigneInventaire,
+  type PackageLicence,
   type StatutInventaire,
   type VueInventaire,
 } from '../lib/api'
 import { useMessageDe } from './runs-commun'
 import { FautesBloc, fautesDe } from './entites-commun'
 
-type Domaine = 'groupes' | 'produits' | 'companies'
+type Domaine = 'groupes' | 'produits' | 'companies' | 'depositaires'
 
 type Etat =
   | { phase: 'chargement' }
@@ -59,6 +62,39 @@ export function Inventaire() {
   const [adoptionOuverte, setAdoptionOuverte] = useState(false)
   // DELETE individuel : la cible confirmee en dialogue danger.
   const [cible, setCible] = useState<LigneInventaire | null>(null)
+  // Licences (UC-07) : la company A NOUS dont on voit/attribue la licence.
+  const [cibleLicence, setCibleLicence] = useState<LigneInventaire | null>(null)
+  const [licences, setLicences] = useState<Record<string, unknown>[] | null>(null)
+  const [licenceErreur, setLicenceErreur] = useState<string | null>(null)
+  const [packages, setPackages] = useState<Set<PackageLicence>>(new Set(['ALL']))
+
+  const ouvrirLicences = async (company: LigneInventaire) => {
+    setCibleLicence(company)
+    setLicences(null)
+    setLicenceErreur(null)
+    setPackages(new Set(['ALL']))
+    try {
+      const reponse = await licencesDeCompany(company.id)
+      setLicences(reponse.licences)
+    } catch (err) {
+      setLicenceErreur(messageDe(err))
+    }
+  }
+
+  const attribuerLicence = async () => {
+    if (!cibleLicence || envoi || packages.size === 0) return
+    setEnvoi(true)
+    setLicenceErreur(null)
+    try {
+      const reponse = await creerLicenceCompany(cibleLicence.id, [...packages])
+      setLicences(reponse.licences)
+      pousser('succes', `${t('lic_attribuee')} ${reponse.fenetre.debut} → ${reponse.fenetre.fin}`)
+    } catch (err) {
+      setLicenceErreur(fautesDe(err).join(' — '))
+    } finally {
+      setEnvoi(false)
+    }
+  }
 
   const charger = useCallback(
     async (d: Domaine) => {
@@ -149,6 +185,7 @@ export function Inventaire() {
           { id: 'groupes', label: t('inv_onglet_groupes') },
           { id: 'produits', label: t('inv_onglet_produits') },
           { id: 'companies', label: t('inv_onglet_companies') },
+          { id: 'depositaires', label: t('inv_onglet_depositaires') },
         ]}
         active={domaine}
         onChange={(id) => setDomaine(id as Domaine)}
@@ -219,10 +256,10 @@ export function Inventaire() {
                   <tr>
                     {domaine === 'groupes' && <th style={{ width: 30 }} aria-label={t('inv_adopter')} />}
                     <th>{t('inv_col_nom')}</th>
-                    {domaine !== 'groupes' && <th>short_name</th>}
+                    {(domaine === 'produits' || domaine === 'companies') && <th>short_name</th>}
                     <th>{t('inv_col_statut')}</th>
                     <th>{t('inv_col_id')}</th>
-                    {domaine === 'groupes' && <th />}
+                    {(domaine === 'groupes' || domaine === 'companies') && <th />}
                   </tr>
                 </thead>
                 <tbody>
@@ -241,7 +278,7 @@ export function Inventaire() {
                         </td>
                       )}
                       <td className="font-semibold text-xs">{ligne.nom || '—'}</td>
-                      {domaine !== 'groupes' && (
+                      {(domaine === 'produits' || domaine === 'companies') && (
                         <td className="font-mono text-[10px]">{ligne.short_name || '—'}</td>
                       )}
                       <td>
@@ -268,6 +305,20 @@ export function Inventaire() {
                             >
                               <Trash2 size={11} />
                               {t('delete')}
+                            </button>
+                          )}
+                        </td>
+                      )}
+                      {domaine === 'companies' && (
+                        <td>
+                          {ligne.statut === 'a_nous' && (
+                            <button
+                              className="btn-ghost text-[11px]"
+                              style={{ height: 24 }}
+                              onClick={() => void ouvrirLicences(ligne)}
+                            >
+                              <BadgeCheck size={11} />
+                              {t('lic_bouton')}
                             </button>
                           )}
                         </td>
@@ -299,6 +350,65 @@ export function Inventaire() {
         onAnnuler={() => setAdoptionOuverte(false)}
       >
         {t('inv_adopter_corps')} ({selection.size})
+      </ConfirmDialog>
+
+      {/* Licences UC-07 — voir et attribuer, sur une company A NOUS */}
+      <ConfirmDialog
+        ouvert={cibleLicence !== null}
+        titre={`${t('lic_titre')} — ${cibleLicence?.nom}`}
+        libelleConfirmer={t('lic_attribuer')}
+        libelleAnnuler={t('close')}
+        enCours={envoi}
+        onConfirmer={() => void attribuerLicence()}
+        onAnnuler={() => setCibleLicence(null)}
+      >
+        {licences === null && licenceErreur === null && <Skeleton height={40} />}
+        {licences !== null && (
+          <div className="mb-3">
+            {licences.length === 0 ? (
+              <p className="mb-2" style={{ color: '#92400e' }}>
+                {t('lic_aucune')}
+              </p>
+            ) : (
+              <div className="space-y-1 mb-2">
+                {licences.map((licence, i) => (
+                  <p key={i} className="font-mono text-[10px]" style={{ color: 'var(--text-secondary)' }}>
+                    {String((licence as { packages?: unknown }).packages ?? '?')} ·{' '}
+                    {String((licence as { start_date?: unknown }).start_date ?? '')} →{' '}
+                    {String((licence as { end_date?: unknown }).end_date ?? '')}
+                  </p>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+        <p className="text-[10px] mb-2" style={{ color: 'var(--text-muted)' }}>
+          {t('lic_note')}
+        </p>
+        <div className="flex flex-wrap gap-3 mb-1">
+          {(['ALL', 'READY_CASH', 'READY_COLLECTE'] as PackageLicence[]).map((pkg) => (
+            <label key={pkg} className="flex items-center gap-1.5 text-[11px] font-mono">
+              <input
+                type="checkbox"
+                checked={packages.has(pkg)}
+                onChange={() =>
+                  setPackages((avant) => {
+                    const apres = new Set(avant)
+                    if (apres.has(pkg)) apres.delete(pkg)
+                    else apres.add(pkg)
+                    return apres
+                  })
+                }
+              />
+              {pkg}
+            </label>
+          ))}
+        </div>
+        {licenceErreur && (
+          <p className="text-xs mt-2" style={{ color: '#b91c1c' }} role="alert">
+            {licenceErreur}
+          </p>
+        )}
       </ConfirmDialog>
 
       {/* DELETE individuel — danger, relecture prouvee */}

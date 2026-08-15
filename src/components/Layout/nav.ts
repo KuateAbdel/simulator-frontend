@@ -20,6 +20,7 @@ import {
   PlayCircle,
   Radio,
   Settings2,
+  Store,
   ShieldCheck,
   Users,
   UserCog,
@@ -68,6 +69,7 @@ export const NAV_GROUPS: NavGroup[] = [
       { page: 'entites-company', labelKey: 'nav_company', icon: Building2, stories: 'US-D1', phase: 5 },
       { page: 'entites-produit', labelKey: 'nav_produit', icon: Coins, stories: 'US-D2', phase: 5 },
       { page: 'entites-groupe', labelKey: 'nav_groupe', icon: ShieldCheck, stories: 'Lot H', phase: 5 },
+      { page: 'entites-depositaire', labelKey: 'nav_depositaire', icon: Store, stories: 'US-D3', phase: 6 },
     ],
   },
   {

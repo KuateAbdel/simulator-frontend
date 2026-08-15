@@ -25,6 +25,7 @@ import { RefCatalogue } from './pages/RefCatalogue'
 import { EntitesCompany } from './pages/EntitesCompany'
 import { EntitesProduit } from './pages/EntitesProduit'
 import { EntitesGroupe } from './pages/EntitesGroupe'
+import { EntitesDepositaire } from './pages/EntitesDepositaire'
 import { AdminComptes } from './pages/AdminComptes'
 import { Ecosysteme } from './pages/Ecosysteme'
 import { Population } from './pages/Population'
@@ -47,6 +48,7 @@ function Router() {
   if (currentPage === 'entites-company') return <EntitesCompany />
   if (currentPage === 'entites-produit') return <EntitesProduit />
   if (currentPage === 'entites-groupe') return <EntitesGroupe />
+  if (currentPage === 'entites-depositaire') return <EntitesDepositaire />
   if (currentPage === 'admin-comptes') return <AdminComptes />
   if (currentPage === 'ecosysteme') return <Ecosysteme />
   if (currentPage === 'population') return <Population />

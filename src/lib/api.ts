@@ -339,12 +339,15 @@ export function arreterRun(runId: string): Promise<{ run_id: string; action: str
 // Referentiels (US-B4..B7) — contrat de app/routes/admin_referentiels.py
 // --------------------------------------------------------------------------
 
+export type QuartierGeo = { id: string; nom: string; zone_type: string }
 export type VilleGeo = {
   id: string
   nom: string
   latitude: number | null
   longitude: number | null
   quartiers: string[]
+  /** ADDITIF 16/08 — l'ecran Depositaire choisit un quartier PAR IDENTIFIANT. */
+  quartiers_detail?: QuartierGeo[]
 }
 export type RegionGeo = { id: string; nom: string; capitale: string; villes: VilleGeo[] }
 export type PaysGeo = { pays: string; regions: RegionGeo[] }
@@ -553,8 +556,81 @@ export type VueInventaire = {
   note?: string
 } & Record<string, unknown>
 
-export function lireInventaire(domaine: 'groupes' | 'produits' | 'companies'): Promise<VueInventaire> {
+export function lireInventaire(
+  domaine: 'groupes' | 'produits' | 'companies' | 'depositaires',
+): Promise<VueInventaire> {
   return api(`/admin/inventaire/${domaine}`)
+}
+
+// --------------------------------------------------------------------------
+// US-D3 (16/08) — le depositaire naît d'un QUARTIER + une company A NOUS.
+// Le Loader COMPOSE : nom DEMO_Kiosque <Quartier>, devise du pays, coherence
+// company<->quartier verifiee (pas de kiosque a Douala pour une company de
+// Dakar — 422 INCOHERENCE nomme).
+// --------------------------------------------------------------------------
+
+export type DepositaireDemande = { quartier_id: string; company_id: string }
+
+export type CompositionDepositaire = {
+  marqueur: string
+  devise: string
+  pays: string
+  ville: string
+  quartier: string
+  zone_type: string
+  coherence_verifiee_par: string
+  company_nom: string
+}
+
+export function apercuDepositaire(demande: DepositaireDemande): Promise<{
+  payload: { name: string; currency: string; company_id: string }
+  composition: CompositionDepositaire
+  marqueur: string
+  note: string
+}> {
+  return api('/admin/entites/depositaires/apercu', { method: 'POST', body: demande })
+}
+
+export function creerDepositaire(demande: DepositaireDemande): Promise<{
+  depositary_id: string
+  fiche_relue: Record<string, unknown> | null
+  composition: CompositionDepositaire
+  marqueur: string
+  statut: string
+  note: string
+}> {
+  return api('/admin/entites/depositaires', { method: 'POST', body: demande })
+}
+
+// --------------------------------------------------------------------------
+// Licences (16/08) — voir et ATTRIBUER une licence a une company A NOUS.
+// UC-07 : la licence conditionne le catalogue (UC-11).
+// --------------------------------------------------------------------------
+
+export type PackageLicence = 'ALL' | 'READY_CASH' | 'READY_COLLECTE'
+
+export function licencesDeCompany(companyId: string): Promise<{
+  company_id: string
+  licences: Record<string, unknown>[]
+  compte: number
+  note: string
+}> {
+  return api(`/admin/entites/companies/${encodeURIComponent(companyId)}/licences`)
+}
+
+export function creerLicenceCompany(
+  companyId: string,
+  packages: PackageLicence[],
+): Promise<{
+  company_id: string
+  licences: Record<string, unknown>[]
+  fenetre: { debut: string; fin: string }
+  note: string
+}> {
+  return api(`/admin/entites/companies/${encodeURIComponent(companyId)}/licences`, {
+    method: 'POST',
+    body: { packages },
+  })
 }
 
 export function supprimerGroupe(groupeId: string): Promise<{ supprime: string; verifie_par_relecture: boolean }> {
@@ -693,6 +769,8 @@ export function apercuCompany(demande: CompanyDemande): Promise<{
   fiche: Record<string, unknown>
   /** L'EMAIL de l'Admin User annonce — une chaine (RapportOrganisation.admins_crees). */
   admin_annonce: string | null
+  /** UC-07 — la licence qui sera creee avec la company (annonce d'apercu). */
+  licence_annonce?: string
   note: string
 }> {
   return api('/admin/entites/companies/apercu', { method: 'POST', body: demande })
@@ -703,6 +781,9 @@ export function creerCompany(demande: CompanyDemande): Promise<{
   /** Les EMAILS des Admin Users crees — des chaines, pas des objets. */
   admins_crees: string[]
   cascade_owner_verifiee: boolean
+  /** UC-07 (16/08) : la company naît AVEC sa licence — comme au run. */
+  licence_creee: boolean
+  licence_detail: string
   note: string
 }> {
   return api('/admin/entites/companies', { method: 'POST', body: demande })
