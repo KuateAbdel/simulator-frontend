@@ -156,16 +156,39 @@ export function RefCatalogue() {
                 </tr>
               </thead>
               <tbody>
-                {Object.entries(catalogue.groupes).map(([nom, groupe]) => (
-                  <tr key={nom}>
-                    <td className="font-semibold">{nom}</td>
-                    <td>
-                      <span className="badge-primary">{groupe.profil_defaut}</span>
-                    </td>
-                    <td className="font-mono">{groupe.professions.length}</td>
-                    <td className="font-mono">{groupe.variants}</td>
-                  </tr>
-                ))}
+                {Object.entries(catalogue.groupes).map(([nom, groupe]) => {
+                  const exceptions = Object.entries(groupe.variants)
+                  return (
+                    <tr key={nom}>
+                      <td className="font-semibold">{nom}</td>
+                      <td>
+                        <span className="badge-primary">{groupe.profil_defaut}</span>
+                      </td>
+                      <td className="font-mono">{groupe.professions.length}</td>
+                      <td>
+                        {exceptions.length === 0 ? (
+                          <span style={{ color: 'var(--text-muted)' }}>—</span>
+                        ) : (
+                          <div className="flex flex-wrap gap-1" style={{ maxWidth: 420 }}>
+                            {exceptions.map(([profession, profil]) => (
+                              <span
+                                key={profession}
+                                className="text-[9px] rounded-full px-1.5 py-0.5 whitespace-nowrap"
+                                style={{
+                                  background: 'var(--secondary-light)',
+                                  color: 'var(--secondary-dark)',
+                                }}
+                                title={`${profession} → ${profil} (${t('cat_variant_bulle')})`}
+                              >
+                                {profession} → {profil}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                      </td>
+                    </tr>
+                  )
+                })}
               </tbody>
             </table>
           </div>

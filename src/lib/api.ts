@@ -421,7 +421,12 @@ export type CatalogueStatique = {
   industries: string[]
   secteurs: Record<string, string[]>
   formes_juridiques: string[]
-  groupes: Record<string, { profil_defaut: string; professions: string[]; variants: number }>
+  /** `variants` = les EXCEPTIONS au profil par defaut : profession → profil.
+   * C'est un OBJET (bug attrapé le 15/08 : type `number` → React error #31). */
+  groupes: Record<
+    string,
+    { profil_defaut: string; professions: string[]; variants: Record<string, string> }
+  >
   profils_revenu: Record<string, { mu: number; sigma: number; definition: string }>
   pays: string[]
   fonctions_dirigeant: { rang: number; francais: string; anglais: string; abreviation: string }[]

@@ -267,7 +267,8 @@ export const translations = {
     cat_onglet_profils: 'Profils de revenu',
     cat_onglet_dirigeants: 'Dirigeants',
     cat_profil_defaut: 'profil par défaut',
-    cat_variants: 'variantes',
+    cat_variants: 'exceptions au profil par défaut',
+    cat_variant_bulle: 'cette profession déroge au profil de revenu par défaut du groupe',
     cat_definition: 'définition',
 
     // Pays & Monnaies — pre-remplissage devise (15/08)
@@ -677,7 +678,8 @@ export const translations = {
     cat_onglet_profils: 'Income profiles',
     cat_onglet_dirigeants: 'Executives',
     cat_profil_defaut: 'default profile',
-    cat_variants: 'variants',
+    cat_variants: 'exceptions to the default profile',
+    cat_variant_bulle: 'this occupation overrides the group default income profile',
     cat_definition: 'definition',
 
     // Countries & Currencies — currency pre-fill (Aug 15)
