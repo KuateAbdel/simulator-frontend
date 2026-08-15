@@ -438,6 +438,106 @@ export const translations = {
     grp_confirmer_corps:
       'GET-avant-POST (trois issues), write-ahead au journal, relecture de la liste, inscription au REGISTRE. Le groupe sera supprimable via l’inventaire — seul module réversible.',
 
+    // Phase 6 — Écosystème (US-E2)
+    eco_titre: 'Écosystème',
+    eco_sous_titre:
+      'L’arbre que la plateforme ne sait pas montrer : Branche → Agence → Kiosque, depuis NOTRE org_hierarchy.',
+    eco_vide: 'Aucun run en base — l’arbre naît d’un run.',
+    eco_aller_preparer: 'préparer un run',
+    eco_recherche: 'Rechercher une branche, agence, kiosque…',
+    eco_agences: 'agences',
+    eco_kiosques: 'kiosques',
+    eco_agents: 'agents',
+    eco_clients: 'clients',
+
+    // Phase 6 — Population (US-E3 + P-01)
+    pop_titre: 'Population',
+    pop_sous_titre:
+      'Les mesures rangées par le moteur à la fin du run — identiques à ce que la recette a jugé, jamais recalculées.',
+    pop_quotas_titre: 'Quotas par pays — mesure / cible',
+    pop_quotas_note: 'vert = cible tenue · ambre = écart mesuré',
+    pop_clients: 'Clients',
+    pop_corporate: 'Corporate (EF-23)',
+    pop_femmes: 'Femmes (EF-22)',
+    pop_jeunes: 'Jeunes',
+    pop_agricoles: 'Agricoles (EF-24)',
+    pop_profils: 'Profils CR-09',
+    pop_soldes_titre: 'Soldes initiaux — histogramme',
+    pop_soldes_note:
+      'La frontière 150 000 est le seuil EF-68 : au-delà, le client est éligible au crédit (vert).',
+    pop_frontiere: 'frontière 150 000 (EF-68)',
+    pop_total_dote: 'Total doté',
+    pop_occupations_titre: 'Occupations',
+    pop_occupations_note: 'métiers distincts / clients — le top des 576 professions du référentiel',
+    pop_naissances_titre: 'Lieux de naissance (SD-6)',
+    pop_au_pays: 'au pays',
+    pop_etranger: 'à l’étranger',
+    pop_index_produits: 'Clients par produit (P-01)',
+    pop_index_kiosques: 'Clients par kiosque (P-01)',
+
+    // Phase 6 — Traçabilité (US-E4)
+    tra_titre: 'Traçabilité',
+    tra_sous_titre: '« D’où vient cette entité ? » — le registre Faker et le journal d’intentions, réconciliés.',
+    tra_vide: 'Aucun run en base — le journal naît d’un run.',
+    tra_faker_titre: 'Registre Faker (identités réservées)',
+    tra_faker_note: 'CR-03 : la même graine redonne la même population — le registre est la mémoire.',
+    tra_faker_orphelines: 'Réservations orphelines',
+    tra_journal_titre: 'Journal d’intentions',
+    tra_entrees: 'entrées',
+    tra_journal_orphelines: 'Intentions orphelines',
+    tra_col_type: 'Entité',
+    tra_col_action: 'Action',
+    tra_col_quand: 'Quand',
+
+    // Phase 6 — Inventaire (réconciliation + A-13)
+    inv_titre: 'Inventaire',
+    inv_sous_titre: 'NOS données là-bas, avec NOS statuts — la réconciliation registre ↔ plateforme.',
+    inv_onglet_groupes: 'Groupes',
+    inv_onglet_produits: 'Produits',
+    inv_onglet_companies: 'Companies',
+    inv_a_nous: 'à nous',
+    inv_etranger: 'étranger',
+    inv_disparu_la_bas: 'disparu là-bas',
+    inv_marque_mais_inconnu: 'marqué mais inconnu',
+    inv_recherche: 'Rechercher par nom, marqueur, id…',
+    inv_col_nom: 'Nom',
+    inv_col_statut: 'Statut',
+    inv_col_id: 'Identifiant plateforme',
+    inv_adopter: 'Adopter (A-13)',
+    inv_adopter_titre: 'Adopter ces groupes au registre ?',
+    inv_adopter_corps:
+      'L’adoption inscrit au registre des groupes DÉJÀ présents sur la plateforme — « c’est nous qui les avons créés ». Explicite, journalisée, jamais automatique. Chaque identifiant recevra SON issue. Après adoption ils sont à nous partout : inventaire, suppression, purge.',
+    inv_adoptes: 'adoptés :',
+    inv_deja: 'déjà au registre :',
+    inv_introuvables: 'introuvables :',
+    inv_supprime: 'Supprimé :',
+    inv_relecture: 'vérifié par relecture',
+    inv_supprimer_corps:
+      'Seul un groupe À NOUS se supprime (403 sinon — le Loader ne touche jamais à ce qui n’est pas à lui). Le geste est journalisé sous RUN_ADMIN et la relecture PROUVE que la suppression a pris.',
+
+    // Phase 6 — Purge (US-F1/F2)
+    pur_titre: 'Purge',
+    pur_sous_titre: 'L’inventaire honnête, puis la décision — seuls NOS groupes sont supprimables.',
+    pur_etape_preparer: 'Préparer (aucune écriture)',
+    pur_etape_lire: 'Lire & décider',
+    pur_etape_faite: 'Purge exécutée',
+    pur_doctrine:
+      'La v1 n’a qu’UNE action réversible : les groupes (DELETE existe). Tout le reste — companies, dépositaires, clients, identités, comptes — n’a AUCUN DELETE côté plateforme : ces résidus restent, marqués DEMO_, et chaque carte dit son verdict mesuré. La purge ne cache rien.',
+    pur_accueil:
+      'Préparer dresse l’inventaire : ce qui peut partir, ce qui restera et pourquoi. Aucune écriture ne part de la préparation.',
+    pur_preparer: 'Préparer la purge',
+    pur_purgeable_titre: 'Purgeable — nos groupes',
+    pur_rien_a_purger: 'Aucun groupe à nous sur la plateforme — rien à purger.',
+    pur_residus_titre: 'Résidus marqués — resteront, et voici pourquoi',
+    pur_case: 'Je comprends : seuls NOS groupes seront supprimés, définitivement',
+    pur_executer: 'Exécuter la purge',
+    pur_confirmer_titre: 'Exécuter la purge maintenant ?',
+    pur_confirmer_corps:
+      'Chaque suppression sera journalisée sous RUN_ADMIN. Les résidus marqués resteront sur la plateforme et le rapport les redira. C’est la dernière occasion de dire non.',
+    pur_supprimes_toast: 'groupe(s) supprimé(s)',
+    pur_echecs: 'échec(s)',
+    pur_repreparer: 'Re-préparer (état à jour)',
+
     // Pages en construction (phases 2→7)
     under_construction: 'En construction',
     delivered_in_phase: 'Livré en phase',
@@ -887,6 +987,106 @@ export const translations = {
     grp_confirmer_titre: 'Create this group on user-service?',
     grp_confirmer_corps:
       'GET-before-POST (three outcomes), write-ahead journal, list re-read, REGISTER entry. The group will be deletable via the inventory — the only reversible module.',
+
+    // Phase 6 — Ecosystem (US-E2)
+    eco_titre: 'Ecosystem',
+    eco_sous_titre:
+      'The tree the platform cannot show: Branch → Agency → Kiosk, from OUR org_hierarchy.',
+    eco_vide: 'No run in base — the tree is born from a run.',
+    eco_aller_preparer: 'prepare a run',
+    eco_recherche: 'Search a branch, agency, kiosk…',
+    eco_agences: 'agencies',
+    eco_kiosques: 'kiosks',
+    eco_agents: 'agents',
+    eco_clients: 'clients',
+
+    // Phase 6 — Population (US-E3 + P-01)
+    pop_titre: 'Population',
+    pop_sous_titre:
+      'Measures stored by the engine at the end of the run — identical to what acceptance judged, never recomputed.',
+    pop_quotas_titre: 'Per-country quotas — measured / target',
+    pop_quotas_note: 'green = target met · amber = measured gap',
+    pop_clients: 'Clients',
+    pop_corporate: 'Corporate (EF-23)',
+    pop_femmes: 'Women (EF-22)',
+    pop_jeunes: 'Youth',
+    pop_agricoles: 'Agricultural (EF-24)',
+    pop_profils: 'CR-09 profiles',
+    pop_soldes_titre: 'Initial balances — histogram',
+    pop_soldes_note:
+      'The 150,000 frontier is the EF-68 threshold: above it, the client is credit-eligible (green).',
+    pop_frontiere: '150,000 frontier (EF-68)',
+    pop_total_dote: 'Total endowed',
+    pop_occupations_titre: 'Occupations',
+    pop_occupations_note: 'distinct trades / clients — top of the 576 reference professions',
+    pop_naissances_titre: 'Places of birth (SD-6)',
+    pop_au_pays: 'in-country',
+    pop_etranger: 'abroad',
+    pop_index_produits: 'Clients per product (P-01)',
+    pop_index_kiosques: 'Clients per kiosk (P-01)',
+
+    // Phase 6 — Traceability (US-E4)
+    tra_titre: 'Traceability',
+    tra_sous_titre: '“Where does this entity come from?” — the Faker ledger and the intent journal, reconciled.',
+    tra_vide: 'No run in base — the journal is born from a run.',
+    tra_faker_titre: 'Faker ledger (reserved identities)',
+    tra_faker_note: 'CR-03: the same seed yields the same population — the ledger is the memory.',
+    tra_faker_orphelines: 'Orphan reservations',
+    tra_journal_titre: 'Intent journal',
+    tra_entrees: 'entries',
+    tra_journal_orphelines: 'Orphan intents',
+    tra_col_type: 'Entity',
+    tra_col_action: 'Action',
+    tra_col_quand: 'When',
+
+    // Phase 6 — Inventory (reconciliation + A-13)
+    inv_titre: 'Inventory',
+    inv_sous_titre: 'OUR data over there, with OUR statuses — the registry ↔ platform reconciliation.',
+    inv_onglet_groupes: 'Groups',
+    inv_onglet_produits: 'Products',
+    inv_onglet_companies: 'Companies',
+    inv_a_nous: 'ours',
+    inv_etranger: 'foreign',
+    inv_disparu_la_bas: 'gone over there',
+    inv_marque_mais_inconnu: 'marked but unknown',
+    inv_recherche: 'Search by name, marker, id…',
+    inv_col_nom: 'Name',
+    inv_col_statut: 'Status',
+    inv_col_id: 'Platform identifier',
+    inv_adopter: 'Adopt (A-13)',
+    inv_adopter_titre: 'Adopt these groups into the registry?',
+    inv_adopter_corps:
+      'Adoption registers groups ALREADY present on the platform — “we created them”. Explicit, journaled, never automatic. Each identifier gets ITS outcome. Once adopted they are ours everywhere: inventory, delete, purge.',
+    inv_adoptes: 'adopted:',
+    inv_deja: 'already registered:',
+    inv_introuvables: 'not found:',
+    inv_supprime: 'Deleted:',
+    inv_relecture: 'verified by re-read',
+    inv_supprimer_corps:
+      'Only a group of OURS can be deleted (403 otherwise — the Loader never touches what is not its own). The action is journaled under RUN_ADMIN and a re-read PROVES the deletion took.',
+
+    // Phase 6 — Purge (US-F1/F2)
+    pur_titre: 'Purge',
+    pur_sous_titre: 'The honest inventory, then the decision — only OUR groups are deletable.',
+    pur_etape_preparer: 'Prepare (no writes)',
+    pur_etape_lire: 'Read & decide',
+    pur_etape_faite: 'Purge executed',
+    pur_doctrine:
+      'v1 has ONE reversible action: groups (a DELETE exists). Everything else — companies, depositaries, clients, identities, accounts — has NO DELETE on the platform: those residues stay, marked DEMO_, and each card states its measured verdict. The purge hides nothing.',
+    pur_accueil:
+      'Prepare draws the inventory: what can go, what will stay and why. No write leaves the preparation.',
+    pur_preparer: 'Prepare the purge',
+    pur_purgeable_titre: 'Purgeable — our groups',
+    pur_rien_a_purger: 'No group of ours on the platform — nothing to purge.',
+    pur_residus_titre: 'Marked residues — will stay, and here is why',
+    pur_case: 'I understand: only OUR groups will be deleted, permanently',
+    pur_executer: 'Execute the purge',
+    pur_confirmer_titre: 'Execute the purge now?',
+    pur_confirmer_corps:
+      'Each deletion will be journaled under RUN_ADMIN. Marked residues will stay on the platform and the report will restate them. This is the last chance to say no.',
+    pur_supprimes_toast: 'group(s) deleted',
+    pur_echecs: 'failure(s)',
+    pur_repreparer: 'Re-prepare (fresh state)',
 
     // Under-construction pages (phases 2→7)
     under_construction: 'Under construction',

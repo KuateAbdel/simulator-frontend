@@ -26,6 +26,11 @@ import { EntitesCompany } from './pages/EntitesCompany'
 import { EntitesProduit } from './pages/EntitesProduit'
 import { EntitesGroupe } from './pages/EntitesGroupe'
 import { AdminComptes } from './pages/AdminComptes'
+import { Ecosysteme } from './pages/Ecosysteme'
+import { Population } from './pages/Population'
+import { Tracabilite } from './pages/Tracabilite'
+import { Inventaire } from './pages/Inventaire'
+import { Purge } from './pages/Purge'
 import { EnConstruction } from './pages/EnConstruction'
 
 function Router() {
@@ -43,7 +48,11 @@ function Router() {
   if (currentPage === 'entites-produit') return <EntitesProduit />
   if (currentPage === 'entites-groupe') return <EntitesGroupe />
   if (currentPage === 'admin-comptes') return <AdminComptes />
-  // Phases 6→7 : chaque ecran remplacera son squelette, un par un.
+  if (currentPage === 'ecosysteme') return <Ecosysteme />
+  if (currentPage === 'population') return <Population />
+  if (currentPage === 'tracabilite') return <Tracabilite />
+  if (currentPage === 'inventaire') return <Inventaire />
+  if (currentPage === 'purge') return <Purge />
   return <EnConstruction page={currentPage} />
 }
 

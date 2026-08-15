@@ -449,6 +449,154 @@ export function creerDevise(demande: {
 }
 
 // --------------------------------------------------------------------------
+// Phase 6 — Ecosysteme US-E2, Population US-E3, Tracabilite US-E4,
+// Inventaire (4 statuts + adoption A-13 + DELETE), Purge US-F1/F2.
+// Contrats de admin_dashboard.py / admin_inventaire.py / admin_purge.py.
+// --------------------------------------------------------------------------
+
+export type KiosqueEco = {
+  id: string
+  nom: string
+  quartier: string | null
+  depositary_id: string | null
+  nb_agents: number
+  nb_clients: number
+}
+export type AgenceEco = { id: string; nom: string; ville: string | null; kiosques: KiosqueEco[] }
+export type BrancheEco = {
+  id: string
+  nom: string
+  pays: string
+  region: string | null
+  company_id: string
+  agences: AgenceEco[]
+}
+export type VueEcosysteme = {
+  run_id: string | null
+  comptes?: Record<string, number>
+  branches: BrancheEco[]
+  note?: string
+}
+
+export function lireEcosysteme(): Promise<VueEcosysteme> {
+  return api('/admin/dashboard/ecosysteme')
+}
+
+/** Chaque quota porte MESURE et CIBLE — l'ecran les montre cote a cote. */
+export type MesureCible = { mesure: number; cible: number }
+export type QuotasPays = {
+  pays: string
+  clients: MesureCible
+  corporate: MesureCible
+  femmes: MesureCible
+  jeunes: MesureCible
+  agricoles: MesureCible
+  profils: Record<string, MesureCible>
+}
+export type VuePopulation = {
+  run_id: string
+  mode: 'DRY_RUN' | 'REAL'
+  quotas_par_pays: QuotasPays[]
+  occupations: { distinctes: number; total: number; top: Record<string, number> }
+  soldes: { tranches: Record<string, number>; total_dote: number }
+  naissances: { a_l_etranger: number; au_pays: number }
+}
+
+export function lirePopulation(): Promise<VuePopulation> {
+  return api('/admin/dashboard/population')
+}
+
+export type VueIndexInverse = {
+  run_id: string
+  clients_par_produit: { product_id: string; marqueur: string; clients: number }[]
+  clients_par_kiosque: { kiosque_id: string; nom: string; clients: number }[]
+  note: string
+}
+
+export function lireIndexInverse(): Promise<VueIndexInverse> {
+  return api('/admin/dashboard/index-inverse')
+}
+
+export type VueTracabilite = {
+  run_id: string | null
+  note?: string
+  registre_faker?: {
+    par_pays: Record<string, number>
+    reservations_orphelines: { client_id: string; pays: string; seed: number }[]
+  }
+  journal?: {
+    ecritures_par_type: Record<string, number>
+    nb_entrees: number
+    intentions_orphelines: { entity_type: string; entity_id: string; cible: string }[]
+    dernieres_entrees: { entity_type: string; action: string; horodatage: string }[]
+  }
+  reconciliation?: string
+}
+
+export function lireTracabilite(): Promise<VueTracabilite> {
+  return api('/admin/dashboard/tracabilite')
+}
+
+/** Les 4 statuts de la reconciliation — TOUJOURS presents, vides s'il le faut. */
+export type StatutInventaire = 'a_nous' | 'disparu_la_bas' | 'marque_mais_inconnu' | 'etranger'
+export type LigneInventaire = {
+  id: string
+  nom: string
+  statut: StatutInventaire
+  short_name?: string
+}
+export type VueInventaire = {
+  a_nous: LigneInventaire[]
+  disparu_la_bas: LigneInventaire[]
+  marque_mais_inconnu: LigneInventaire[]
+  etranger: LigneInventaire[]
+  note?: string
+} & Record<string, unknown>
+
+export function lireInventaire(domaine: 'groupes' | 'produits' | 'companies'): Promise<VueInventaire> {
+  return api(`/admin/inventaire/${domaine}`)
+}
+
+export function supprimerGroupe(groupeId: string): Promise<{ supprime: string; verifie_par_relecture: boolean }> {
+  return api(`/admin/inventaire/groupes/${encodeURIComponent(groupeId)}`, { method: 'DELETE' })
+}
+
+export type IssueAdoption = { id: string; nom?: string; issue: 'adopte' | 'deja_au_registre' | 'introuvable' }
+
+export function adopterGroupes(groupeIds: string[]): Promise<{
+  issues: IssueAdoption[]
+  comptes: { adoptes: number; deja_au_registre: number; introuvables: number }
+  registre_apres: number
+  note: string
+}> {
+  return api('/admin/inventaire/groupes/adoption', { method: 'POST', body: { groupe_ids: groupeIds } })
+}
+
+export type ResiduMarque = { compte: number; verdict: string; note?: string }
+export type VuePurgePreparee = {
+  purgeable: { groupes: { id: string; nom: string }[]; regle: string }
+  residus_marques: Record<string, ResiduMarque>
+  note: string
+}
+
+/** US-F1 — l'inventaire de purge : AUCUNE ecriture ne part d'ici. */
+export function preparerPurge(): Promise<VuePurgePreparee> {
+  return api('/admin/purge/preparer', { method: 'POST' })
+}
+
+export function confirmerPurge(supprimerGroupes: boolean): Promise<{
+  supprimes: string[]
+  echecs: { groupe: string; motif: string }[]
+  residus_marques: Record<string, ResiduMarque>
+  note: string
+}> {
+  return api('/admin/purge/confirmer', {
+    method: 'POST',
+    body: { supprimer_groupes: supprimerGroupes },
+  })
+}
+
+// --------------------------------------------------------------------------
 // Comptes Super-Admin (RBAC, 15/08) — contrat de app/routes/admin_comptes.py
 // « Super-Admin » est un ROLE : plusieurs comptes, chacun son email REEL,
 // son mot de passe, son cycle A2. Desactivation reversible, jamais de
