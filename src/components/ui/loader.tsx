@@ -8,6 +8,8 @@ import React, {
   createContext,
   useCallback,
   useContext,
+  useEffect,
+  useRef,
   useState,
 } from 'react'
 import { AlertTriangle, CheckCircle2, XCircle } from 'lucide-react'
@@ -260,6 +262,19 @@ export function ConfirmDialog({
   onConfirmer: () => void
   onAnnuler: () => void
 }) {
+  // A11y (phase 8) : Echap ferme (sauf action en cours), et le focus se pose
+  // sur ANNULER a l'ouverture — l'action sure d'abord, jamais la dangereuse.
+  const refAnnuler = useRef<HTMLButtonElement>(null)
+  useEffect(() => {
+    if (!ouvert) return
+    refAnnuler.current?.focus()
+    const surTouche = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && !enCours) onAnnuler()
+    }
+    window.addEventListener('keydown', surTouche)
+    return () => window.removeEventListener('keydown', surTouche)
+  }, [ouvert, enCours, onAnnuler])
+
   if (!ouvert) return null
   return (
     <div
@@ -282,7 +297,13 @@ export function ConfirmDialog({
           {children}
         </div>
         <div className="flex justify-end gap-2">
-          <button className="btn-ghost text-xs" style={{ height: 32 }} onClick={onAnnuler} disabled={enCours}>
+          <button
+            ref={refAnnuler}
+            className="btn-ghost text-xs"
+            style={{ height: 32 }}
+            onClick={onAnnuler}
+            disabled={enCours}
+          >
             {libelleAnnuler}
           </button>
           <button

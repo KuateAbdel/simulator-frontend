@@ -54,18 +54,35 @@ src/
 ├── context/AppContext.tsx  # Langue, navigation, SESSION (JWT 4 h)
 ├── i18n/index.ts      # FR/EN — tout passe par t()
 ├── lib/api.ts         # Client API réel (Bearer, ApiError nommée)
-├── pages/             # Login, ChangePassword, TableauDeBord, écrans à venir
+├── pages/             # Les 18 écrans — un fichier par page, zéro mock
 ├── pwa.ts             # Service worker (mise à jour proposée, jamais imposée)
 └── types/index.ts     # Pages + Session
 ```
 
-## Avancement (8 phases, chacune déployable)
+## En production
 
-1. ✅ **Fondation** : auth, garde, nav 6 épopées, i18n, PWA, Error Boundary.
-2. Tableau de bord (US-E1) + Configuration (US-B1/2/3)
-3. Runs — le rite D-01 (US-C1→C6)
-4. Référentiels (arbre géo, créations pays/monnaie/telco)
-5. Entités (US-D1/D2)
-6. Écosystème + Population (US-E2/E3)
-7. Inventaire + Traçabilité + Purge
-8. Polish : responsive final, a11y, tests, CI/CD → `simul.fintech4esg.com`
+- **App : https://simul.fintech4esg.com** (nginx statique, vhost `simul.conf`
+  sur le serveur partagé, SPA fallback, `sw.js` jamais caché).
+- **CI/CD GitHub Actions** : CI (tsc strict + build + URL API prouvée dans le
+  bundle) puis CD (rsync SSH en user `apps`, hôte vérifié par empreinte,
+  santé = l'index en ligne sert LE bundle du build). `main` protégée : CI
+  requise, force-push et suppression interdits. **Aucun déploiement manuel.**
+- **Version** : SemVer depuis `package.json`, injectée au build avec le
+  commit court (`vite.config define`) — affichée en bas de sidebar et sur le
+  login (`Loader vX.Y.Z · abc1234`). Historique : `CHANGELOG.md` + tags git.
+- **RBAC** : Super-Admin est un RÔLE multi-comptes (écran Utilisateurs) —
+  chaque personne a son email réel, son mot de passe (changeable à tout
+  moment depuis le header), son cycle première-connexion.
+
+## Avancement — les 8 phases sont LIVRÉES
+
+1. ✅ Fondation : auth, garde, nav 6 épopées, i18n, PWA, Error Boundary
+2. ✅ Tableau de bord (US-E1) + Configuration (US-B1/2/3)
+3. ✅ Runs — le rite D-01 (US-C1→C6)
+4. ✅ Référentiels (arbre géo, créations pays/monnaie/telco/région/ville/quartier)
+5. ✅ Entités à l'unité (US-D1/D2 + groupes) + Utilisateurs (RBAC)
+6. ✅ Écosystème (US-E2), Population (US-E3+P-01), Traçabilité (US-E4),
+   Inventaire (4 statuts + adoption A-13 + DELETE), Purge (US-F1/F2)
+7. ✅ CI/CD + déploiement sur `simul.fintech4esg.com`
+8. ✅ Polish : responsive mobile (sidebar-tiroir), a11y (focus visible,
+   reduced-motion, Échap, lang dynamique), titres d'onglet, versionning

@@ -2,13 +2,19 @@
 //
 // Desktop : sidebar en flux (230/64). Mobile (<768px) : la sidebar est un
 // TIROIR superpose — le backdrop referme, le padding du main s'adapte.
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Sidebar } from './Sidebar'
 import { Header } from './Header'
+import { navItemDe } from './nav'
 import { useApp } from '../../context/AppContext'
 
 export function Layout({ children }: { children: React.ReactNode }) {
-  const { estMobile, sidebarOpen, setSidebarOpen } = useApp()
+  const { estMobile, sidebarOpen, setSidebarOpen, currentPage, t } = useApp()
+
+  // L'onglet du navigateur DIT ou on est — « Population — FinZuu Loader ».
+  useEffect(() => {
+    document.title = `${t(navItemDe(currentPage).labelKey)} — FinZuu Loader`
+  }, [currentPage, t])
   return (
     <div className="flex h-screen overflow-hidden" style={{ background: 'var(--bg)' }}>
       <Sidebar />

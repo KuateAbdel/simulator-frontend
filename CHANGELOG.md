@@ -5,6 +5,29 @@ versionnage [SemVer](https://semver.org/lang/fr/). La version affichée dans
 l'app (bas de sidebar + login) vient de `package.json`, injectée au build
 avec le commit court — elle ne peut pas mentir.
 
+## [1.0.0] — 2026-08-15
+
+**Les 8 phases du plan sont tenues** — le cockpit couvre les 6 épopées du
+backlog canonique, hébergé et déployé par pipeline.
+
+### Ajouté
+- **Utilisateurs (RBAC)** : Super-Admin est un RÔLE multi-comptes — création
+  par email réel (mot de passe initial affiché une fois), désactivation
+  réversible motivée, gardes anti-lock-out ; « changer MON mot de passe »
+  accessible à tout moment depuis le header.
+- **Phase 6** : Écosystème (arbre Branche→Agence→Kiosque), Population
+  (mesure/cible par pays, histogramme des soldes avec frontière EF-68,
+  occupations, naissances, index inverse P-01), Traçabilité (verdict de
+  réconciliation, orphelines des deux registres), Inventaire (4 statuts,
+  adoption A-13, DELETE relu), Purge (rite 2 temps, résidus à verdicts).
+- **Phase 8 — polish** : a11y (focus visible, `prefers-reduced-motion`,
+  Échap sur les dialogues avec focus sur l'action sûre, `lang` dynamique,
+  aria des boutons icône), titre d'onglet par page, `noscript` honnête.
+
+### Corrigé
+- Catalogue : `variants` est un objet profession→profil (exceptions au
+  profil par défaut) — plus de crash React #31, rendu en chips explicites.
+
 ## [0.5.0] — 2026-08-15
 
 Première version HÉBERGÉE : https://simul.fintech4esg.com (phases 1→5 du

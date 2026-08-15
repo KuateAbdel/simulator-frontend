@@ -101,6 +101,12 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     localStorage.setItem(LANG_KEY, l)
   }, [])
 
+  // A11y : la langue du DOCUMENT suit la langue de l'UI — les lecteurs
+  // d'ecran prononcent le bon lexique, des l'init et a chaque bascule.
+  useEffect(() => {
+    document.documentElement.lang = lang
+  }, [lang])
+
   const t = useCallback(
     (key: TranslationKey): string =>
       (translations[lang] as Record<string, string>)[key] ?? key,

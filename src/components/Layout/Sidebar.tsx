@@ -188,6 +188,7 @@ export function Sidebar() {
       {!estMobile && (
       <button
         onClick={() => setSidebarOpen(!sidebarOpen)}
+        aria-label={sidebarOpen ? 'replier le menu / collapse menu' : 'déplier le menu / expand menu'}
         className="absolute -right-3 top-16 z-50 flex items-center justify-center rounded-full border"
         style={{
           width: 24,

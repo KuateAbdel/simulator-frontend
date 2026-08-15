@@ -285,3 +285,23 @@ html, body, #root {
   border-radius: 8px;
   font-weight: 600;
 }
+
+/* ── Accessibilité (phase 8) ─────────────────────────────────────────── */
+
+/* Le focus clavier se VOIT — partout, sans casser le focus souris. */
+:focus-visible {
+  outline: 2px solid var(--primary-dark);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Vestibulaire : celui qui demande moins de mouvement l'obtient. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
