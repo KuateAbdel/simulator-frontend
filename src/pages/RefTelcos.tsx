@@ -10,7 +10,16 @@ import { Plus, Radio } from 'lucide-react'
 import { Card, SectionHeader } from '../components/ui'
 import { Banniere, Skeleton, useToast } from '../components/ui/loader'
 import { useApp } from '../context/AppContext'
-import { ajouterTelco, lireTelcos, type Telco } from '../lib/api'
+import {
+  ajouterTelco,
+  changerEtatTelco,
+  lireTelcos,
+  lireTelcosConfig,
+  type Telco,
+  type TelcoConfig,
+} from '../lib/api'
+import { ConfirmDialog } from '../components/ui/loader'
+import { ChampLabel, fautesDe } from './entites-commun'
 import { useMessageDe } from './runs-commun'
 
 type Etat =
@@ -32,6 +41,56 @@ export function RefTelcos() {
   const [fRegex, setFRegex] = useState('')
   const [fPart, setFPart] = useState('')
   const [fExemple, setFExemple] = useState('')
+  // LA-BAS (16/08) : les operateurs TELS QUE config-service les porte —
+  // etat reel + porteurs (la matiere de la garde des references inverses).
+  const [configTelcos, setConfigTelcos] = useState<TelcoConfig[] | null>(null)
+  const [configNote, setConfigNote] = useState('')
+  const [configErreur, setConfigErreur] = useState<string | null>(null)
+  const [cibleEtat, setCibleEtat] = useState<TelcoConfig | null>(null)
+  const [fMotifEtat, setFMotifEtat] = useState('')
+  const [etatErreur, setEtatErreur] = useState<string | null>(null)
+
+  const chargerConfig = useCallback(async () => {
+    setConfigErreur(null)
+    try {
+      const reponse = await lireTelcosConfig()
+      setConfigTelcos(reponse.telcos)
+      setConfigNote(reponse.note)
+    } catch (err) {
+      setConfigErreur(messageDe(err))
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  useEffect(() => {
+    void chargerConfig()
+  }, [chargerConfig])
+
+  const basculerEtat = async () => {
+    if (!cibleEtat || envoi) return
+    if (fMotifEtat.trim().length < 3) {
+      setEtatErreur(t('cpt_motif_note'))
+      return
+    }
+    setEnvoi(true)
+    setEtatErreur(null)
+    try {
+      const reponse = await changerEtatTelco(
+        cibleEtat.id,
+        !(cibleEtat.actif ?? true),
+        fMotifEtat.trim(),
+      )
+      setCibleEtat(null)
+      setFMotifEtat('')
+      pousser('succes', `${reponse.nom} — ${reponse.actif ? t('cpt_actif') : t('cpt_inactif')}`)
+      await chargerConfig()
+    } catch (err) {
+      // La garde des references inverses PARLE en 409 — on la laisse parler.
+      setEtatErreur(fautesDe(err).join(' — '))
+    } finally {
+      setEnvoi(false)
+    }
+  }
 
   const charger = useCallback(async () => {
     setEtat({ phase: 'chargement' })
@@ -261,6 +320,102 @@ export function RefTelcos() {
           </form>
         </Card>
       )}
+
+      {/* ── LA-BAS : les operateurs de config-service, etat reel ── */}
+      <Card className="mb-4">
+        <p className="text-xs font-semibold mb-1" style={{ color: 'var(--text-primary)' }}>
+          {t('tel_config_titre')}
+        </p>
+        <p className="text-[10px] mb-3" style={{ color: 'var(--text-muted)' }}>
+          {configNote || t('tel_config_note')}
+        </p>
+        {configErreur && (
+          <>
+            <Banniere ton="danger">{configErreur}</Banniere>
+            <button className="btn-ghost text-xs mt-2" onClick={() => void chargerConfig()}>
+              {t('retry')}
+            </button>
+          </>
+        )}
+        {configTelcos === null && configErreur === null && <Skeleton height={80} />}
+        {configTelcos !== null && (
+          <div style={{ overflowX: 'auto' }}>
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>{t('tel_nom_reseau')}</th>
+                  <th>{t('inv_col_etat')}</th>
+                  <th>{t('tel_porteurs')}</th>
+                  <th />
+                </tr>
+              </thead>
+              <tbody>
+                {configTelcos.map((telco) => (
+                  <tr key={telco.id}>
+                    <td className="text-xs font-semibold">
+                      {telco.nom}
+                      {telco.code && (
+                        <span className="font-mono text-[9px] ml-1" style={{ color: 'var(--text-muted)' }}>
+                          {telco.code}
+                        </span>
+                      )}
+                    </td>
+                    <td>
+                      {telco.actif === true && <span className="badge-secondary">{t('cpt_actif')}</span>}
+                      {telco.actif === false && <span className="badge-danger">{t('cpt_inactif')}</span>}
+                      {telco.actif === null && <span style={{ color: 'var(--text-muted)' }}>—</span>}
+                    </td>
+                    <td className="font-mono text-[10px]">{telco.porteurs.join(' · ') || '—'}</td>
+                    <td>
+                      <button
+                        className="btn-ghost text-[11px]"
+                        style={{ height: 24, color: telco.actif === false ? 'var(--secondary-dark)' : '#92400e' }}
+                        onClick={() => {
+                          setCibleEtat(telco)
+                          setFMotifEtat('')
+                          setEtatErreur(null)
+                        }}
+                      >
+                        {telco.actif === false ? t('cpt_reactiver') : t('cpt_desactiver')}
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </Card>
+
+      <ConfirmDialog
+        ouvert={cibleEtat !== null}
+        titre={`${cibleEtat?.actif === false ? t('cpt_reactiver') : t('cpt_desactiver')} « ${cibleEtat?.nom} » ?`}
+        libelleConfirmer={t('confirm')}
+        libelleAnnuler={t('cancel')}
+        danger={cibleEtat?.actif !== false}
+        enCours={envoi}
+        onConfirmer={() => void basculerEtat()}
+        onAnnuler={() => setCibleEtat(null)}
+      >
+        <p className="mb-2">{t('tel_etat_verite')}</p>
+        {cibleEtat && cibleEtat.porteurs.length > 1 && (
+          <p className="mb-2 font-semibold" style={{ color: '#92400e' }}>
+            {t('tel_etat_garde')} : {cibleEtat.porteurs.join(', ')}
+          </p>
+        )}
+        <ChampLabel texte={t('cpt_motif')} requis />
+        <input
+          className="input-base"
+          value={fMotifEtat}
+          onChange={(e) => setFMotifEtat(e.target.value)}
+          maxLength={200}
+        />
+        {etatErreur && (
+          <p className="text-xs mt-2" style={{ color: '#b91c1c' }} role="alert">
+            {etatErreur}
+          </p>
+        )}
+      </ConfirmDialog>
 
       <div className="grid md:grid-cols-2 gap-4">
         {codesPays.map((code) => {

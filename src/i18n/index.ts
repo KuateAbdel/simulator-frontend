@@ -315,6 +315,18 @@ export const translations = {
       'Votre mot de passe, à vous seul — le changer ne touche aucun autre compte.',
     mdp_change: 'Mot de passe changé — votre session continue.',
 
+    // Telcos & devises LA-BAS (16/08)
+    tel_config_titre: 'Sur config-service (là-bas) — état réel des opérateurs',
+    tel_config_note:
+      'Le référentiel PARTAGÉ de toutes les équipes — activer/désactiver agit là-bas, derrière la garde des références inverses.',
+    tel_porteurs: 'Référencé par',
+    tel_etat_verite:
+      'Ce geste modifie le référentiel PARTAGÉ (toutes les équipes le voient). La génération du Loader suit le classeur+surcouche (INV-18) — exclure un opérateur des tirages est un geste séparé, à arbitrer.',
+    tel_etat_garde:
+      'Garde des références inverses : d’autres pays référencent cet opérateur — la désactivation sera refusée avec le motif mesuré',
+    pm_devises_labas: 'Sur config-service (là-bas)',
+    pm_devise_tester: 'Tester la désactivation',
+
     // Pays & Monnaies — pre-remplissage devise (15/08)
     pm_devise_prefill: 'Pré-remplir depuis un pays (monnaie connue)',
     pm_devise_connue: 'monnaie connue du pays (ISO 4217) — modifiable',
@@ -543,6 +555,11 @@ export const translations = {
     inv_col_nom: 'Nom',
     inv_col_statut: 'Statut',
     inv_col_id: 'Identifiant plateforme',
+    inv_col_etat: 'État',
+    inv_dep_etat_verite:
+      'Vérité D-DEP-8 : désactiver un dépositaire n’arrête NI les collectes NI les retraits sur les souscriptions existantes — l’état est administratif. Le geste part LÀ-BAS (relecture prouvée) et se journalise.',
+    inv_dep_etat_etranger:
+      'Cible ÉTRANGÈRE — action permise (décision 16/08, geste réversible), tracée au journal.',
     inv_adopter: 'Adopter (A-13)',
     inv_adopter_titre: 'Adopter ces groupes au registre ?',
     inv_adopter_corps:
@@ -907,6 +924,18 @@ export const translations = {
     mdp_changer_note: 'Your password, yours alone — changing it touches no other account.',
     mdp_change: 'Password changed — your session continues.',
 
+    // Telcos & currencies OVER THERE (Aug 16)
+    tel_config_titre: 'On config-service (over there) — real operator state',
+    tel_config_note:
+      'The SHARED reference data of all teams — activate/deactivate acts over there, behind the inverse-reference guard.',
+    tel_porteurs: 'Referenced by',
+    tel_etat_verite:
+      'This action modifies the SHARED reference data (all teams see it). The Loader’s generation follows the workbook+overlay (INV-18) — excluding an operator from draws is a separate decision.',
+    tel_etat_garde:
+      'Inverse-reference guard: other countries reference this operator — deactivation will be refused with the measured reason',
+    pm_devises_labas: 'On config-service (over there)',
+    pm_devise_tester: 'Test deactivation',
+
     // Countries & Currencies — currency pre-fill (Aug 15)
     pm_devise_prefill: 'Pre-fill from a country (known currency)',
     pm_devise_connue: 'known currency of the country (ISO 4217) — editable',
@@ -1133,6 +1162,11 @@ export const translations = {
     inv_col_nom: 'Name',
     inv_col_statut: 'Status',
     inv_col_id: 'Platform identifier',
+    inv_col_etat: 'State',
+    inv_dep_etat_verite:
+      'D-DEP-8 truth: deactivating a depositary stops NEITHER collections NOR withdrawals on existing subscriptions — the state is administrative. The action goes OVER THERE (proven re-read) and is journaled.',
+    inv_dep_etat_etranger:
+      'FOREIGN target — action allowed (decision Aug 16, reversible), journaled.',
     inv_adopter: 'Adopt (A-13)',
     inv_adopter_titre: 'Adopt these groups into the registry?',
     inv_adopter_corps:

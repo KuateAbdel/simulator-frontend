@@ -15,6 +15,7 @@ import { Banniere, ConfirmDialog, Skeleton, useToast } from '../components/ui/lo
 import { useApp } from '../context/AppContext'
 import {
   adopterGroupes,
+  changerEtatDepositaire,
   creerLicenceCompany,
   licencesDeCompany,
   lireInventaire,
@@ -25,7 +26,7 @@ import {
   type VueInventaire,
 } from '../lib/api'
 import { useMessageDe } from './runs-commun'
-import { FautesBloc, fautesDe } from './entites-commun'
+import { ChampLabel, FautesBloc, fautesDe } from './entites-commun'
 
 type Domaine = 'groupes' | 'produits' | 'companies' | 'depositaires'
 
@@ -62,6 +63,37 @@ export function Inventaire() {
   const [adoptionOuverte, setAdoptionOuverte] = useState(false)
   // DELETE individuel : la cible confirmee en dialogue danger.
   const [cible, setCible] = useState<LigneInventaire | null>(null)
+  // Etat d'un depositaire (16/08) : la cible + le motif — la verite D-DEP-8
+  // est dans le dialogue, le warning ETRANGER aussi.
+  const [cibleEtat, setCibleEtat] = useState<LigneInventaire | null>(null)
+  const [fMotifEtat, setFMotifEtat] = useState('')
+
+  const basculerEtatDepositaire = async () => {
+    if (!cibleEtat || envoi) return
+    if (fMotifEtat.trim().length < 3) {
+      pousser('erreur', t('cpt_motif_note'))
+      return
+    }
+    setEnvoi(true)
+    setFautes([])
+    try {
+      const reponse = await changerEtatDepositaire(
+        cibleEtat.id,
+        !(cibleEtat.actif ?? true),
+        fMotifEtat.trim(),
+      )
+      setCibleEtat(null)
+      setFMotifEtat('')
+      pousser('succes', `${reponse.nom} — ${reponse.actif ? t('cpt_actif') : t('cpt_inactif')}`)
+      await charger('depositaires')
+    } catch (err) {
+      setCibleEtat(null)
+      setFautes(fautesDe(err))
+    } finally {
+      setEnvoi(false)
+    }
+  }
+
   // Licences (UC-07) : la company A NOUS dont on voit/attribue la licence.
   const [cibleLicence, setCibleLicence] = useState<LigneInventaire | null>(null)
   const [licences, setLicences] = useState<Record<string, unknown>[] | null>(null)
@@ -258,8 +290,9 @@ export function Inventaire() {
                     <th>{t('inv_col_nom')}</th>
                     {(domaine === 'produits' || domaine === 'companies') && <th>short_name</th>}
                     <th>{t('inv_col_statut')}</th>
+                    {domaine === 'depositaires' && <th>{t('inv_col_etat')}</th>}
                     <th>{t('inv_col_id')}</th>
-                    {(domaine === 'groupes' || domaine === 'companies') && <th />}
+                    {domaine !== 'produits' && <th />}
                   </tr>
                 </thead>
                 <tbody>
@@ -292,6 +325,15 @@ export function Inventaire() {
                           {t(`inv_${ligne.statut}` as Parameters<typeof t>[0])}
                         </span>
                       </td>
+                      {domaine === 'depositaires' && (
+                        <td>
+                          {ligne.actif === true && <span className="badge-secondary">{t('cpt_actif')}</span>}
+                          {ligne.actif === false && <span className="badge-danger">{t('cpt_inactif')}</span>}
+                          {(ligne.actif === null || ligne.actif === undefined) && (
+                            <span style={{ color: 'var(--text-muted)' }}>—</span>
+                          )}
+                        </td>
+                      )}
                       <td className="font-mono text-[9px]" style={{ color: 'var(--text-muted)' }}>
                         {ligne.id}
                       </td>
@@ -305,6 +347,22 @@ export function Inventaire() {
                             >
                               <Trash2 size={11} />
                               {t('delete')}
+                            </button>
+                          )}
+                        </td>
+                      )}
+                      {domaine === 'depositaires' && (
+                        <td>
+                          {ligne.statut !== 'disparu_la_bas' && (
+                            <button
+                              className="btn-ghost text-[11px]"
+                              style={{ height: 24, color: ligne.actif === false ? 'var(--secondary-dark)' : '#92400e' }}
+                              onClick={() => {
+                                setCibleEtat(ligne)
+                                setFMotifEtat('')
+                              }}
+                            >
+                              {ligne.actif === false ? t('cpt_reactiver') : t('cpt_desactiver')}
                             </button>
                           )}
                         </td>
@@ -350,6 +408,32 @@ export function Inventaire() {
         onAnnuler={() => setAdoptionOuverte(false)}
       >
         {t('inv_adopter_corps')} ({selection.size})
+      </ConfirmDialog>
+
+      {/* Etat d'un depositaire — la-bas pour de vrai, avec la verite D-DEP-8 */}
+      <ConfirmDialog
+        ouvert={cibleEtat !== null}
+        titre={`${cibleEtat?.actif === false ? t('cpt_reactiver') : t('cpt_desactiver')} « ${cibleEtat?.nom} » ?`}
+        libelleConfirmer={t('confirm')}
+        libelleAnnuler={t('cancel')}
+        danger={cibleEtat?.actif !== false}
+        enCours={envoi}
+        onConfirmer={() => void basculerEtatDepositaire()}
+        onAnnuler={() => setCibleEtat(null)}
+      >
+        <p className="mb-2">{t('inv_dep_etat_verite')}</p>
+        {cibleEtat?.statut === 'etranger' && (
+          <p className="mb-2 font-semibold" style={{ color: '#92400e' }}>
+            {t('inv_dep_etat_etranger')}
+          </p>
+        )}
+        <ChampLabel texte={t('cpt_motif')} requis />
+        <input
+          className="input-base"
+          value={fMotifEtat}
+          onChange={(e) => setFMotifEtat(e.target.value)}
+          maxLength={200}
+        />
       </ConfirmDialog>
 
       {/* Licences UC-07 — voir et attribuer, sur une company A NOUS */}

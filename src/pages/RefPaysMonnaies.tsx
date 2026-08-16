@@ -11,7 +11,16 @@ import { Coins, Globe2 } from 'lucide-react'
 import { Card, SectionHeader } from '../components/ui'
 import { Banniere, useToast } from '../components/ui/loader'
 import { useApp } from '../context/AppContext'
-import { creerDevise, creerPays, type MatiereRequise } from '../lib/api'
+import {
+  creerDevise,
+  creerPays,
+  desactiverDeviseConfig,
+  lireDevisesConfig,
+  type DeviseConfig,
+  type MatiereRequise,
+} from '../lib/api'
+import { fautesDe } from './entites-commun'
+import { useCallback, useEffect } from 'react'
 import { PAYS_AFRIQUE } from '../data/pays-iso'
 import { useMessageDe } from './runs-commun'
 
@@ -40,6 +49,34 @@ export function RefPaysMonnaies() {
   const [pEnvoi, setPEnvoi] = useState(false)
   const [pErreur, setPErreur] = useState<string | null>(null)
   const [matiere, setMatiere] = useState<MatiereRequise[] | null>(null)
+
+  // ── LA-BAS : les devises de config-service, avec leurs PORTEURS ──
+  const [devisesConfig, setDevisesConfig] = useState<DeviseConfig[] | null>(null)
+  const [devisesNote, setDevisesNote] = useState('')
+  const [refus, setRefus] = useState<Record<string, string>>({})
+
+  const chargerDevises = useCallback(async () => {
+    try {
+      const reponse = await lireDevisesConfig()
+      setDevisesConfig(reponse.devises)
+      setDevisesNote(reponse.note)
+    } catch {
+      setDevisesConfig(null)
+    }
+  }, [])
+
+  useEffect(() => {
+    void chargerDevises()
+  }, [chargerDevises])
+
+  const constaterRefus = async (devise: DeviseConfig) => {
+    try {
+      await desactiverDeviseConfig(devise.id, 'constat depuis le Loader')
+      setRefus((avant) => ({ ...avant, [devise.id]: 'ACCEPTÉE ?! — mesure du 09/08 périmée, à ré-auditer' }))
+    } catch (err) {
+      setRefus((avant) => ({ ...avant, [devise.id]: fautesDe(err).join(' ') }))
+    }
+  }
 
   const choisirPaysIso = (iso: string) => {
     setPIso(iso)
@@ -331,6 +368,46 @@ export function RefPaysMonnaies() {
               {pEnvoi ? t('loading') : t('pm_pays_creer')}
             </button>
           </form>
+
+          {devisesConfig && (
+            <div className="mt-4 border-t pt-3" style={{ borderColor: 'var(--border)' }}>
+              <p className="text-[10px] font-semibold uppercase tracking-wide mb-1" style={{ color: 'var(--text-muted)' }}>
+                {t('pm_devises_labas')}
+              </p>
+              <p className="text-[10px] mb-2" style={{ color: 'var(--text-muted)' }}>
+                {devisesNote}
+              </p>
+              <div className="space-y-1.5">
+                {devisesConfig.map((devise) => (
+                  <div key={devise.id}>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="font-mono text-xs font-bold" style={{ color: 'var(--text-primary)' }}>
+                        {devise.iso}
+                      </span>
+                      <span className="text-[10px]" style={{ color: 'var(--text-secondary)' }}>
+                        {devise.nom}
+                      </span>
+                      <span className="text-[10px] font-mono" style={{ color: 'var(--text-muted)' }}>
+                        {t('tel_porteurs')} : {devise.porteurs.join(' · ') || '—'}
+                      </span>
+                      <button
+                        className="btn-ghost text-[10px] ml-auto"
+                        style={{ height: 22 }}
+                        onClick={() => void constaterRefus(devise)}
+                      >
+                        {t('pm_devise_tester')}
+                      </button>
+                    </div>
+                    {refus[devise.id] && (
+                      <p className="text-[10px] mt-0.5" style={{ color: '#92400e' }} role="status">
+                        {refus[devise.id]}
+                      </p>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {matiere && (
             <div className="mt-4">

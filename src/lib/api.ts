@@ -547,6 +547,8 @@ export type LigneInventaire = {
   nom: string
   statut: StatutInventaire
   short_name?: string
+  /** Depositaires : l'is_active de la plateforme (null si la fiche ne le porte pas). */
+  actif?: boolean | null
 }
 export type VueInventaire = {
   a_nous: LigneInventaire[]
@@ -635,6 +637,70 @@ export function creerLicenceCompany(
 
 export function supprimerGroupe(groupeId: string): Promise<{ supprime: string; verifie_par_relecture: boolean }> {
   return api(`/admin/inventaire/groupes/${encodeURIComponent(groupeId)}`, { method: 'DELETE' })
+}
+
+/** 16/08 — l'etat d'un depositaire se CHANGE la-bas (PATCH status mesure),
+ * avec la verite D-DEP-8 portee par la reponse. */
+export function changerEtatDepositaire(
+  depositaireId: string,
+  actif: boolean,
+  motif: string,
+): Promise<{
+  id: string
+  nom: string
+  actif: boolean
+  statut: string
+  verite_d_dep_8: string
+  note: string
+}> {
+  return api(`/admin/inventaire/depositaires/${encodeURIComponent(depositaireId)}/etat`, {
+    method: 'PATCH',
+    body: { actif, motif },
+  })
+}
+
+export type TelcoConfig = {
+  id: string
+  nom: string
+  code: string
+  actif: boolean | null
+  porteurs: string[]
+}
+
+export function lireTelcosConfig(): Promise<{ telcos: TelcoConfig[]; compte: number; note: string }> {
+  return api('/admin/referentiels/telcos-config')
+}
+
+export function changerEtatTelco(
+  telcoId: string,
+  actif: boolean,
+  motif: string,
+): Promise<{ id: string; nom: string; actif: boolean; etat_relu: boolean | null; porteurs: string[]; note: string }> {
+  return api(`/admin/referentiels/telcos-config/${encodeURIComponent(telcoId)}/etat`, {
+    method: 'PATCH',
+    body: { actif, motif },
+  })
+}
+
+export type DeviseConfig = {
+  id: string
+  iso: string
+  nom: string
+  actif: boolean | null
+  porteurs: string[]
+}
+
+export function lireDevisesConfig(): Promise<{ devises: DeviseConfig[]; compte: number; note: string }> {
+  return api('/admin/referentiels/devises-config')
+}
+
+/** Toujours un 409 MESURE (100% des devises partagees) — l'appel existe pour
+ * que le refus soit constatable, avec sa preuve. */
+export function desactiverDeviseConfig(deviseId: string, motif: string): Promise<never> {
+  return api(`/admin/referentiels/devises-config/${encodeURIComponent(deviseId)}/etat`, {
+    method: 'PATCH',
+    body: { actif: false, motif },
+  })
 }
 
 export type IssueAdoption = { id: string; nom?: string; issue: 'adopte' | 'deja_au_registre' | 'introuvable' }
