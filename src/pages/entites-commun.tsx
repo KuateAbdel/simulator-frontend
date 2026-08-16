@@ -4,7 +4,7 @@
 // chaque faute telle quelle, jamais un « erreur 422 ». La fiche composee /
 // relue s'affiche en cle-valeur lisible, pas en JSON brut.
 
-import { ApiError } from '../lib/api'
+import { ApiError, type DiffRelecture } from '../lib/api'
 import { useApp } from '../context/AppContext'
 
 /** Les fautes d'une ApiError — un 422 du Lot D porte une LISTE de regles. */
@@ -93,6 +93,123 @@ export function FicheTable({ fiche, titre }: { fiche: Record<string, unknown>; t
           </tbody>
         </table>
       </div>
+    </div>
+  )
+}
+
+/** L'INSTRUMENT DE MESURE (reco 16/08) : envoye ↔ relu, champ par champ.
+ * Chaque creation devient un test d'integration de la plateforme — ce
+ * qu'elle PERD (FRA-199 currency) ou ECRASE (D-CLI-4 type) se VOIT. */
+export function DiffTable({
+  envoye,
+  relu,
+  titre,
+}: {
+  envoye: Record<string, unknown>
+  relu: Record<string, unknown>
+  titre: string
+}) {
+  const { t } = useApp()
+  const normaliser = (valeur: unknown) =>
+    valeur === null || valeur === undefined ? '' : JSON.stringify(valeur)
+  const cles = [...new Set([...Object.keys(envoye), ...Object.keys(relu)])]
+  const lignes = cles.map((cle) => {
+    const dansEnvoye = cle in envoye
+    const dansRelu = cle in relu
+    const identique = dansEnvoye && dansRelu && normaliser(envoye[cle]) === normaliser(relu[cle])
+    const verdict = identique
+      ? { texte: t('diff_identique'), fond: 'var(--secondary-light)', couleur: 'var(--secondary-dark)' }
+      : !dansRelu
+        ? { texte: t('diff_perdu'), fond: '#fee2e2', couleur: '#b91c1c' }
+        : !dansEnvoye
+          ? { texte: t('diff_ajoute'), fond: 'var(--border)', couleur: 'var(--text-secondary)' }
+          : { texte: t('diff_ecrase'), fond: '#fef9c3', couleur: '#92400e' }
+    return { cle, verdict, dansEnvoye, dansRelu }
+  })
+  const anomalies = lignes.filter((l) => l.verdict.texte !== t('diff_identique') && l.verdict.texte !== t('diff_ajoute'))
+  return (
+    <div>
+      <div className="flex items-baseline gap-2 mb-2">
+        <p className="text-[10px] font-semibold uppercase tracking-wide" style={{ color: 'var(--text-muted)' }}>
+          {titre}
+        </p>
+        <span
+          className="text-[9px] font-semibold rounded-full px-2 py-0.5"
+          style={
+            anomalies.length === 0
+              ? { background: 'var(--secondary-light)', color: 'var(--secondary-dark)' }
+              : { background: '#fef9c3', color: '#92400e' }
+          }
+        >
+          {anomalies.length === 0 ? t('diff_fidele') : `${anomalies.length} ${t('diff_anomalies')}`}
+        </span>
+      </div>
+      <div className="rounded-xl border overflow-auto" style={{ borderColor: 'var(--border)', maxHeight: 300 }}>
+        <table className="w-full text-xs" style={{ borderCollapse: 'collapse' }}>
+          <tbody>
+            {lignes.map(({ cle, verdict, dansEnvoye, dansRelu }, i) => (
+              <tr key={cle} style={{ background: i % 2 ? 'var(--surface)' : 'transparent' }}>
+                <td className="px-3 py-1 font-semibold whitespace-nowrap" style={{ color: 'var(--text-secondary)', width: '28%' }}>
+                  {cle}
+                </td>
+                <td className="px-3 py-1 font-mono text-[10px] break-all" style={{ color: 'var(--text-primary)' }}>
+                  {dansEnvoye ? normaliser(envoye[cle]) : '—'}
+                </td>
+                <td className="px-3 py-1 font-mono text-[10px] break-all" style={{ color: 'var(--text-primary)' }}>
+                  {dansRelu ? normaliser(relu[cle]) : '—'}
+                </td>
+                <td className="px-3 py-1">
+                  <span
+                    className="text-[9px] font-semibold rounded-full px-1.5 py-0.5 whitespace-nowrap"
+                    style={{ background: verdict.fond, color: verdict.couleur }}
+                  >
+                    {verdict.texte}
+                  </span>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  )
+}
+
+/** Le VERDICT DU BACKEND (16/08) — l'AUTORITE du diff payload<->relecture.
+ * La DiffTable ci-dessus est le double calcule par l'UI ; ici c'est le
+ * serveur qui a confronte le payload REELLEMENT envoye a la fiche relue.
+ * Fidele = badge vert discret ; sinon chaque ecart est nomme. */
+export function VerdictRelecture({ diff }: { diff: DiffRelecture | null | undefined }) {
+  const { t } = useApp()
+  if (!diff) return null
+  const ecarts = [
+    ...Object.entries(diff.divergences).map(
+      ([champ, v]) =>
+        `${champ} : ${JSON.stringify(v.envoye)} → ${JSON.stringify(v.relu)}`,
+    ),
+    ...diff.absents_de_la_relecture.map((champ) => `${champ} — ${t('diff_perdu')}`),
+  ]
+  return (
+    <div
+      className="text-[10px] rounded-lg px-3 py-2 mt-2 space-y-1"
+      style={
+        diff.fidele
+          ? { background: 'var(--secondary-light)', color: 'var(--secondary-dark)' }
+          : { background: '#fef9c3', color: '#92400e' }
+      }
+      role="status"
+    >
+      <p>
+        <span className="font-semibold">{t('diff_verdict_serveur')}</span>{' '}
+        {diff.verdict}{' '}
+        <span className="font-mono">({diff.champs_compares} {t('diff_champs')})</span>
+      </p>
+      {ecarts.map((ecart) => (
+        <p key={ecart} className="flex gap-1.5 font-mono">
+          <span aria-hidden>—</span>
+          <span className="break-all">{ecart}</span>
+        </p>
+      ))}
     </div>
   )
 }

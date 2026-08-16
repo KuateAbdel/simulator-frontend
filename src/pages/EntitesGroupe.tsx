@@ -11,9 +11,9 @@ import { RotateCcw, ShieldCheck, ShieldPlus } from 'lucide-react'
 import { Card, SectionHeader } from '../components/ui'
 import { Banniere, ConfirmDialog, Skeleton, useToast } from '../components/ui/loader'
 import { useApp } from '../context/AppContext'
-import { creerGroupe, lirePermissions, type GroupeDemande } from '../lib/api'
+import { creerGroupe, lirePermissions, type DiffRelecture, type GroupeDemande } from '../lib/api'
 import { useMessageDe } from './runs-commun'
-import { ChampLabel, FautesBloc, fautesDe } from './entites-commun'
+import { ChampLabel, FautesBloc, VerdictRelecture, fautesDe } from './entites-commun'
 
 type Tag = GroupeDemande['tag']
 
@@ -24,6 +24,8 @@ type EtatPermissions =
 
 type Resultat = {
   groupe: { id: string; nom: string; tag: string; permissions: number }
+  /** Le verdict du BACKEND — payload envoye confronte a la fiche relue. */
+  diff: DiffRelecture
   note: string
 }
 
@@ -124,7 +126,7 @@ export function EntitesGroupe() {
         company_id: fCompanyId.trim(),
       })
       setConfirmerOuvert(false)
-      setResultat({ groupe: reponse.groupe, note: reponse.note })
+      setResultat({ groupe: reponse.groupe, diff: reponse.diff_relecture, note: reponse.note })
       pousser('succes', `${t('grp_cree')} — ${reponse.groupe.nom}`)
     } catch (err) {
       setConfirmerOuvert(false)
@@ -336,6 +338,7 @@ export function EntitesGroupe() {
             </span>
           </div>
           <Banniere ton="succes">{resultat.note}</Banniere>
+          <VerdictRelecture diff={resultat.diff} />
           <div className="flex justify-end mt-4">
             <button className="btn-primary text-xs" style={{ height: 32 }} onClick={recommencer}>
               <RotateCcw size={12} />

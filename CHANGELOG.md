@@ -5,6 +5,29 @@ versionnage [SemVer](https://semver.org/lang/fr/). La version affichée dans
 l'app (bas de sidebar + login) vient de `package.json`, injectée au build
 avec le commit court — elle ne peut pas mentir.
 
+## [1.1.0] — 2026-08-16
+
+**Le cockpit complet du 16/08** — les décisions et recommandations validées
+par Yaniv, écrans compris.
+
+### Ajouté
+- **Dépositaire US-D3 refondu** : naît d'un QUARTIER + une company À NOUS —
+  2 champs saisis, nom `DEMO_Kiosque <quartier>` et devise DÉRIVÉE affichés,
+  incohérence company↔quartier dite (422 nommé). Licences UC-07 par company.
+- **États là-bas** : dépositaires/telcos/devises — l'état `is_active` se VOIT
+  et se CHANGE, refus de désactivation MESURÉ (références inverses).
+- **Aperçu Company modifiable** : les 4 champs saisis se corrigent en place +
+  « Recomposer » ; **« Autre variante » 🎲** — même demande+variante = même
+  fiche (CR-03), variante suivante = AUTRE tirage cohérent.
+- **Scénarios nommés** : sauver la demande de configuration courante en
+  preset, l'appliquer par LE chemin du PUT (gardes comprises), 409 homonyme.
+- **Diff payload↔relecture** : après chaque création à l'unité, la table
+  envoyé↔relu champ par champ (DiffTable — perdu/écrasé/ajouté) **doublée du
+  VERDICT DU BACKEND** (`diff_relecture`, l'autorité) — ce que la plateforme
+  perd (FRA-199 `currency`) ou écrase se dit à l'écran, jamais à l'œil.
+  Câblé sur Produit, Company (fiche RELUE, plus l'écho du POST), Groupe,
+  Dépositaire.
+
 ## [1.0.0] — 2026-08-15
 
 **Les 8 phases du plan sont tenues** — le cockpit couvre les 6 épopées du

@@ -253,6 +253,33 @@ export function lireConfiguration(): Promise<VueConfiguration> {
   return api<VueConfiguration>('/admin/configuration')
 }
 
+// Scenarios nommes (16/08) — des presets de ConfigurationDemande rejouables.
+// Appliquer passe par LE chemin du PUT cote backend : gardes comprises.
+
+export type Scenario = {
+  nom: string
+  demande: ConfigurationDemande
+  cree_par: string
+  cree_le: string
+}
+
+export function listerScenarios(): Promise<{ scenarios: Scenario[]; compte: number; note: string }> {
+  return api('/admin/configuration/scenarios')
+}
+
+export function sauverScenario(nom: string, demande: ConfigurationDemande): Promise<{ scenario: Scenario; note: string }> {
+  return api('/admin/configuration/scenarios', { method: 'POST', body: { nom, demande } })
+}
+
+export function supprimerScenario(nom: string): Promise<{ supprime: string }> {
+  return api(`/admin/configuration/scenarios/${encodeURIComponent(nom)}`, { method: 'DELETE' })
+}
+
+/** La reponse est la vue RESOLUE — la meme que le PUT. */
+export function appliquerScenario(nom: string): Promise<VueConfiguration> {
+  return api(`/admin/configuration/scenarios/${encodeURIComponent(nom)}/appliquer`, { method: 'POST' })
+}
+
 export function modifierConfiguration(demande: ConfigurationDemande): Promise<VueConfiguration> {
   return api<VueConfiguration>('/admin/configuration', { method: 'PUT', body: demande })
 }
@@ -593,9 +620,21 @@ export function apercuDepositaire(demande: DepositaireDemande): Promise<{
   return api('/admin/entites/depositaires/apercu', { method: 'POST', body: demande })
 }
 
+/** Le VERDICT du backend (16/08) — l'AUTORITE du diff payload<->relecture.
+ * La DiffTable de l'UI est le double a l'ecran ; le serveur, lui, a confronte
+ * le payload REELLEMENT envoye a la fiche RELUE, champ par champ. */
+export type DiffRelecture = {
+  fidele: boolean
+  champs_compares: number
+  divergences: Record<string, { envoye: unknown; relu: unknown }>
+  absents_de_la_relecture: string[]
+  verdict: string
+}
+
 export function creerDepositaire(demande: DepositaireDemande): Promise<{
   depositary_id: string
   fiche_relue: Record<string, unknown> | null
+  diff_relecture: DiffRelecture
   composition: CompositionDepositaire
   marqueur: string
   statut: string
@@ -816,6 +855,7 @@ export function apercuProduit(demande: ProduitDemande): Promise<{
 export function creerProduit(demande: ProduitDemande): Promise<{
   product_id: string
   fiche_relue: Record<string, unknown> | null
+  diff_relecture: DiffRelecture | null
   marqueur: string
   note: string
 }> {
@@ -829,6 +869,9 @@ export type CompanyDemande = {
   ville: string
   /** Raison sociale imposee — sinon le Loader la compose (patronyme reel). */
   nom?: string
+  /** « Regenerer une variante » : meme demande+variante = meme fiche (CR-03),
+   * variante suivante = AUTRE tirage coherent. */
+  variante?: number
 }
 
 export function apercuCompany(demande: CompanyDemande): Promise<{
@@ -844,6 +887,9 @@ export function apercuCompany(demande: CompanyDemande): Promise<{
 
 export function creerCompany(demande: CompanyDemande): Promise<{
   fiche: Record<string, unknown>
+  /** La fiche RELUE de la plateforme — la preuve, jamais l'echo du POST. */
+  fiche_relue: Record<string, unknown> | null
+  diff_relecture: DiffRelecture | null
   /** Les EMAILS des Admin Users crees — des chaines, pas des objets. */
   admins_crees: string[]
   cascade_owner_verifiee: boolean
@@ -867,6 +913,7 @@ export type GroupeDemande = {
 
 export function creerGroupe(demande: GroupeDemande): Promise<{
   groupe: { id: string; nom: string; tag: string; permissions: number }
+  diff_relecture: DiffRelecture
   statut: string
   au_registre: boolean
   note: string

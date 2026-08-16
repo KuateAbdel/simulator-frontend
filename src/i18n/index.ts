@@ -453,6 +453,34 @@ export const translations = {
     cmp_licence_ok: 'licence',
     cmp_licence_ko: 'licence NON créée :',
     cmp_licence_annonce: 'Licence qui sera créée (UC-07) :',
+    cmp_variante: 'Autre variante',
+    cmp_variante_bulle:
+      'Retire un AUTRE dirigeant/téléphone, tout aussi cohérent — la même variante redonne toujours la même fiche (CR-03).',
+
+    // Diff de relecture — l'instrument de mesure (16/08)
+    diff_titre: 'Envoyé ↔ relu du serveur — champ par champ',
+    diff_identique: 'identique',
+    diff_perdu: 'PERDU par la plateforme',
+    diff_ecrase: 'écrasé',
+    diff_ajoute: 'ajouté par le serveur',
+    diff_fidele: 'fidèle — rien perdu, rien écrasé',
+    diff_anomalies: 'champ(s) perdu(s)/écrasé(s)',
+    diff_verdict_serveur: 'Verdict du backend :',
+    diff_champs: 'champs comparés',
+
+    // Scénarios nommés (16/08)
+    sc_titre: 'Scénarios — presets rejouables',
+    sc_note:
+      'Un scénario fige la DEMANDE en cours (les champs que tu as touchés). L’appliquer passe par le même chemin qu’« Enregistrer » — gardes comprises.',
+    sc_nom: 'Nom du scénario',
+    sc_nom_court: 'Un nom d’au moins 3 caractères est requis.',
+    sc_sauver: 'Sauver la demande courante',
+    sc_sauver_bulle: 'Touchez au moins un champ ci-dessus, puis nommez le préset.',
+    sc_sauve: 'Scénario sauvé.',
+    sc_applique: 'Scénario appliqué —',
+    sc_supprime: 'Scénario supprimé —',
+    sc_appliquer: 'Appliquer',
+    sc_vide: 'Aucun scénario — touchez des champs puis sauvez votre premier préset.',
     cmp_recomposer: 'Recomposer l’aperçu',
     cmp_composes_note:
       'Les champs ci-dessus sont les SAISIS — modifiables ici, « Recomposer » rejoue l’aperçu. Les champs composés (identité, adresse, secteurs…) ne s’éditent pas : c’est le Loader qui compose, à l’identique d’un run.',
@@ -1060,6 +1088,34 @@ export const translations = {
     cmp_licence_ok: 'licence',
     cmp_licence_ko: 'licence NOT created:',
     cmp_licence_annonce: 'Licence to be created (UC-07):',
+    cmp_variante: 'Another variant',
+    cmp_variante_bulle:
+      'Draws ANOTHER owner/phone, just as coherent — the same variant always yields the same record (CR-03).',
+
+    // Re-read diff — the measuring instrument (Aug 16)
+    diff_titre: 'Sent ↔ re-read from the server — field by field',
+    diff_identique: 'identical',
+    diff_perdu: 'LOST by the platform',
+    diff_ecrase: 'overwritten',
+    diff_ajoute: 'added by the server',
+    diff_fidele: 'faithful — nothing lost, nothing overwritten',
+    diff_anomalies: 'lost/overwritten field(s)',
+    diff_verdict_serveur: 'Backend verdict:',
+    diff_champs: 'fields compared',
+
+    // Named scenarios (Aug 16)
+    sc_titre: 'Scenarios — replayable presets',
+    sc_note:
+      'A scenario freezes the CURRENT request (the fields you touched). Applying it goes through the same path as “Save” — guards included.',
+    sc_nom: 'Scenario name',
+    sc_nom_court: 'A name of at least 3 characters is required.',
+    sc_sauver: 'Save the current request',
+    sc_sauver_bulle: 'Touch at least one field above, then name the preset.',
+    sc_sauve: 'Scenario saved.',
+    sc_applique: 'Scenario applied —',
+    sc_supprime: 'Scenario deleted —',
+    sc_appliquer: 'Apply',
+    sc_vide: 'No scenario — touch some fields then save your first preset.',
     cmp_recomposer: 'Recompose the preview',
     cmp_composes_note:
       'The fields above are the TYPED ones — editable here, “Recompose” replays the preview. Composed fields (identity, address, sectors…) are not editable: the Loader composes, exactly like a run.',

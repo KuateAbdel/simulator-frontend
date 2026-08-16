@@ -16,9 +16,18 @@ import {
   TAUX_USURE_MAX_ANNUEL_PCT,
   apercuProduit,
   creerProduit,
+  type DiffRelecture,
   type ProduitDemande,
 } from '../lib/api'
-import { ChampLabel, ErreurInline, FautesBloc, FicheTable, fautesDe } from './entites-commun'
+import {
+  ChampLabel,
+  DiffTable,
+  ErreurInline,
+  FautesBloc,
+  FicheTable,
+  VerdictRelecture,
+  fautesDe,
+} from './entites-commun'
 
 type PolicyType = ProduitDemande['policy_type']
 
@@ -30,6 +39,10 @@ type Etape =
       productId: string
       marqueur: string
       fiche: Record<string, unknown> | null
+      /** Le payload ENVOYE — la moitie « chez nous » du diff de relecture. */
+      payload: Record<string, unknown>
+      /** Le verdict du BACKEND — l'autorite, l'UI ne fait que doubler. */
+      diff: DiffRelecture | null
       note: string
     }
 
@@ -121,6 +134,7 @@ export function EntitesProduit() {
     if (envoi) return
     setEnvoi(true)
     setFautes([])
+    const payloadEnvoye = etape.phase === 'apercu' ? etape.payload : {}
     try {
       const reponse = await creerProduit(demande())
       setConfirmerOuvert(false)
@@ -129,6 +143,8 @@ export function EntitesProduit() {
         productId: reponse.product_id,
         marqueur: reponse.marqueur,
         fiche: reponse.fiche_relue,
+        payload: payloadEnvoye,
+        diff: reponse.diff_relecture,
         note: reponse.note,
       })
       pousser('succes', `${t('prod_cree')} — ${reponse.marqueur}`)
@@ -376,7 +392,16 @@ export function EntitesProduit() {
           <Banniere ton="succes">{etape.note}</Banniere>
           {etape.fiche ? (
             <div className="mt-3">
-              <FicheTable fiche={etape.fiche} titre={t('prod_fiche_relue')} />
+              {Object.keys(etape.payload).length > 0 ? (
+                <DiffTable
+                  envoye={etape.payload}
+                  relu={etape.fiche}
+                  titre={t('diff_titre')}
+                />
+              ) : (
+                <FicheTable fiche={etape.fiche} titre={t('prod_fiche_relue')} />
+              )}
+              <VerdictRelecture diff={etape.diff} />
             </div>
           ) : (
             <p className="text-xs mt-3" style={{ color: 'var(--text-muted)' }}>

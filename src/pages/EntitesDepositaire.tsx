@@ -19,10 +19,11 @@ import {
   lireInventaire,
   type CompositionDepositaire,
   type LigneInventaire,
+  type DiffRelecture,
   type VueGeographie,
 } from '../lib/api'
 import { useMessageDe } from './runs-commun'
-import { ChampLabel, FautesBloc, FicheTable, fautesDe } from './entites-commun'
+import { ChampLabel, DiffTable, FautesBloc, FicheTable, VerdictRelecture, fautesDe } from './entites-commun'
 
 type Etape =
   | { phase: 'composer' }
@@ -31,6 +32,7 @@ type Etape =
       phase: 'cree'
       depositaryId: string
       fiche: Record<string, unknown> | null
+      diff: DiffRelecture | null
       composition: CompositionDepositaire
       note: string
     }
@@ -115,6 +117,7 @@ export function EntitesDepositaire() {
         phase: 'cree',
         depositaryId: reponse.depositary_id,
         fiche: reponse.fiche_relue,
+        diff: reponse.diff_relecture,
         composition: reponse.composition,
         note: reponse.note,
       })
@@ -256,7 +259,16 @@ export function EntitesDepositaire() {
           <Banniere ton="succes">{etape.note}</Banniere>
           {etape.fiche && (
             <div className="mt-3">
-              <FicheTable fiche={etape.fiche} titre={t('prod_fiche_relue')} />
+              <DiffTable
+                envoye={{
+                  name: etape.composition.marqueur,
+                  currency: etape.composition.devise,
+                  company_id: fCompany,
+                }}
+                relu={etape.fiche}
+                titre={t('diff_titre')}
+              />
+              <VerdictRelecture diff={etape.diff} />
             </div>
           )}
           <div className="flex justify-end mt-4">

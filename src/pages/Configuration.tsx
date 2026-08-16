@@ -21,11 +21,16 @@ import {
 import { useApp } from '../context/AppContext'
 import {
   ApiError,
+  appliquerScenario,
   changerEtatPays,
   lireConfiguration,
+  listerScenarios,
   modifierConfiguration,
+  sauverScenario,
+  supprimerScenario,
   type ConfigurationDemande,
   type Fourchette,
+  type Scenario,
   type SurchargePaysDemande,
   type VueConfiguration,
 } from '../lib/api'
@@ -157,10 +162,9 @@ export function Configuration() {
       )
     })
 
-  const enregistrer = async () => {
-    if (enEnvoi || uneFourchetteInvalide || !brouillonTouche) return
-    setEnEnvoi(true)
-    setVerrouEf55(null)
+  // La demande que « Enregistrer » enverrait — UNE construction, deux usages
+  // (le PUT et la sauvegarde de scenario) : jamais deux verites.
+  const construireDemande = (): ConfigurationDemande => {
     const demande: ConfigurationDemande = {}
     if (brouillonGlobal !== '') demande.nb_clients = Number(brouillonGlobal)
     const pays: Record<string, SurchargePaysDemande> = {}
@@ -180,6 +184,14 @@ export function Configuration() {
       if (Object.keys(surcharge).length > 0) pays[code] = surcharge
     }
     if (Object.keys(pays).length > 0) demande.pays = pays
+    return demande
+  }
+
+  const enregistrer = async () => {
+    if (enEnvoi || uneFourchetteInvalide || !brouillonTouche) return
+    setEnEnvoi(true)
+    setVerrouEf55(null)
+    const demande = construireDemande()
     try {
       poserVue(await modifierConfiguration(demande))
       pousser('succes', t('cfg_enregistre'))
@@ -191,6 +203,61 @@ export function Configuration() {
       }
     } finally {
       setEnEnvoi(false)
+    }
+  }
+
+  // ── Scenarios nommes (16/08) — des presets rejouables ──
+  const [scenarios, setScenarios] = useState<Scenario[] | null>(null)
+  const [fNomScenario, setFNomScenario] = useState('')
+  const [scenarioErreur, setScenarioErreur] = useState<string | null>(null)
+
+  const chargerScenarios = useCallback(async () => {
+    try {
+      setScenarios((await listerScenarios()).scenarios)
+    } catch {
+      setScenarios(null)
+    }
+  }, [])
+
+  useEffect(() => {
+    void chargerScenarios()
+  }, [chargerScenarios])
+
+  const sauverLeScenario = async () => {
+    if (fNomScenario.trim().length < 3) {
+      setScenarioErreur(t('sc_nom_court'))
+      return
+    }
+    setScenarioErreur(null)
+    try {
+      await sauverScenario(fNomScenario.trim(), construireDemande())
+      pousser('succes', t('sc_sauve'))
+      setFNomScenario('')
+      await chargerScenarios()
+    } catch (err) {
+      setScenarioErreur(messageDe(err))
+    }
+  }
+
+  const appliquerLeScenario = async (nom: string) => {
+    setScenarioErreur(null)
+    try {
+      poserVue(await appliquerScenario(nom))
+      pousser('succes', `${t('sc_applique')} « ${nom} »`)
+    } catch (err) {
+      if (err instanceof ApiError && err.status === 409) setVerrouEf55(String(err.detail))
+      else setScenarioErreur(messageDe(err))
+    }
+  }
+
+  const supprimerLeScenario = async (nom: string) => {
+    setScenarioErreur(null)
+    try {
+      await supprimerScenario(nom)
+      pousser('succes', `${t('sc_supprime')} « ${nom} »`)
+      await chargerScenarios()
+    } catch (err) {
+      setScenarioErreur(messageDe(err))
     }
   }
 
@@ -453,6 +520,82 @@ export function Configuration() {
           {enEnvoi ? t('loading') : t('cfg_enregistrer')}
         </button>
       </div>
+
+      {/* ── Scenarios nommes (16/08) — des presets rejouables ── */}
+      <Card className="mt-4">
+        <p className="text-xs font-semibold mb-1" style={{ color: 'var(--text-primary)' }}>
+          {t('sc_titre')}
+        </p>
+        <p className="text-[10px] mb-3" style={{ color: 'var(--text-muted)' }}>
+          {t('sc_note')}
+        </p>
+        <div className="flex flex-wrap items-end gap-2 mb-3">
+          <div style={{ minWidth: 220 }}>
+            <label className="text-[10px] font-semibold uppercase tracking-wide mb-1 block" style={{ color: 'var(--text-muted)' }}>
+              {t('sc_nom')}
+            </label>
+            <input
+              className="input-base"
+              value={fNomScenario}
+              onChange={(e) => setFNomScenario(e.target.value)}
+              maxLength={60}
+              placeholder="Démo client 200"
+            />
+          </div>
+          <button
+            className="btn-ghost text-xs"
+            style={{ height: 34, opacity: brouillonTouche && fNomScenario.trim().length >= 3 ? 1 : 0.6 }}
+            disabled={!brouillonTouche || fNomScenario.trim().length < 3}
+            onClick={() => void sauverLeScenario()}
+            title={t('sc_sauver_bulle')}
+          >
+            {t('sc_sauver')}
+          </button>
+        </div>
+        {scenarioErreur && (
+          <p className="text-xs mb-2" style={{ color: '#b91c1c' }} role="alert">
+            {scenarioErreur}
+          </p>
+        )}
+        {scenarios !== null && scenarios.length === 0 && (
+          <p className="text-[11px]" style={{ color: 'var(--text-muted)' }}>
+            {t('sc_vide')}
+          </p>
+        )}
+        {scenarios !== null && scenarios.length > 0 && (
+          <div className="space-y-1.5">
+            {scenarios.map((scenario) => (
+              <div
+                key={scenario.nom}
+                className="flex flex-wrap items-center gap-2 rounded-lg px-3 py-2"
+                style={{ background: 'var(--surface)' }}
+              >
+                <span className="text-xs font-semibold" style={{ color: 'var(--text-primary)' }}>
+                  {scenario.nom}
+                </span>
+                <span className="text-[9px] font-mono" style={{ color: 'var(--text-muted)' }}>
+                  {scenario.cree_par} · {new Date(scenario.cree_le).toLocaleDateString()}
+                </span>
+                <div className="flex-1" />
+                <button
+                  className="btn-primary text-[11px]"
+                  style={{ height: 26 }}
+                  onClick={() => void appliquerLeScenario(scenario.nom)}
+                >
+                  {t('sc_appliquer')}
+                </button>
+                <button
+                  className="btn-ghost text-[11px]"
+                  style={{ height: 26, color: '#b91c1c' }}
+                  onClick={() => void supprimerLeScenario(scenario.nom)}
+                >
+                  {t('delete')}
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+      </Card>
     </div>
   )
 }

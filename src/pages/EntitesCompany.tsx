@@ -17,10 +17,11 @@ import {
   creerCompany,
   lireGeographie,
   type CompanyDemande,
+  type DiffRelecture,
   type VueGeographie,
 } from '../lib/api'
 import { useMessageDe } from './runs-commun'
-import { ChampLabel, FautesBloc, FicheTable, fautesDe } from './entites-commun'
+import { ChampLabel, FautesBloc, FicheTable, VerdictRelecture, fautesDe } from './entites-commun'
 
 type TypeCompany = CompanyDemande['type_company']
 type Pays = CompanyDemande['pays']
@@ -37,6 +38,8 @@ type Etape =
   | {
       phase: 'cree'
       fiche: Record<string, unknown>
+      ficheRelue: Record<string, unknown> | null
+      diff: DiffRelecture | null
       admins: string[]
       cascade: boolean
       licenceCreee: boolean
@@ -61,6 +64,9 @@ export function EntitesCompany() {
   const [fPays, setFPays] = useState<Pays>('CM')
   const [fVille, setFVille] = useState('')
   const [fNom, setFNom] = useState('')
+  // « Regenerer une variante » : meme demande+variante = meme fiche (CR-03) ;
+  // variante suivante = AUTRE tirage coherent — on n'edite pas le genere.
+  const [fVariante, setFVariante] = useState(0)
 
   const chargerGeo = useCallback(async () => {
     setGeoErreur(null)
@@ -92,21 +98,22 @@ export function EntitesCompany() {
     { type: 'FONDATION', titre: t('cmp_fondation_titre'), detail: t('cmp_fondation_detail') },
   ]
 
-  const demande = (): CompanyDemande => ({
+  const demande = (variante = fVariante): CompanyDemande => ({
     type_company: fType,
     pays: fPays,
     ville: fVille,
     ...(fNom.trim() !== '' ? { nom: fNom.trim() } : {}),
+    ...(variante > 0 ? { variante } : {}),
   })
 
   const formulaireValide = fVille !== '' && (fNom.trim() === '' || fNom.trim().length >= 3)
 
-  const voirApercu = async () => {
+  const voirApercu = async (variante = fVariante) => {
     if (envoi || !formulaireValide) return
     setEnvoi(true)
     setFautes([])
     try {
-      const reponse = await apercuCompany(demande())
+      const reponse = await apercuCompany(demande(variante))
       setEtape({
         phase: 'apercu',
         fiche: reponse.fiche,
@@ -131,6 +138,8 @@ export function EntitesCompany() {
       setEtape({
         phase: 'cree',
         fiche: reponse.fiche,
+        ficheRelue: reponse.fiche_relue,
+        diff: reponse.diff_relecture,
         admins: reponse.admins_crees,
         cascade: reponse.cascade_owner_verifiee,
         licenceCreee: reponse.licence_creee,
@@ -336,6 +345,20 @@ export function EntitesCompany() {
               <RotateCcw size={12} />
               {envoi ? t('loading') : t('cmp_recomposer')}
             </button>
+            <button
+              className="btn-ghost text-xs"
+              style={{ height: 34, opacity: envoi ? 0.6 : 1 }}
+              disabled={envoi}
+              title={t('cmp_variante_bulle')}
+              onClick={() => {
+                const suivante = (fVariante + 1) % 100
+                setFVariante(suivante)
+                void voirApercu(suivante)
+              }}
+            >
+              🎲 {t('cmp_variante')}
+              {fVariante > 0 && <span className="font-mono ml-1">#{fVariante}</span>}
+            </button>
           </div>
           <p className="text-[10px] mb-2" style={{ color: 'var(--text-muted)' }}>
             {t('cmp_composes_note')}
@@ -395,7 +418,8 @@ export function EntitesCompany() {
             </p>
           )}
           <div className="mt-3">
-            <FicheTable fiche={etape.fiche} titre={t('cmp_fiche_serveur')} />
+            <FicheTable fiche={etape.ficheRelue ?? etape.fiche} titre={t('cmp_fiche_serveur')} />
+            <VerdictRelecture diff={etape.diff} />
           </div>
           <div className="flex justify-end mt-4">
             <button className="btn-primary text-xs" style={{ height: 32 }} onClick={recommencer}>
