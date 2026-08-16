@@ -5,6 +5,16 @@ versionnage [SemVer](https://semver.org/lang/fr/). La version affichée dans
 l'app (bas de sidebar + login) vient de `package.json`, injectée au build
 avec le commit court — elle ne peut pas mentir.
 
+## [1.1.1] — 2026-08-16
+
+### Corrigé
+- **Configuration : React #310** (« erreur de rendu », tout l'écran dans le
+  PageBoundary) — les hooks du bloc Scénarios étaient déclarés APRÈS les
+  returns anticipés (chargement/erreur) : nombre de hooks différent entre
+  deux rendus. Hooks remontés avant tout return ; banc navigateur 6/6
+  (rendu complet, scénario sauvé, aller-retour d'onglet, zéro erreur
+  console).
+
 ## [1.1.0] — 2026-08-16
 
 **Le cockpit complet du 16/08** — les décisions et recommandations validées

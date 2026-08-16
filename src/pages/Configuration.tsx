@@ -112,6 +112,26 @@ export function Configuration() {
     void charger()
   }, [charger])
 
+  // ── Scenarios nommes (16/08) — des presets rejouables. HOOKS ICI,
+  // AVANT les returns anticipes (chargement/erreur) : un hook declare apres
+  // un early return change de NOMBRE entre deux rendus — React #310, et
+  // c'est tout l'ecran qui tombait dans le PageBoundary. ──
+  const [scenarios, setScenarios] = useState<Scenario[] | null>(null)
+  const [fNomScenario, setFNomScenario] = useState('')
+  const [scenarioErreur, setScenarioErreur] = useState<string | null>(null)
+
+  const chargerScenarios = useCallback(async () => {
+    try {
+      setScenarios((await listerScenarios()).scenarios)
+    } catch {
+      setScenarios(null)
+    }
+  }, [])
+
+  useEffect(() => {
+    void chargerScenarios()
+  }, [chargerScenarios])
+
   if (etat.statut === 'chargement') {
     return (
       <div className="space-y-3">
@@ -205,23 +225,6 @@ export function Configuration() {
       setEnEnvoi(false)
     }
   }
-
-  // ── Scenarios nommes (16/08) — des presets rejouables ──
-  const [scenarios, setScenarios] = useState<Scenario[] | null>(null)
-  const [fNomScenario, setFNomScenario] = useState('')
-  const [scenarioErreur, setScenarioErreur] = useState<string | null>(null)
-
-  const chargerScenarios = useCallback(async () => {
-    try {
-      setScenarios((await listerScenarios()).scenarios)
-    } catch {
-      setScenarios(null)
-    }
-  }, [])
-
-  useEffect(() => {
-    void chargerScenarios()
-  }, [chargerScenarios])
 
   const sauverLeScenario = async () => {
     if (fNomScenario.trim().length < 3) {
