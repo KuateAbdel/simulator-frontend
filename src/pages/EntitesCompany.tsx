@@ -147,13 +147,28 @@ export function EntitesCompany() {
     if (!catalogue) return []
     return [...new Set([...catalogue.industries, ...(catalogue.industries_surcouche ?? [])])].sort()
   }, [catalogue])
+  // `catalogue.secteurs` est indexe PAR SECTEUR -> liste de ses industries
+  // (et non l'inverse). Un secteur est donc PROPOSE si au moins une de ses
+  // industries figure dans celles choisies (cascade industries -> secteurs).
+  // Sans industrie choisie : tous les secteurs. La surcouche est deja fusionnee
+  // dans `secteurs` cote backend, inutile de la rajouter.
   const optSectors = useMemo(() => {
     if (!catalogue) return []
-    const base = fIndustries.length
-      ? fIndustries.flatMap((ind) => catalogue.secteurs[ind] ?? [])
-      : Object.values(catalogue.secteurs).flat()
-    return [...new Set([...base, ...(catalogue.secteurs_surcouche ?? [])])].sort()
+    const noms = Object.keys(catalogue.secteurs)
+    if (fIndustries.length === 0) return [...noms].sort()
+    return noms
+      .filter((sec) => (catalogue.secteurs[sec] ?? []).some((ind) => fIndustries.includes(ind)))
+      .sort()
   }, [catalogue, fIndustries])
+
+  // Quand les industries changent, on retire les secteurs devenus incoherents
+  // (leur industrie n'est plus cochee) — la selection reste toujours valide.
+  useEffect(() => {
+    setFSectors((cur) => {
+      const filtres = cur.filter((s) => optSectors.includes(s))
+      return filtres.length === cur.length ? cur : filtres
+    })
+  }, [optSectors])
 
   const chargerGeo = useCallback(async () => {
     setGeoErreur(null)
