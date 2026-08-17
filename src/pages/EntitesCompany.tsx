@@ -375,6 +375,35 @@ export function EntitesCompany() {
             </div>
           </div>
 
+          {/* US-D1 EDITABLE — industries/secteurs DÈS LE PREMIER ÉCRAN : on
+              choisit une industrie et les secteurs cascadent aussitôt (liste
+              déroulante du référentiel réel). Vides = dérivation par type au
+              backend (run intact). Même état qu'en aperçu → choix persistant. */}
+          {catalogue && (
+            <div
+              className="rounded-xl border p-3 mt-3 grid sm:grid-cols-2 gap-3"
+              style={{ borderColor: 'var(--border)', background: 'var(--surface)' }}
+            >
+              <MultiPicker
+                label={t('cmp_industries')}
+                options={optIndustries}
+                valeurs={fIndustries}
+                onChange={setFIndustries}
+                placeholder={t('geo_choisir')}
+              />
+              <MultiPicker
+                label={t('cmp_sectors')}
+                options={optSectors}
+                valeurs={fSectors}
+                onChange={setFSectors}
+                placeholder={t('geo_choisir')}
+              />
+              <p className="sm:col-span-2 text-[10px]" style={{ color: 'var(--text-muted)' }}>
+                {t('cmp_indsec_note')}
+              </p>
+            </div>
+          )}
+
           <FautesBloc fautes={fautes} />
 
           <div className="flex justify-end mt-4">
