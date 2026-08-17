@@ -27,6 +27,15 @@ const IND_COLORS: Record<string, string> = {
 }
 const FALLBACK = ['#6366f1', '#19af58', '#f59e0b', '#0ea5e9', '#a855f7', '#ef4444', '#ec4899', '#14b8a6']
 
+/** Les types d'entreprise (CompanyType serveur) pour la liaison générative. */
+const TYPES_ENTREPRISE = [
+  { v: 'IMF', l: 'Microfinance' },
+  { v: 'BANK', l: 'Banque' },
+  { v: 'MERCHANT', l: 'Commerçant' },
+  { v: 'FONDATION', l: 'Fondation' },
+  { v: 'FUNDING_PROVIDER', l: 'Bailleur' },
+]
+
 type Props = {
   industries: string[]
   secteurs: Record<string, string[]>
@@ -656,17 +665,20 @@ function ModaleAjoutSecteur({
   const [mode, setMode] = useState<'secteur' | 'industrie'>('secteur')
   const [label, setLabel] = useState('')
   const [sel, setSel] = useState<string[]>([])
+  const [selTypes, setSelTypes] = useState<string[]>([])
   const [busy, setBusy] = useState(false)
   const [err, setErr] = useState<string | null>(null)
   const toggle = (ind: string) =>
     setSel((s) => (s.includes(ind) ? s.filter((x) => x !== ind) : [...s, ind]))
+  const toggleType = (t: string) =>
+    setSelTypes((s) => (s.includes(t) ? s.filter((x) => x !== t) : [...s, t]))
   const valide = label.trim().length >= 2 && (mode === 'industrie' || sel.length >= 1)
   const soumettre = async () => {
     setErr(null)
     setBusy(true)
     try {
       if (mode === 'industrie') await ajouterIndustrie({ label: label.trim() })
-      else await ajouterSecteur({ label: label.trim(), industries: sel })
+      else await ajouterSecteur({ label: label.trim(), industries: sel, types: selTypes })
       onDone()
     } catch (e) {
       setErr(e instanceof Error ? e.message : String(e))
@@ -753,6 +765,34 @@ function ModaleAjoutSecteur({
                   >
                     <span className="w-2.5 h-2.5 rounded-sm" style={{ background: couleur(ind), opacity: on ? 1 : 0.35 }} />
                     {ind}
+                  </button>
+                )
+              })}
+            </div>
+
+            <p className="mt-4 text-[11px] font-semibold" style={{ color: 'var(--text-secondary)' }}>
+              {t('cat_sec_types_label')}
+            </p>
+            <p className="text-[10.5px] leading-snug mt-0.5" style={{ color: 'var(--text-muted)' }}>
+              {t('cat_sec_types_note')}
+            </p>
+            <div className="mt-2 flex flex-wrap gap-1.5">
+              {TYPES_ENTREPRISE.map((te) => {
+                const on = selTypes.includes(te.v)
+                return (
+                  <button
+                    key={te.v}
+                    type="button"
+                    onClick={() => toggleType(te.v)}
+                    aria-pressed={on}
+                    className="text-[11.5px] font-semibold rounded-lg px-3 py-1.5"
+                    style={{
+                      border: `1px solid ${on ? 'var(--secondary)' : 'var(--border)'}`,
+                      background: on ? 'var(--secondary-light)' : 'transparent',
+                      color: on ? 'var(--secondary-dark)' : 'var(--text-primary)',
+                    }}
+                  >
+                    {te.l}
                   </button>
                 )
               })}

@@ -296,6 +296,9 @@ export const translations = {
     cat_sec_ajout_bulle: 'Secteur ajouté par le Super-Admin (surcouche — la base du classeur reste intacte).',
     cat_sec_nom_label: 'Nom du secteur',
     cat_sec_rattacher_label: 'Rattacher à (une ou plusieurs industries)',
+    cat_sec_types_label: 'Tiré au run pour ces types d’entreprise (optionnel)',
+    cat_sec_types_note:
+      'Sans sélection, le secteur existe au référentiel mais n’est tiré par aucune Company. Avec, il devient un secteur connexe réellement généré au run.',
     cat_sec_ajout_encours: 'Ajout…',
     cat_sec_annuler: 'Annuler',
     cat_sec_retirer: 'Retirer cet ajout',
@@ -992,6 +995,9 @@ export const translations = {
     cat_sec_ajout_bulle: 'Sector added by the Super-Admin (overlay — the base catalog stays intact).',
     cat_sec_nom_label: 'Sector name',
     cat_sec_rattacher_label: 'Attach to (one or more industries)',
+    cat_sec_types_label: 'Generated at run for these company types (optional)',
+    cat_sec_types_note:
+      'Without a selection, the sector exists in the reference but no company draws it. With one, it becomes a connected sector actually generated at run time.',
     cat_sec_ajout_encours: 'Adding…',
     cat_sec_annuler: 'Cancel',
     cat_sec_retirer: 'Remove this addition',

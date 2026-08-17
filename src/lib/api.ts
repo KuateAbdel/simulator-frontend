@@ -500,6 +500,9 @@ export function lireProduitsCatalogue(): Promise<ProduitsCatalogue> {
 export function ajouterSecteur(demande: {
   label: string
   industries: string[]
+  /** Liaison générative : types d'entreprise (IMF, BANK, MERCHANT, FONDATION,
+   * FUNDING_PROVIDER) pour lesquels ce secteur est un connexe tiré au run. */
+  types?: string[]
 }): Promise<{
   secteur: { label: string; industries: string[] }
   surcouche: { resume: string; version: number }
