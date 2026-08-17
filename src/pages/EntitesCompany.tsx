@@ -15,7 +15,9 @@ import { useApp } from '../context/AppContext'
 import {
   apercuCompany,
   creerCompany,
+  lireCatalogueStatique,
   lireGeographie,
+  type CatalogueStatique,
   type CompanyDemande,
   type DiffRelecture,
   type VueGeographie,
@@ -49,6 +51,66 @@ type Etape =
 
 const PAYS: Pays[] = ['CM', 'CI', 'BF', 'SN']
 
+/** Sélecteur multi-valeurs alimenté par le référentiel : une LISTE DÉROULANTE
+ * pour AJOUTER, des puces pour voir/retirer. Composant module-level (jamais
+ * défini dans un render → aucune perte de focus). Chaque valeur choisie est
+ * une vraie entrée du catalogue, pas une chaîne libre. */
+function MultiPicker({
+  label,
+  options,
+  valeurs,
+  onChange,
+  placeholder,
+}: {
+  label: string
+  options: string[]
+  valeurs: string[]
+  onChange: (v: string[]) => void
+  placeholder: string
+}) {
+  const disponibles = options.filter((o) => !valeurs.includes(o))
+  return (
+    <div>
+      <ChampLabel texte={label} requis />
+      <select
+        className="input-base"
+        value=""
+        onChange={(e) => {
+          if (e.target.value) onChange([...valeurs, e.target.value])
+        }}
+      >
+        <option value="">{placeholder}</option>
+        {disponibles.map((o) => (
+          <option key={o} value={o}>
+            {o}
+          </option>
+        ))}
+      </select>
+      {valeurs.length > 0 && (
+        <div className="flex flex-wrap gap-1 mt-1.5">
+          {valeurs.map((v) => (
+            <span
+              key={v}
+              className="inline-flex items-center gap-1 text-[10px] font-medium rounded-full px-2 py-0.5"
+              style={{ background: 'var(--primary-light)', color: 'var(--primary-dark)' }}
+            >
+              {v}
+              <button
+                type="button"
+                onClick={() => onChange(valeurs.filter((x) => x !== v))}
+                aria-label={`retirer ${v}`}
+                style={{ lineHeight: 1, fontWeight: 700 }}
+              >
+                ×
+              </button>
+            </span>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
 export function EntitesCompany() {
   const { t } = useApp()
   const { pousser } = useToast()
@@ -67,6 +129,31 @@ export function EntitesCompany() {
   // « Regenerer une variante » : meme demande+variante = meme fiche (CR-03) ;
   // variante suivante = AUTRE tirage coherent — on n'edite pas le genere.
   const [fVariante, setFVariante] = useState(0)
+  // US-D1 EDITABLE (17/08) — industries/secteurs CHOISIS dans le referentiel
+  // reel (catalogue-statique), pas derives en silence du type. Vides =
+  // derivation par type ; l'apercu les pre-remplit pour que l'operateur voie
+  // le choix par defaut et l'ajuste. « Recomposer » renvoie SON choix.
+  const [catalogue, setCatalogue] = useState<CatalogueStatique | null>(null)
+  const [fIndustries, setFIndustries] = useState<string[]>([])
+  const [fSectors, setFSectors] = useState<string[]>([])
+
+  useEffect(() => {
+    void lireCatalogueStatique()
+      .then(setCatalogue)
+      .catch(() => setCatalogue(null))
+  }, [])
+
+  const optIndustries = useMemo(() => {
+    if (!catalogue) return []
+    return [...new Set([...catalogue.industries, ...(catalogue.industries_surcouche ?? [])])].sort()
+  }, [catalogue])
+  const optSectors = useMemo(() => {
+    if (!catalogue) return []
+    const base = fIndustries.length
+      ? fIndustries.flatMap((ind) => catalogue.secteurs[ind] ?? [])
+      : Object.values(catalogue.secteurs).flat()
+    return [...new Set([...base, ...(catalogue.secteurs_surcouche ?? [])])].sort()
+  }, [catalogue, fIndustries])
 
   const chargerGeo = useCallback(async () => {
     setGeoErreur(null)
@@ -104,6 +191,9 @@ export function EntitesCompany() {
     ville: fVille,
     ...(fNom.trim() !== '' ? { nom: fNom.trim() } : {}),
     ...(variante > 0 ? { variante } : {}),
+    // Le choix de l'operateur PRIME ; vide = derivation par type (run intact).
+    ...(fIndustries.length > 0 ? { industries: fIndustries } : {}),
+    ...(fSectors.length > 0 ? { sectors: fSectors } : {}),
   })
 
   const formulaireValide = fVille !== '' && (fNom.trim() === '' || fNom.trim().length >= 3)
@@ -114,6 +204,13 @@ export function EntitesCompany() {
     setFautes([])
     try {
       const reponse = await apercuCompany(demande(variante))
+      // Pre-remplissage : l'operateur VOIT le choix derive (industries/secteurs
+      // que le Loader a composes) et peut l'ajuster. On ne re-seed pas s'il a
+      // deja choisi — son choix persiste d'une recomposition a l'autre.
+      const fi = Array.isArray(reponse.fiche.industries) ? (reponse.fiche.industries as string[]) : []
+      const fs = Array.isArray(reponse.fiche.sectors) ? (reponse.fiche.sectors as string[]) : []
+      setFIndustries((cur) => (cur.length ? cur : fi))
+      setFSectors((cur) => (cur.length ? cur : fs))
       setEtape({
         phase: 'apercu',
         fiche: reponse.fiche,
@@ -160,6 +257,8 @@ export function EntitesCompany() {
     setFautes([])
     setFVille('')
     setFNom('')
+    setFIndustries([])
+    setFSectors([])
   }
 
   const indexEtape = etape.phase === 'composer' ? 0 : etape.phase === 'apercu' ? 1 : 2
@@ -360,6 +459,33 @@ export function EntitesCompany() {
               {fVariante > 0 && <span className="font-mono ml-1">#{fVariante}</span>}
             </button>
           </div>
+          {/* US-D1 EDITABLE : industries/secteurs en LISTES DÉROULANTES du
+              référentiel réel — plus de dérivation figée cachée. Pré-remplis
+              par la composition, ajustables ; « Recomposer » applique le choix. */}
+          {catalogue && (
+            <div
+              className="rounded-xl border p-3 mb-3 grid sm:grid-cols-2 gap-3"
+              style={{ borderColor: 'var(--border)', background: 'var(--surface)' }}
+            >
+              <MultiPicker
+                label={t('cmp_industries')}
+                options={optIndustries}
+                valeurs={fIndustries}
+                onChange={setFIndustries}
+                placeholder={t('geo_choisir')}
+              />
+              <MultiPicker
+                label={t('cmp_sectors')}
+                options={optSectors}
+                valeurs={fSectors}
+                onChange={setFSectors}
+                placeholder={t('geo_choisir')}
+              />
+              <p className="sm:col-span-2 text-[10px]" style={{ color: 'var(--text-muted)' }}>
+                {t('cmp_indsec_note')}
+              </p>
+            </div>
+          )}
           <p className="text-[10px] mb-2" style={{ color: 'var(--text-muted)' }}>
             {t('cmp_composes_note')}
           </p>

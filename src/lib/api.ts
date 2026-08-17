@@ -965,6 +965,10 @@ export type CompanyDemande = {
   /** « Regenerer une variante » : meme demande+variante = meme fiche (CR-03),
    * variante suivante = AUTRE tirage coherent. */
   variante?: number
+  /** US-D1 EDITABLE — industries/secteurs CHOISIS dans le referentiel via les
+   * listes deroulantes. Absent/vide = derivation par type (comportement run). */
+  industries?: string[]
+  sectors?: string[]
 }
 
 export function apercuCompany(demande: CompanyDemande): Promise<{

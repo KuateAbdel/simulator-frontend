@@ -37,6 +37,23 @@ export function FautesBloc({ fautes }: { fautes: string[] }) {
   )
 }
 
+/** Une valeur atomique se lit toujours — jamais en JSON. */
+function estScalaire(v: unknown): boolean {
+  return v === null || v === undefined || typeof v !== 'object'
+}
+
+/** Puce lisible — le style commun des listes (industries, sectors, packages). */
+function Chip({ texte }: { texte: string }) {
+  return (
+    <span
+      className="inline-block text-[10px] font-medium rounded-full px-2 py-0.5"
+      style={{ background: 'var(--primary-light)', color: 'var(--primary-dark)' }}
+    >
+      {texte}
+    </span>
+  )
+}
+
 function ValeurLisible({ valeur }: { valeur: unknown }) {
   if (valeur === null || valeur === undefined || valeur === '')
     return <span style={{ color: 'var(--text-muted)' }}>—</span>
@@ -44,9 +61,42 @@ function ValeurLisible({ valeur }: { valeur: unknown }) {
     return (
       <span className={valeur ? 'badge-secondary' : 'badge-danger'}>{String(valeur)}</span>
     )
+  // Un TABLEAU (industries, sectors, packages...) se lit en puces, jamais en
+  // `["...","..."]` de code : c'est la plainte « ca ressemble a du code ».
+  if (Array.isArray(valeur)) {
+    if (valeur.length === 0) return <span style={{ color: 'var(--text-muted)' }}>—</span>
+    return (
+      <span className="inline-flex flex-wrap gap-1">
+        {valeur.map((v, i) =>
+          estScalaire(v) ? (
+            <Chip key={i} texte={String(v ?? '—')} />
+          ) : (
+            // Tableau d'objets (rare a ce niveau) : chaque objet en mini clé:val.
+            <span key={i} className="inline-flex flex-wrap gap-x-2 text-[10px]">
+              {Object.entries(v as Record<string, unknown>).map(([k, val]) => (
+                <span key={k}>
+                  <span style={{ color: 'var(--text-muted)' }}>{k}:</span>{' '}
+                  <span className="font-mono">{estScalaire(val) ? String(val ?? '—') : JSON.stringify(val)}</span>
+                </span>
+              ))}
+            </span>
+          ),
+        )}
+      </span>
+    )
+  }
+  // Un OBJET imbrique profond (au-dela du niveau aplati) se lit en clé: valeur,
+  // empilees — jamais accolade/guillemets bruts.
   if (typeof valeur === 'object')
     return (
-      <span className="font-mono text-[10px] break-all">{JSON.stringify(valeur)}</span>
+      <span className="inline-flex flex-col gap-0.5">
+        {Object.entries(valeur as Record<string, unknown>).map(([k, val]) => (
+          <span key={k} className="text-[10px]">
+            <span style={{ color: 'var(--text-muted)' }}>{k}:</span>{' '}
+            <span className="font-mono">{estScalaire(val) ? String(val ?? '—') : JSON.stringify(val)}</span>
+          </span>
+        ))}
+      </span>
     )
   return <span className="font-mono">{String(valeur)}</span>
 }

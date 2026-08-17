@@ -541,7 +541,11 @@ export const translations = {
     sc_vide: 'Aucun scénario — touchez des champs puis sauvez votre premier préset.',
     cmp_recomposer: 'Recomposer l’aperçu',
     cmp_composes_note:
-      'Les champs ci-dessus sont les SAISIS — modifiables ici, « Recomposer » rejoue l’aperçu. Les champs composés (identité, adresse, secteurs…) ne s’éditent pas : c’est le Loader qui compose, à l’identique d’un run.',
+      'Les champs ci-dessus sont les SAISIS — modifiables ici, « Recomposer » rejoue l’aperçu. Les autres champs composés (identité, adresse…) ne s’éditent pas : c’est le Loader qui compose, à l’identique d’un run.',
+    cmp_industries: 'Industries (référentiel)',
+    cmp_sectors: 'Secteurs (référentiel)',
+    cmp_indsec_note:
+      'Choisis dans le référentiel réel (le même catalogue que Référentiels › Secteurs) — pré-remplis par la composition, ajuste-les puis « Recomposer ». Au moins un de chaque (INV-CPY-03/04) ; ce que tu choisis est ce qui part au serveur.',
 
     // Entites — Groupe / Role, Lot H (phase 5)
     grp_titre: 'Groupe / Rôle à l’unité',
@@ -1236,7 +1240,11 @@ export const translations = {
     sc_vide: 'No scenario — touch some fields then save your first preset.',
     cmp_recomposer: 'Recompose the preview',
     cmp_composes_note:
-      'The fields above are the TYPED ones — editable here, “Recompose” replays the preview. Composed fields (identity, address, sectors…) are not editable: the Loader composes, exactly like a run.',
+      'The fields above are the TYPED ones — editable here, “Recompose” replays the preview. The other composed fields (identity, address…) are not editable: the Loader composes, exactly like a run.',
+    cmp_industries: 'Industries (referential)',
+    cmp_sectors: 'Sectors (referential)',
+    cmp_indsec_note:
+      'Chosen from the real referential (the same catalog as Referentials › Sectors) — pre-filled by the composition, adjust them then “Recompose”. At least one of each (INV-CPY-03/04); what you choose is what is sent to the server.',
 
     // Entities — Group / Role, Lot H (phase 5)
     grp_titre: 'Single group / role',
