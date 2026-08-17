@@ -546,6 +546,17 @@ export const translations = {
     cmp_sectors: 'Secteurs (référentiel)',
     cmp_indsec_note:
       'Choisis dans le référentiel réel (le même catalogue que Référentiels › Secteurs) — pré-remplis par la composition, ajuste-les puis « Recomposer ». Au moins un de chaque (INV-CPY-03/04) ; ce que tu choisis est ce qui part au serveur.',
+    cmp_owner_titre: 'Dirigeant (owner) — modifiable',
+    cmp_owner_note:
+      'Laisser un champ vide GARDE la valeur composée (en gris). Taper la SURCHARGE. Sortir d’un champ recompose l’aperçu. Les invariants restent tenus : format email, id_number en MAJUSCULES alphanumériques (FRA-228), pièce non expirée et cohérente (FRA-200), dirigeant majeur — une violation revient en message clair.',
+    cmp_owner_prenom: 'Prénom',
+    cmp_owner_nom: 'Nom',
+    cmp_owner_email: 'Email',
+    cmp_owner_phone: 'Téléphone',
+    cmp_owner_genre: 'Genre',
+    cmp_owner_naissance: 'Date de naissance',
+    cmp_owner_id: 'N° pièce (id_number)',
+    cmp_owner_id_expire: 'Expiration pièce',
 
     // Entites — Groupe / Role, Lot H (phase 5)
     grp_titre: 'Groupe / Rôle à l’unité',
@@ -1245,6 +1256,17 @@ export const translations = {
     cmp_sectors: 'Sectors (referential)',
     cmp_indsec_note:
       'Chosen from the real referential (the same catalog as Referentials › Sectors) — pre-filled by the composition, adjust them then “Recompose”. At least one of each (INV-CPY-03/04); what you choose is what is sent to the server.',
+    cmp_owner_titre: 'Owner (director) — editable',
+    cmp_owner_note:
+      'Leaving a field empty KEEPS the composed value (shown greyed). Typing OVERRIDES it. Leaving a field recomposes the preview. Invariants still hold: email format, uppercase alphanumeric id_number (FRA-228), non-expired and coherent ID (FRA-200), adult director — a violation comes back as a clear message.',
+    cmp_owner_prenom: 'First name',
+    cmp_owner_nom: 'Last name',
+    cmp_owner_email: 'Email',
+    cmp_owner_phone: 'Phone',
+    cmp_owner_genre: 'Gender',
+    cmp_owner_naissance: 'Date of birth',
+    cmp_owner_id: 'ID number',
+    cmp_owner_id_expire: 'ID expiry',
 
     // Entities — Group / Role, Lot H (phase 5)
     grp_titre: 'Single group / role',

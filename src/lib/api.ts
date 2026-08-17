@@ -969,6 +969,23 @@ export type CompanyDemande = {
    * listes deroulantes. Absent/vide = derivation par type (comportement run). */
   industries?: string[]
   sectors?: string[]
+  /** US-D1 EDITABLE — le DIRIGEANT compose, ajuste dans l'apercu. Tout champ
+   * absent reste celui du Loader ; les invariants (format email, MAJUSCULES
+   * id_number, piece non expiree, majorite) sont tenus cote serveur. */
+  owner?: OwnerOverride
+}
+
+/** Champs du dirigeant editables dans l'apercu — tous optionnels. Dates au
+ * format ISO `YYYY-MM-DD`. Le serveur valide et refuse en 422 lisible. */
+export type OwnerOverride = {
+  first_name?: string
+  last_name?: string
+  email?: string
+  gender?: 'MALE' | 'FEMALE'
+  date_of_birth?: string
+  id_number?: string
+  id_expire_on?: string
+  phone?: string
 }
 
 export function apercuCompany(demande: CompanyDemande): Promise<{

@@ -20,8 +20,10 @@ import {
   type CatalogueStatique,
   type CompanyDemande,
   type DiffRelecture,
+  type OwnerOverride,
   type VueGeographie,
 } from '../lib/api'
+import type { TranslationKey } from '../i18n'
 import { useMessageDe } from './runs-commun'
 import { ChampLabel, FautesBloc, FicheTable, VerdictRelecture, fautesDe } from './entites-commun'
 
@@ -111,6 +113,135 @@ function MultiPicker({
   )
 }
 
+/** Lit un champ chaîne de l'owner composé (pour l'afficher en placeholder). */
+function champCompose(compose: Record<string, unknown>, cle: string): string {
+  const v = compose[cle]
+  return typeof v === 'string' ? v : ''
+}
+
+/** ÉDITEUR DU DIRIGEANT (US-D1 editable) — chaque champ affiche la valeur
+ * COMPOSÉE en placeholder ; taper la SURCHARGE, laisser vide la GARDE. Composant
+ * module-level (jamais redéfini au render → aucune perte de focus). `onBlur`
+ * recompose l'aperçu : la modification AGIT, et un invariant violé revient en
+ * message lisible (422). Les invariants sont tenus au serveur — ici, seulement
+ * des indices (type email, MAJUSCULES id_number, dates). */
+function OwnerEditor({
+  compose,
+  valeurs,
+  onChange,
+  onBlur,
+  t,
+}: {
+  compose: Record<string, unknown>
+  valeurs: OwnerOverride
+  onChange: (o: OwnerOverride) => void
+  onBlur: () => void
+  t: (cle: TranslationKey) => string
+}) {
+  const maj = (cle: keyof OwnerOverride, v: string) => onChange({ ...valeurs, [cle]: v })
+  return (
+    <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-2">
+      <div>
+        <ChampLabel texte={t('cmp_owner_prenom')} />
+        <input
+          className="input-base"
+          value={valeurs.first_name ?? ''}
+          placeholder={champCompose(compose, 'first_name')}
+          maxLength={60}
+          onChange={(e) => maj('first_name', e.target.value)}
+          onBlur={onBlur}
+        />
+      </div>
+      <div>
+        <ChampLabel texte={t('cmp_owner_nom')} />
+        <input
+          className="input-base"
+          value={valeurs.last_name ?? ''}
+          placeholder={champCompose(compose, 'last_name')}
+          maxLength={60}
+          onChange={(e) => maj('last_name', e.target.value)}
+          onBlur={onBlur}
+        />
+      </div>
+      <div>
+        <ChampLabel texte={t('cmp_owner_email')} />
+        <input
+          className="input-base"
+          type="email"
+          value={valeurs.email ?? ''}
+          placeholder={champCompose(compose, 'email')}
+          onChange={(e) => maj('email', e.target.value)}
+          onBlur={onBlur}
+        />
+      </div>
+      <div>
+        <ChampLabel texte={t('cmp_owner_phone')} />
+        <input
+          className="input-base"
+          value={valeurs.phone ?? ''}
+          placeholder={champCompose(compose, 'phone')}
+          maxLength={20}
+          onChange={(e) => maj('phone', e.target.value)}
+          onBlur={onBlur}
+        />
+      </div>
+      <div>
+        <ChampLabel texte={t('cmp_owner_genre')} />
+        <select
+          className="input-base"
+          value={valeurs.gender ?? ''}
+          onChange={(e) => {
+            onChange({ ...valeurs, gender: (e.target.value || undefined) as OwnerOverride['gender'] })
+          }}
+          onBlur={onBlur}
+        >
+          <option value="">{champCompose(compose, 'gender') || '—'}</option>
+          <option value="MALE">MALE</option>
+          <option value="FEMALE">FEMALE</option>
+        </select>
+      </div>
+      <div>
+        <ChampLabel texte={t('cmp_owner_naissance')} />
+        <input
+          className="input-base"
+          type="date"
+          value={valeurs.date_of_birth ?? ''}
+          onChange={(e) => maj('date_of_birth', e.target.value)}
+          onBlur={onBlur}
+        />
+        <p className="text-[10px] mt-0.5" style={{ color: 'var(--text-muted)' }}>
+          {champCompose(compose, 'date_of_birth')}
+        </p>
+      </div>
+      <div>
+        <ChampLabel texte={t('cmp_owner_id')} />
+        <input
+          className="input-base font-mono"
+          value={valeurs.id_number ?? ''}
+          placeholder={champCompose(compose, 'id_number')}
+          maxLength={20}
+          style={{ textTransform: 'uppercase' }}
+          onChange={(e) => maj('id_number', e.target.value.toUpperCase())}
+          onBlur={onBlur}
+        />
+      </div>
+      <div>
+        <ChampLabel texte={t('cmp_owner_id_expire')} />
+        <input
+          className="input-base"
+          type="date"
+          value={valeurs.id_expire_on ?? ''}
+          onChange={(e) => maj('id_expire_on', e.target.value)}
+          onBlur={onBlur}
+        />
+        <p className="text-[10px] mt-0.5" style={{ color: 'var(--text-muted)' }}>
+          {champCompose(compose, 'id_expire_on')}
+        </p>
+      </div>
+    </div>
+  )
+}
+
 export function EntitesCompany() {
   const { t } = useApp()
   const { pousser } = useToast()
@@ -136,6 +267,10 @@ export function EntitesCompany() {
   const [catalogue, setCatalogue] = useState<CatalogueStatique | null>(null)
   const [fIndustries, setFIndustries] = useState<string[]>([])
   const [fSectors, setFSectors] = useState<string[]>([])
+  // US-D1 EDITABLE — le DIRIGEANT. On n'écrase QUE ce que l'opérateur tape :
+  // un champ vide garde la valeur composée (placeholder). Ainsi la régénération
+  // de variante (🎲) reste intacte, et l'invariant est tenu au serveur.
+  const [fOwner, setFOwner] = useState<OwnerOverride>({})
 
   useEffect(() => {
     void lireCatalogueStatique()
@@ -200,16 +335,36 @@ export function EntitesCompany() {
     { type: 'FONDATION', titre: t('cmp_fondation_titre'), detail: t('cmp_fondation_detail') },
   ]
 
-  const demande = (variante = fVariante): CompanyDemande => ({
-    type_company: fType,
-    pays: fPays,
-    ville: fVille,
-    ...(fNom.trim() !== '' ? { nom: fNom.trim() } : {}),
-    ...(variante > 0 ? { variante } : {}),
-    // Le choix de l'operateur PRIME ; vide = derivation par type (run intact).
-    ...(fIndustries.length > 0 ? { industries: fIndustries } : {}),
-    ...(fSectors.length > 0 ? { sectors: fSectors } : {}),
-  })
+  // N'envoie QUE les champs owner réellement saisis (vide = garder le composé).
+  // id_number normalisé en MAJUSCULES côté client aussi (FRA-228) — le serveur
+  // reste l'autorité, mais on ne lui envoie pas de bruit.
+  const ownerNettoye = (): OwnerOverride | undefined => {
+    const o: OwnerOverride = {}
+    if (fOwner.first_name?.trim()) o.first_name = fOwner.first_name.trim()
+    if (fOwner.last_name?.trim()) o.last_name = fOwner.last_name.trim()
+    if (fOwner.email?.trim()) o.email = fOwner.email.trim()
+    if (fOwner.gender) o.gender = fOwner.gender
+    if (fOwner.date_of_birth) o.date_of_birth = fOwner.date_of_birth
+    if (fOwner.id_number?.trim()) o.id_number = fOwner.id_number.trim().toUpperCase()
+    if (fOwner.id_expire_on) o.id_expire_on = fOwner.id_expire_on
+    if (fOwner.phone?.trim()) o.phone = fOwner.phone.trim()
+    return Object.keys(o).length ? o : undefined
+  }
+
+  const demande = (variante = fVariante): CompanyDemande => {
+    const owner = ownerNettoye()
+    return {
+      type_company: fType,
+      pays: fPays,
+      ville: fVille,
+      ...(fNom.trim() !== '' ? { nom: fNom.trim() } : {}),
+      ...(variante > 0 ? { variante } : {}),
+      // Le choix de l'operateur PRIME ; vide = derivation par type (run intact).
+      ...(fIndustries.length > 0 ? { industries: fIndustries } : {}),
+      ...(fSectors.length > 0 ? { sectors: fSectors } : {}),
+      ...(owner ? { owner } : {}),
+    }
+  }
 
   const formulaireValide = fVille !== '' && (fNom.trim() === '' || fNom.trim().length >= 3)
 
@@ -239,6 +394,23 @@ export function EntitesCompany() {
       setEnvoi(false)
     }
   }
+
+  // APERÇU DYNAMIQUE (17/08) — le choix des industries/secteurs doit AFFECTER
+  // vraiment la fiche composée, pas rester figé. Dès qu'on est en aperçu et que
+  // les listes divergent de ce que la fiche montre, on RECOMPOSE (débounce) :
+  // le Loader recompose name/sector/… de façon cohérente. Pas de boucle — après
+  // recomposition la fiche == le choix, l'effet ne se redéclenche plus.
+  useEffect(() => {
+    if (etape.phase !== 'apercu' || envoi) return
+    const ficheInd = Array.isArray(etape.fiche.industries) ? (etape.fiche.industries as string[]) : []
+    const ficheSec = Array.isArray(etape.fiche.sectors) ? (etape.fiche.sectors as string[]) : []
+    const memeInd = ficheInd.length === fIndustries.length && fIndustries.every((x) => ficheInd.includes(x))
+    const memeSec = ficheSec.length === fSectors.length && fSectors.every((x) => ficheSec.includes(x))
+    if (memeInd && memeSec) return
+    const minuteur = setTimeout(() => void voirApercu(), 450)
+    return () => clearTimeout(minuteur)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fIndustries, fSectors, etape, envoi])
 
   const confirmer = async () => {
     if (envoi) return
@@ -274,6 +446,7 @@ export function EntitesCompany() {
     setFNom('')
     setFIndustries([])
     setFSectors([])
+    setFOwner({})
   }
 
   const indexEtape = etape.phase === 'composer' ? 0 : etape.phase === 'apercu' ? 1 : 2
@@ -527,6 +700,29 @@ export function EntitesCompany() {
               />
               <p className="sm:col-span-2 text-[10px]" style={{ color: 'var(--text-muted)' }}>
                 {t('cmp_indsec_note')}
+              </p>
+            </div>
+          )}
+          {/* US-D1 EDITABLE — le DIRIGEANT modifiable SOUS invariants. Placeholder
+              = valeur composée ; taper surcharge, vide garde. Sortir d'un champ
+              recompose l'aperçu : la modif AGIT, un invariant violé revient lisible. */}
+          {typeof etape.fiche.owner === 'object' && etape.fiche.owner !== null && (
+            <div
+              className="rounded-xl border p-3 mb-3"
+              style={{ borderColor: 'var(--border)', background: 'var(--surface)' }}
+            >
+              <p className="text-[11px] font-bold mb-2" style={{ color: 'var(--text-primary)' }}>
+                {t('cmp_owner_titre')}
+              </p>
+              <OwnerEditor
+                compose={etape.fiche.owner as Record<string, unknown>}
+                valeurs={fOwner}
+                onChange={setFOwner}
+                onBlur={() => void voirApercu()}
+                t={t}
+              />
+              <p className="text-[10px] mt-2" style={{ color: 'var(--text-muted)' }}>
+                {t('cmp_owner_note')}
               </p>
             </div>
           )}
