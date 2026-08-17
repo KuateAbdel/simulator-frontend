@@ -6,7 +6,7 @@
 // ouvert, responsive (max-width + marges). Le contenu (les champs) est passé
 // en `children`.
 
-import { useEffect, type ReactNode } from 'react'
+import { useEffect, useRef, type ReactNode } from 'react'
 import { X } from 'lucide-react'
 
 export function Modale({
@@ -21,9 +21,18 @@ export function Modale({
   children: ReactNode
 }) {
   // Échap ferme, et le scroll de la page est gelé tant que le modal est ouvert.
+  //
+  // BUG 17/08 (même famille que ConfirmDialog) : `onClose` en dépendance est
+  // une fonction fléchée recréée à chaque render du parent. Une frappe dans un
+  // champ de la modale relançait donc l'effet — cleanup PUIS re-run — ce qui
+  // DÉ-GÈLE puis RE-GÈLE le scroll du body (`overflow` togglé) et re-souscrit
+  // le listener à chaque lettre : saccade et saut de page. Une ref garde le
+  // dernier `onClose` sans relancer l'effet ; il ne tourne qu'au montage.
+  const refOnClose = useRef(onClose)
+  refOnClose.current = onClose
   useEffect(() => {
     const surTouche = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose()
+      if (e.key === 'Escape') refOnClose.current()
     }
     document.addEventListener('keydown', surTouche)
     const overflowInitial = document.body.style.overflow
@@ -32,7 +41,7 @@ export function Modale({
       document.removeEventListener('keydown', surTouche)
       document.body.style.overflow = overflowInitial
     }
-  }, [onClose])
+  }, [])
 
   return (
     <div

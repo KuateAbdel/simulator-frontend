@@ -265,15 +265,31 @@ export function ConfirmDialog({
   // A11y (phase 8) : Echap ferme (sauf action en cours), et le focus se pose
   // sur ANNULER a l'ouverture — l'action sure d'abord, jamais la dangereuse.
   const refAnnuler = useRef<HTMLButtonElement>(null)
+
+  // BUG 17/08 : le focus se posait a CHAQUE render, pas seulement a
+  // l'ouverture — `onAnnuler`/`enCours` en dependances sont recrees a chaque
+  // frappe cote parent (fonction flechee inline). Un champ dans la modale
+  // (le MOTIF de desactivation) perdait donc le focus a chaque lettre : une
+  // seule frappe possible. Le focus ne suit plus QUE l'ouverture.
+  useEffect(() => {
+    if (ouvert) refAnnuler.current?.focus()
+  }, [ouvert])
+
+  // Echap ferme — handler abonne UNE fois par ouverture, jamais re-abonne a
+  // chaque frappe : il lit les dernieres valeurs via des refs, pas via les
+  // dependances (qui, elles, provoquaient le re-focus).
+  const refOnAnnuler = useRef(onAnnuler)
+  refOnAnnuler.current = onAnnuler
+  const refEnCours = useRef(enCours)
+  refEnCours.current = enCours
   useEffect(() => {
     if (!ouvert) return
-    refAnnuler.current?.focus()
     const surTouche = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && !enCours) onAnnuler()
+      if (e.key === 'Escape' && !refEnCours.current) refOnAnnuler.current()
     }
     window.addEventListener('keydown', surTouche)
     return () => window.removeEventListener('keydown', surTouche)
-  }, [ouvert, enCours, onAnnuler])
+  }, [ouvert])
 
   if (!ouvert) return null
   return (
