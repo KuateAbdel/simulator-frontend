@@ -5,7 +5,7 @@
 // Les gadgets fintech de la base JJB (QR, filtres, alertes mock) sont partis.
 
 import { useState } from 'react'
-import { Clock, Globe, KeyRound, LogOut, Menu } from 'lucide-react'
+import { Clock, Globe, KeyRound, LogOut, Menu, Moon, Sun } from 'lucide-react'
 import { ConfirmDialog, useToast } from '../ui/loader'
 import { useApp } from '../../context/AppContext'
 import { ApiError } from '../../lib/api'
@@ -117,7 +117,7 @@ function ChangerMonMotDePasse() {
 }
 
 export function Header() {
-  const { t, lang, setLang, currentPage, sessionSecondsLeft, seDeconnecter, estMobile, setSidebarOpen } =
+  const { t, lang, setLang, theme, toggleTheme, currentPage, sessionSecondsLeft, seDeconnecter, estMobile, setSidebarOpen } =
     useApp()
   const item = navItemDe(currentPage)
 
@@ -128,7 +128,7 @@ export function Header() {
     <header
       className="flex items-center justify-between px-5 py-3 border-b"
       style={{
-        background: '#fff',
+        background: 'var(--bg)',
         borderColor: 'var(--border)',
         position: 'sticky',
         top: 0,
@@ -182,6 +182,24 @@ export function Header() {
           <Clock size={11} />
           {formaterCompteARebours(sessionSecondsLeft)}
         </span>
+
+        {/* Bascule thème clair/sombre — couleurs FinZuu */}
+        <button
+          className="flex items-center justify-center rounded-lg border transition-all"
+          style={{
+            borderColor: 'var(--border)',
+            color: 'var(--text-secondary)',
+            background: 'transparent',
+            cursor: 'pointer',
+            height: 32,
+            width: 32,
+          }}
+          onClick={toggleTheme}
+          title={theme === 'dark' ? t('theme_clair') : t('theme_sombre')}
+          aria-label={theme === 'dark' ? t('theme_clair') : t('theme_sombre')}
+        >
+          {theme === 'dark' ? <Sun size={14} /> : <Moon size={14} />}
+        </button>
 
         {/* Bascule FR/EN */}
         <button

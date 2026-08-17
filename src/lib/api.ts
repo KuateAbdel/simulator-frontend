@@ -450,6 +450,15 @@ export type CatalogueStatique = {
   comptes: Record<string, number>
   industries: string[]
   secteurs: Record<string, string[]>
+  /** Les secteurs ajoutés par le Super-Admin (surcouche, US-B5+) — pour les
+   * distinguer à l'écran des 112 du classeur. Absent = aucun ajout. */
+  secteurs_surcouche?: string[]
+  /** Idem pour les industries ajoutées (le niveau haut, rare). */
+  industries_surcouche?: string[]
+  /** Marqueurs de surcouche pour les autres dimensions. */
+  formes_surcouche?: string[]
+  professions_surcouche?: string[]
+  dirigeants_surcouche?: number[]
   formes_juridiques: string[]
   /** `variants` = les EXCEPTIONS au profil par defaut : profession → profil.
    * C'est un OBJET (bug attrapé le 15/08 : type `number` → React error #31). */
@@ -464,6 +473,87 @@ export type CatalogueStatique = {
 
 export function lireCatalogueStatique(): Promise<CatalogueStatique> {
   return api('/admin/referentiels/catalogue-statique')
+}
+
+/** Le catalogue PRODUITS du Loader (UC-11) — LENDING (Annexe E) + COLLECT. */
+export type ProduitCatalogue = {
+  nom: string
+  type: 'LENDING' | 'COLLECT'
+  categorie: string
+  policy_type?: string
+  code?: string
+  duree_jours?: number
+  montant_min?: number
+  montant_max?: number
+}
+export type ProduitsCatalogue = {
+  lending: ProduitCatalogue[]
+  collect: ProduitCatalogue[]
+  comptes: { lending: number; collect: number }
+}
+export function lireProduitsCatalogue(): Promise<ProduitsCatalogue> {
+  return api('/admin/referentiels/produits-catalogue')
+}
+
+/** `US-B5+` — ajoute un secteur d'activité dans la surcouche (base immuable).
+ * Le secteur ne peut se rattacher qu'à des industries existantes (les 6). */
+export function ajouterSecteur(demande: {
+  label: string
+  industries: string[]
+}): Promise<{
+  secteur: { label: string; industries: string[] }
+  surcouche: { resume: string; version: number }
+}> {
+  return api('/admin/referentiels/secteurs', { method: 'POST', body: demande })
+}
+
+/** `US-B5+` — ajoute une industrie (le niveau haut, rare) dans la surcouche. */
+export function ajouterIndustrie(demande: { label: string }): Promise<{
+  industrie: string
+  surcouche: { resume: string; version: number }
+}> {
+  return api('/admin/referentiels/industries', { method: 'POST', body: demande })
+}
+
+/** Retire un secteur AJOUTÉ (surcouche réversible). Le classeur reste intact. */
+export function retirerSecteur(label: string): Promise<{
+  retire: string
+  surcouche: { resume: string; version: number }
+}> {
+  return api(`/admin/referentiels/secteurs/${encodeURIComponent(label)}`, { method: 'DELETE' })
+}
+
+/** Retire une industrie AJOUTÉE (surcouche). Refuse (409) si un secteur y est rattaché. */
+export function retirerIndustrie(label: string): Promise<{
+  retire: string
+  surcouche: { resume: string; version: number }
+}> {
+  return api(`/admin/referentiels/industries/${encodeURIComponent(label)}`, { method: 'DELETE' })
+}
+
+/** `US-B5+` — les autres dimensions du catalogue, toutes via la surcouche. */
+export function ajouterForme(label: string): Promise<unknown> {
+  return api('/admin/referentiels/formes', { method: 'POST', body: { label } })
+}
+export function retirerForme(label: string): Promise<unknown> {
+  return api(`/admin/referentiels/formes/${encodeURIComponent(label)}`, { method: 'DELETE' })
+}
+export function ajouterDirigeant(demande: {
+  rang: number
+  francais: string
+  anglais: string
+  abreviation?: string
+}): Promise<unknown> {
+  return api('/admin/referentiels/dirigeants', { method: 'POST', body: demande })
+}
+export function retirerDirigeant(rang: number): Promise<unknown> {
+  return api(`/admin/referentiels/dirigeants/${rang}`, { method: 'DELETE' })
+}
+export function ajouterProfession(demande: { groupe: string; label: string }): Promise<unknown> {
+  return api('/admin/referentiels/professions', { method: 'POST', body: demande })
+}
+export function retirerProfession(label: string): Promise<unknown> {
+  return api(`/admin/referentiels/professions/${encodeURIComponent(label)}`, { method: 'DELETE' })
 }
 
 /** La matiere qu'un 5e pays exigerait — chaque manque avec sa raison (US-B6). */

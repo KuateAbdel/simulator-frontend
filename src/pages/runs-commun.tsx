@@ -98,7 +98,7 @@ export function RapportIntegral({ rapport, vide }: { rapport: string; vide: Tran
   return (
     <div
       className="rounded-xl border overflow-auto font-mono text-[11px] leading-relaxed p-4"
-      style={{ borderColor: 'var(--border)', background: '#fff', maxHeight: 480, whiteSpace: 'pre' }}
+      style={{ borderColor: 'var(--border)', background: 'var(--surface)', maxHeight: 480, whiteSpace: 'pre' }}
     >
       {rapport.split('\n').map((ligne, i) => {
         const tenu = /\bTENU\b/.test(ligne)

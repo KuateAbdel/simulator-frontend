@@ -18,6 +18,8 @@ import * as api from '../lib/api'
 
 const SESSION_KEY = 'finzuu-loader-session'
 const LANG_KEY = 'finzuu-loader-lang'
+const THEME_KEY = 'finzuu-loader-theme'
+type Theme = 'light' | 'dark'
 
 // localStorage (pas sessionStorage) : la session survit au refresh ET a la
 // fermeture — contrairement a la plateforme FinZuu qui deconnecte au F5.
@@ -37,6 +39,9 @@ function lireSession(): Session | null {
 interface AppContextType {
   lang: Lang
   setLang: (l: Lang) => void
+  /** Thème clair/sombre — persistant, aux couleurs FinZuu. */
+  theme: Theme
+  toggleTheme: () => void
   t: (key: TranslationKey) => string
   currentPage: Page
   setCurrentPage: (p: Page) => void
@@ -100,6 +105,26 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     setLangState(l)
     localStorage.setItem(LANG_KEY, l)
   }, [])
+
+  const [theme, setThemeState] = useState<Theme>(() => {
+    const memorise = localStorage.getItem(THEME_KEY)
+    if (memorise === 'dark' || memorise === 'light') return memorise
+    return typeof window !== 'undefined' &&
+      window.matchMedia('(prefers-color-scheme: dark)').matches
+      ? 'dark'
+      : 'light'
+  })
+  const toggleTheme = useCallback(() => {
+    setThemeState((prev) => {
+      const next = prev === 'light' ? 'dark' : 'light'
+      localStorage.setItem(THEME_KEY, next)
+      return next
+    })
+  }, [])
+  // Le thème vit sur <html> : tous les tokens CSS basculent d'un coup.
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme)
+  }, [theme])
 
   // A11y : la langue du DOCUMENT suit la langue de l'UI — les lecteurs
   // d'ecran prononcent le bon lexique, des l'init et a chaque bascule.
@@ -186,6 +211,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       value={{
         lang,
         setLang,
+        theme,
+        toggleTheme,
         t,
         currentPage,
         setCurrentPage,

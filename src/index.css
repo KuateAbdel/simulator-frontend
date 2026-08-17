@@ -20,6 +20,25 @@
   --shadow-md: 0 4px 32px rgba(198, 140, 255, 0.18);
 }
 
+/* Thème sombre — mêmes accents FinZuu (violet + vert), fond violet-nuit.
+   Seuls les tokens changent : tout le reste bascule d'un bloc. */
+:root[data-theme='dark'] {
+  --primary: #c893ff;
+  --primary-dark: #d9b8ff;
+  --primary-light: #2b1a47;
+  --secondary: #34d17e;
+  --secondary-dark: #6ee7a8;
+  --secondary-light: #143122;
+  --bg: #130a24;
+  --surface: #1d1236;
+  --border: #2e2150;
+  --text-primary: #f2ecff;
+  --text-secondary: #bcaadd;
+  --text-muted: #8a7bab;
+  --shadow: 0 2px 16px rgba(0, 0, 0, 0.5);
+  --shadow-md: 0 8px 40px rgba(0, 0, 0, 0.6);
+}
+
 * {
   box-sizing: border-box;
 }
@@ -45,7 +64,7 @@ html, body, #root {
 
 /* Card base */
 .card {
-  background: #fff;
+  background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
@@ -55,7 +74,7 @@ html, body, #root {
 
 /* Gradient pill badge */
 .badge-primary {
-  background: linear-gradient(135deg, var(--primary-light), #f3e8ff);
+  background: var(--primary-light);
   color: var(--primary-dark);
   font-size: 0.72rem;
   font-weight: 600;
@@ -95,7 +114,7 @@ html, body, #root {
   font-family: 'DM Sans', sans-serif;
   font-size: 0.875rem;
   color: var(--text-primary);
-  background: #fff;
+  background: var(--bg);
   outline: none;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
   width: 100%;
@@ -179,7 +198,7 @@ html, body, #root {
 
 /* Recharts custom tooltip */
 .custom-tooltip {
-  background: #fff;
+  background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 8px;
   padding: 8px 14px;
@@ -270,7 +289,7 @@ html, body, #root {
   align-items: center;
   justify-content: center;
   padding: 8px;
-  background: #fff;
+  background: var(--bg);
   border-radius: 8px;
   border: 2px solid var(--border);
 }

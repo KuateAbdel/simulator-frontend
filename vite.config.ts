@@ -29,9 +29,12 @@ try {
 // 200 pour elle, 400 pour localhost). En local on passe donc par ce proxy :
 // VITE_API_URL vide dans .env → appels same-origin → Vite relaie vers l'API
 // (serveur-a-serveur, hors du perimetre CORS). La prod appelle en direct.
+// Cible par défaut = prod (comportement inchangé). En dev local, on peut
+// pointer vers un backend local en exportant VITE_PROXY_TARGET=http://localhost:8000.
+const PROXY_TARGET = process.env.VITE_PROXY_TARGET ?? 'https://simul.api.fintech4esg.com'
 const proxyApi = {
-  '/admin': { target: 'https://simul.api.fintech4esg.com', changeOrigin: true },
-  '/health': { target: 'https://simul.api.fintech4esg.com', changeOrigin: true },
+  '/admin': { target: PROXY_TARGET, changeOrigin: true },
+  '/health': { target: PROXY_TARGET, changeOrigin: true },
 }
 
 export default defineConfig({
