@@ -5,6 +5,35 @@ versionnage [SemVer](https://semver.org/lang/fr/). La version affichée dans
 l'app (bas de sidebar + login) vient de `package.json`, injectée au build
 avec le commit court — elle ne peut pas mentir.
 
+## [1.2.0] — 2026-08-20
+
+**Notifications, traçabilité et l'ergonomie d'une vraie console** — les
+demandes JJB du 20/08, calées sur l'audit UX du backoffice de la plateforme.
+
+### Ajouté
+- **Cloche de notifications 🔔** dans le header : badge des non-lues (sonde
+  légère 30 s), panneau déroulant (marquer lu / tout lu, Échap, clic
+  extérieur), rendu **localisé FR/EN** depuis `type`+`donnees` — le backend
+  n'envoie jamais une phrase toute faite.
+- **Colonne « Dernière connexion »** dans l'écran Administration (ou
+  « jamais connecté »), alimentée par la traçabilité des connexions.
+- **Pictogrammes métier au Tableau de bord** : chaque sonde porte son icône
+  et son libellé bilingue (Utilisateurs & accès, Comptes & soldes, Identité
+  KYC, …) — plus aucun « -service » à l'écran, le nom technique reste dans
+  l'infobulle. Bannière de panne en langage métier.
+
+### Modifié
+- **Sidebar : 18 entrées → 8 sections** (modèle du backoffice FinZuu) :
+  Runs, Observatoire, Entités, Référentiels et Inventaire & Purge deviennent
+  des sections à ONGLETS (`SectionOnglets`) ; le Journal est un onglet
+  d'Administration. Identifiants de page conservés — navigation croisée et
+  traçabilité user-story→écran intactes, le header suit l'onglet actif.
+- Contrat frontend↔backend **vérifié 66/66** contre l'OpenAPI du backend
+  déployé (script de contrôle rejouable).
+
+### Corrigé
+- `HealthDot` : fond forcé `#fff` remplacé par le token de thème (sombre).
+
 ## [1.1.1] — 2026-08-16
 
 ### Corrigé
