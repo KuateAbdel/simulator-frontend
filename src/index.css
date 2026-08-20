@@ -283,6 +283,82 @@ html, body, #root {
 .data-table tr:last-child td { border-bottom: none; }
 .data-table tr:hover td { background: var(--surface); }
 
+/* Pager — patron « ListePage » (conception FZ-UX-LOADER-2026-001) */
+.pager {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 14px;
+  border-top: 1px solid var(--border);
+  flex-wrap: wrap;
+}
+.pager-info {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+.pager-size {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+.pager-size select {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 3px 6px;
+  cursor: pointer;
+}
+.pager-btns {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.pager-btn,
+.pager-num {
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1.5px solid var(--border);
+  background: transparent;
+  color: var(--text-secondary);
+  border-radius: 8px;
+  transition: all 0.15s ease;
+}
+.pager-btn { height: 32px; padding: 0 12px; font-size: 0.8rem; }
+.pager-num {
+  width: 32px;
+  height: 32px;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+.pager-btn:hover:not(:disabled),
+.pager-num:hover:not(.on) {
+  border-color: var(--primary);
+  color: var(--primary-dark);
+  background: var(--primary-light);
+}
+.pager-btn:disabled { opacity: 0.4; cursor: default; }
+.pager-num.on {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #fff;
+  cursor: default;
+}
+.pager-ell { color: var(--text-muted); padding: 0 2px; }
+@media (max-width: 520px) {
+  .pager-num, .pager-ell { display: none; }
+  .pager-info { display: none; }
+}
+
 /* QR canvas */
 .qr-container {
   display: flex;

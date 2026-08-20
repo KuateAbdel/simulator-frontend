@@ -12,6 +12,8 @@ import { useMemo, useState, type ReactNode } from 'react'
 import { LayoutGrid, Plus, Search, Share2, Sparkles, Trash2, X } from 'lucide-react'
 import { Card } from '../components/ui'
 import { useApp } from '../context/AppContext'
+import { usePagination } from '../hooks/usePagination'
+import { Pager } from '../components/Pager'
 import { ajouterForme, ajouterIndustrie, ajouterSecteur, retirerForme, retirerIndustrie, retirerSecteur } from '../lib/api'
 import { GrapheForce, type InfoSurvol } from './RefCatalogueGraphe'
 import type { TranslationKey } from '../i18n'
@@ -125,6 +127,8 @@ export function IndustriesSecteurs({
       return a[0].localeCompare(b[0])
     })
   }, [entrees, q, activeInd])
+
+  const pgSecteurs = usePagination(liste, 25, `${activeInd}|${q}`)
 
   const scope = q.trim()
     ? `« ${q.trim()} » — ${liste.length} ${t('cat_secteurs').toLowerCase()}`
@@ -253,8 +257,9 @@ export function IndustriesSecteurs({
               </p>
             </Card>
           ) : (
+            <>
             <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-2.5">
-              {liste.map(([nom, inds]) => {
+              {pgSecteurs.pageItems.map(([nom, inds]) => {
                 const principale = principaleDe(inds)
                 const multi = inds.length > 1
                 const actif = selection === nom
@@ -324,6 +329,17 @@ export function IndustriesSecteurs({
                 )
               })}
             </div>
+            <Pager
+              page={pgSecteurs.page}
+              nbPages={pgSecteurs.nbPages}
+              size={pgSecteurs.size}
+              total={pgSecteurs.total}
+              from={pgSecteurs.from}
+              to={pgSecteurs.to}
+              onPage={pgSecteurs.setPage}
+              onSize={pgSecteurs.setSize}
+            />
+            </>
           )
         ) : (
           <VueStructure

@@ -13,6 +13,8 @@ import { BadgeCheck, HeartHandshake, RotateCcw, Trash2 } from 'lucide-react'
 import { Card, SectionHeader, TabBar } from '../components/ui'
 import { Banniere, ConfirmDialog, Skeleton, useToast } from '../components/ui/loader'
 import { useApp } from '../context/AppContext'
+import { usePagination } from '../hooks/usePagination'
+import { Pager } from '../components/Pager'
 import {
   adopterGroupes,
   changerEtatDepositaire,
@@ -159,6 +161,8 @@ export function Inventaire() {
     )
   }, [etat, filtre])
 
+  const pg = usePagination(lignes, 10, `${domaine}|${filtre}`)
+
   const basculerSelection = (id: string) =>
     setSelection((avant) => {
       const apres = new Set(avant)
@@ -296,7 +300,7 @@ export function Inventaire() {
                   </tr>
                 </thead>
                 <tbody>
-                  {lignes.map((ligne) => (
+                  {pg.pageItems.map((ligne) => (
                     <tr key={`${ligne.statut}-${ligne.id}`}>
                       {domaine === 'groupes' && (
                         <td>
@@ -393,6 +397,16 @@ export function Inventaire() {
                 </tbody>
               </table>
             </div>
+            <Pager
+              page={pg.page}
+              nbPages={pg.nbPages}
+              size={pg.size}
+              total={pg.total}
+              from={pg.from}
+              to={pg.to}
+              onPage={pg.setPage}
+              onSize={pg.setSize}
+            />
           </Card>
         </>
       )}

@@ -10,6 +10,8 @@ import { Plus, Radio } from 'lucide-react'
 import { Card, SectionHeader } from '../components/ui'
 import { Banniere, Skeleton, useToast } from '../components/ui/loader'
 import { useApp } from '../context/AppContext'
+import { usePagination } from '../hooks/usePagination'
+import { Pager } from '../components/Pager'
 import {
   ajouterTelco,
   changerEtatTelco,
@@ -138,6 +140,9 @@ export function RefTelcos() {
     if (fPart.trim() === '' || Number.isNaN(part)) return null
     return sommeActuelle + part > 100 ? t('tel_somme_depasse') : null
   }, [fPart, sommeActuelle, t])
+
+  const telcosListe = configTelcos ?? []
+  const pgTelcos = usePagination(telcosListe, 10)
 
   const formulaireValide =
     fPays !== '' &&
@@ -339,6 +344,7 @@ export function RefTelcos() {
         )}
         {configTelcos === null && configErreur === null && <Skeleton height={80} />}
         {configTelcos !== null && (
+          <>
           <div style={{ overflowX: 'auto' }}>
             <table className="data-table">
               <thead>
@@ -350,7 +356,7 @@ export function RefTelcos() {
                 </tr>
               </thead>
               <tbody>
-                {configTelcos.map((telco) => (
+                {pgTelcos.pageItems.map((telco) => (
                   <tr key={telco.id}>
                     <td className="text-xs font-semibold">
                       {telco.nom}
@@ -384,6 +390,17 @@ export function RefTelcos() {
               </tbody>
             </table>
           </div>
+          <Pager
+            page={pgTelcos.page}
+            nbPages={pgTelcos.nbPages}
+            size={pgTelcos.size}
+            total={pgTelcos.total}
+            from={pgTelcos.from}
+            to={pgTelcos.to}
+            onPage={pgTelcos.setPage}
+            onSize={pgTelcos.setSize}
+          />
+          </>
         )}
       </Card>
 

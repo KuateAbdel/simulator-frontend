@@ -13,6 +13,8 @@ import { Card, SectionHeader, TabBar } from '../components/ui'
 import { Modale } from '../components/ui/Modale'
 import { Banniere, Skeleton } from '../components/ui/loader'
 import { useApp } from '../context/AppContext'
+import { usePagination } from '../hooks/usePagination'
+import { Pager } from '../components/Pager'
 import {
   ajouterDirigeant,
   ajouterProfession,
@@ -63,6 +65,11 @@ export function RefCatalogue() {
       .catch((err) => setProduitsErr(messageDe(err)))
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [onglet, produits, etat.phase])
+
+  const groupesListe = etat.phase === 'pret' ? Object.entries(etat.catalogue.groupes) : []
+  const dirigeantsListe = etat.phase === 'pret' ? etat.catalogue.fonctions_dirigeant : []
+  const pgGroupes = usePagination(groupesListe, 10, onglet)
+  const pgDirigeants = usePagination(dirigeantsListe, 10, onglet)
 
   if (etat.phase === 'chargement') {
     return (
@@ -219,7 +226,7 @@ export function RefCatalogue() {
                   </tr>
                 </thead>
                 <tbody>
-                  {Object.entries(catalogue.groupes).map(([nom, groupe]) => {
+                  {pgGroupes.pageItems.map(([nom, groupe]) => {
                     const exceptions = Object.entries(groupe.variants)
                     return (
                       <tr key={nom}>
@@ -252,6 +259,16 @@ export function RefCatalogue() {
                 </tbody>
               </table>
             </div>
+            <Pager
+              page={pgGroupes.page}
+              nbPages={pgGroupes.nbPages}
+              size={pgGroupes.size}
+              total={pgGroupes.total}
+              from={pgGroupes.from}
+              to={pgGroupes.to}
+              onPage={pgGroupes.setPage}
+              onSize={pgGroupes.setSize}
+            />
           </Card>
         </div>
       )}
@@ -277,7 +294,7 @@ export function RefCatalogue() {
                   </tr>
                 </thead>
                 <tbody>
-                  {catalogue.fonctions_dirigeant.map((fonction) => (
+                  {pgDirigeants.pageItems.map((fonction) => (
                     <tr key={fonction.rang}>
                       <td className="font-mono">{fonction.rang}</td>
                       <td>{fonction.francais}</td>
@@ -298,6 +315,16 @@ export function RefCatalogue() {
                 </tbody>
               </table>
             </div>
+            <Pager
+              page={pgDirigeants.page}
+              nbPages={pgDirigeants.nbPages}
+              size={pgDirigeants.size}
+              total={pgDirigeants.total}
+              from={pgDirigeants.from}
+              to={pgDirigeants.to}
+              onPage={pgDirigeants.setPage}
+              onSize={pgDirigeants.setSize}
+            />
           </Card>
         </div>
       )}

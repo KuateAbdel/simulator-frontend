@@ -719,6 +719,11 @@ export const translations = {
     language: 'Langue',
     theme_clair: 'Passer en clair',
     theme_sombre: 'Passer en sombre',
+    pg_prev: 'Précédent',
+    pg_next: 'Suivant',
+    pg_page: 'Page',
+    pg_of: 'sur',
+    pg_perpage: 'Par page',
   },
   en: {
     // Brand
@@ -1429,6 +1434,11 @@ export const translations = {
     language: 'Language',
     theme_clair: 'Switch to light',
     theme_sombre: 'Switch to dark',
+    pg_prev: 'Previous',
+    pg_next: 'Next',
+    pg_page: 'Page',
+    pg_of: 'of',
+    pg_perpage: 'Per page',
   },
 } as const
 

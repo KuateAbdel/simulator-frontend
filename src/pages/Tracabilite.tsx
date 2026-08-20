@@ -12,6 +12,8 @@ import { Card, SectionHeader } from '../components/ui'
 import { Banniere, Skeleton } from '../components/ui/loader'
 import { useApp } from '../context/AppContext'
 import { lireTracabilite, type VueTracabilite } from '../lib/api'
+import { usePagination } from '../hooks/usePagination'
+import { Pager } from '../components/Pager'
 import { useMessageDe } from './runs-commun'
 
 type Etat =
@@ -43,6 +45,9 @@ export function Tracabilite() {
   useEffect(() => {
     void charger()
   }, [charger])
+
+  const entrees = etat.phase === 'pret' ? (etat.vue.journal?.dernieres_entrees ?? []) : []
+  const pgEntrees = usePagination(entrees, 10)
 
   if (etat.phase === 'chargement') {
     return (
@@ -161,6 +166,7 @@ export function Tracabilite() {
               {t('empty_no_data')}
             </p>
           ) : (
+            <>
             <div style={{ overflowX: 'auto' }}>
               <table className="data-table">
                 <thead>
@@ -171,7 +177,7 @@ export function Tracabilite() {
                   </tr>
                 </thead>
                 <tbody>
-                  {(vue.journal?.dernieres_entrees ?? []).map((e, i) => (
+                  {pgEntrees.pageItems.map((e, i) => (
                     <tr key={i}>
                       <td className="font-mono text-[11px]">{e.entity_type}</td>
                       <td className="font-mono text-[11px]">{e.action}</td>
@@ -183,6 +189,17 @@ export function Tracabilite() {
                 </tbody>
               </table>
             </div>
+            <Pager
+              page={pgEntrees.page}
+              nbPages={pgEntrees.nbPages}
+              size={pgEntrees.size}
+              total={pgEntrees.total}
+              from={pgEntrees.from}
+              to={pgEntrees.to}
+              onPage={pgEntrees.setPage}
+              onSize={pgEntrees.setSize}
+            />
+            </>
           )}
           {orphelinesAudit.length > 0 && (
             <div className="mt-3">

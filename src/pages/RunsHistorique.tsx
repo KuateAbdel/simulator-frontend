@@ -9,6 +9,8 @@ import { ArrowLeft, RefreshCw } from 'lucide-react'
 import { Card, SectionHeader, StatusBadge } from '../components/ui'
 import { Banniere, Skeleton } from '../components/ui/loader'
 import { useApp } from '../context/AppContext'
+import { usePagination } from '../hooks/usePagination'
+import { Pager } from '../components/Pager'
 import { lireRun, listerRuns, type DetailRun, type FicheRun } from '../lib/api'
 import { EnTeteRun, PaliersListe, RapportIntegral, useMessageDe } from './runs-commun'
 
@@ -37,6 +39,9 @@ export function RunsHistorique() {
   useEffect(() => {
     void chargerListe()
   }, [chargerListe])
+
+  const runsListe = etat.phase === 'liste' ? etat.runs : []
+  const pgRuns = usePagination(runsListe, 10)
 
   const ouvrirDetail = async (runId: string) => {
     setEtat({ phase: 'chargement' })
@@ -92,7 +97,7 @@ export function RunsHistorique() {
                   </tr>
                 </thead>
                 <tbody>
-                  {etat.runs.map((run) => (
+                  {pgRuns.pageItems.map((run) => (
                     <tr key={run.run_id}>
                       <td className="font-mono text-[10px]">{run.run_id.slice(0, 8)}…</td>
                       <td>
@@ -119,6 +124,16 @@ export function RunsHistorique() {
                 </tbody>
               </table>
             </div>
+            <Pager
+              page={pgRuns.page}
+              nbPages={pgRuns.nbPages}
+              size={pgRuns.size}
+              total={pgRuns.total}
+              from={pgRuns.from}
+              to={pgRuns.to}
+              onPage={pgRuns.setPage}
+              onSize={pgRuns.setSize}
+            />
           </Card>
         ))}
 

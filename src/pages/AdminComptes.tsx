@@ -12,6 +12,8 @@ import { Copy, RotateCcw, UserCheck, UserPlus, UserX } from 'lucide-react'
 import { Card, SectionHeader } from '../components/ui'
 import { Banniere, ConfirmDialog, Skeleton, useToast } from '../components/ui/loader'
 import { useApp } from '../context/AppContext'
+import { usePagination } from '../hooks/usePagination'
+import { Pager } from '../components/Pager'
 import {
   changerEtatCompte,
   creerCompte,
@@ -60,6 +62,9 @@ export function AdminComptes() {
   useEffect(() => {
     void charger()
   }, [charger])
+
+  const comptesListe = etat.phase === 'pret' ? etat.comptes : []
+  const pgComptes = usePagination(comptesListe, 10)
 
   const creer = async () => {
     if (envoi || fEmail.trim() === '') return
@@ -201,7 +206,7 @@ export function AdminComptes() {
                   </tr>
                 </thead>
                 <tbody>
-                  {etat.comptes.map((compte) => {
+                  {pgComptes.pageItems.map((compte) => {
                     const moi = compte.email === session?.email
                     return (
                       <tr key={compte.email}>
@@ -242,6 +247,16 @@ export function AdminComptes() {
                 </tbody>
               </table>
             </div>
+            <Pager
+              page={pgComptes.page}
+              nbPages={pgComptes.nbPages}
+              size={pgComptes.size}
+              total={pgComptes.total}
+              from={pgComptes.from}
+              to={pgComptes.to}
+              onPage={pgComptes.setPage}
+              onSize={pgComptes.setSize}
+            />
             <p className="text-[10px] px-4 py-2" style={{ color: 'var(--text-muted)' }}>
               {etat.note}
             </p>
