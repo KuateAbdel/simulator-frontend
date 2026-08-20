@@ -8,17 +8,45 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import {
   Activity,
+  Building2,
+  Dices,
+  Fingerprint,
   GitBranch,
+  HandCoins,
   Landmark,
+  Package,
   RefreshCw,
+  SlidersHorizontal,
   Store,
   UserCheck,
+  UserRound,
   Users,
+  Wallet,
+  type LucideIcon,
 } from 'lucide-react'
 import { Card, SectionHeader, StatusBadge } from '../components/ui'
 import { Banniere, HealthDot, KpiCard, Skeleton } from '../components/ui/loader'
 import { useApp } from '../context/AppContext'
 import { ApiError, lireDashboard, type VueDashboard } from '../lib/api'
+import type { TranslationKey } from '../i18n'
+
+// Demande JJB (20/08) : le cockpit parle METIER — chaque sonde porte un
+// pictogramme et un libelle bilingue, jamais un nom technique en « -service ».
+// Le nom technique RESTE dans le tooltip : la tracabilite vers le vrai
+// service n'est pas sacrifiee a l'habillage. Une sonde inconnue (backend
+// plus recent que ce build) s'affiche sans casser, nom nettoye + icone neutre.
+const SONDE_META: Record<string, { icone: LucideIcon; labelKey: TranslationKey }> = {
+  'user-service': { icone: Users, labelKey: 'svc_user' },
+  'config-service': { icone: SlidersHorizontal, labelKey: 'svc_config' },
+  'identity-service': { icone: Fingerprint, labelKey: 'svc_identity' },
+  'account-service': { icone: Wallet, labelKey: 'svc_account' },
+  'company-service': { icone: Building2, labelKey: 'svc_company' },
+  'product-service': { icone: Package, labelKey: 'svc_product' },
+  'depositary-service': { icone: Store, labelKey: 'svc_depositary' },
+  'client-service': { icone: UserRound, labelKey: 'svc_client' },
+  'collect-service': { icone: HandCoins, labelKey: 'svc_collect' },
+  faker: { icone: Dices, labelKey: 'svc_faker' },
+}
 
 type Etat =
   | { statut: 'chargement' }
@@ -30,6 +58,11 @@ const INTERVALLE_RAFRAICHISSEMENT_MS = 60_000
 export function TableauDeBord() {
   const { t } = useApp()
   const [etat, setEtat] = useState<Etat>({ statut: 'chargement' })
+  /** Libelle METIER d'une sonde — repli : le nom technique sans « -service ». */
+  const libelleSonde = (nom: string) => {
+    const meta = SONDE_META[nom]
+    return meta ? t(meta.labelKey) : nom.replace(/-service$/, '')
+  }
   // La premiere charge montre des squelettes ; les rafraichissements suivants
   // gardent la vue en place (jamais un ecran qui clignote toutes les 60 s).
   const dejaCharge = useRef(false)
@@ -99,22 +132,32 @@ export function TableauDeBord() {
             <div className="mb-3">
               <Banniere ton="attention">
                 <strong>
-                  {etat.vue.services.filter((s) => s.etat === 'down').map((s) => s.nom).join(', ')}
+                  {etat.vue.services.filter((s) => s.etat === 'down').map((s) => libelleSonde(s.nom)).join(', ')}
                 </strong>{' '}
                 — {t('dash_service_down_banner')}
               </Banniere>
             </div>
           )}
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 mb-6 stagger">
-            {etat.vue.services.map((service) => (
-              <HealthDot
-                key={service.nom}
-                nom={service.nom}
-                etat={service.etat}
-                latenceMs={service.latence_ms}
-                detail={service.erreur ?? (service.http !== null ? `HTTP ${service.http}` : undefined)}
-              />
-            ))}
+            {etat.vue.services.map((service) => {
+              const meta = SONDE_META[service.nom]
+              const Icone = meta?.icone ?? Activity
+              const technique =
+                service.erreur ?? (service.http !== null ? `HTTP ${service.http}` : undefined)
+              return (
+                <HealthDot
+                  key={service.nom}
+                  nom={libelleSonde(service.nom)}
+                  etat={service.etat}
+                  latenceMs={service.latence_ms}
+                  detail={technique}
+                  // Le tooltip garde le NOM TECHNIQUE : l'habillage metier ne
+                  // coupe jamais la tracabilite vers le service reel.
+                  technique={technique ? `${service.nom} · ${technique}` : service.nom}
+                  icone={<Icone size={14} />}
+                />
+              )
+            })}
           </div>
         </>
       ) : null}

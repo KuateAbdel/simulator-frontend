@@ -83,9 +83,21 @@ export const translations = {
     backend_checking: 'Vérification…',
 
     // Tableau de bord (US-E1)
-    dash_services_title: 'Santé des services',
-    dash_services_subtitle: '9 services FinZuu + Faker, sondés en direct par le backend',
-    dash_service_down_banner: 'service(s) injoignable(s) — les runs qui en dépendent échoueront',
+    dash_services_title: 'Santé de la plateforme',
+    dash_services_subtitle:
+      'Les 9 composants FinZuu et le générateur Faker, sondés en direct.',
+    dash_service_down_banner: 'injoignable(s) — les runs qui en dépendent échoueront',
+    // Sondes — libellés MÉTIER (le nom technique reste dans l'infobulle)
+    svc_user: 'Utilisateurs & accès',
+    svc_config: 'Configuration',
+    svc_identity: 'Identité (KYC)',
+    svc_account: 'Comptes & soldes',
+    svc_company: 'Compagnies',
+    svc_product: 'Catalogue produits',
+    svc_depositary: 'Dépositaires',
+    svc_client: 'Clients',
+    svc_collect: 'Collectes',
+    svc_faker: 'Générateur Faker',
     dash_kpi_title: 'Compteurs du dernier run',
     dash_kpi_branches: 'Branches',
     dash_kpi_agences: 'Agences',
@@ -855,9 +867,20 @@ export const translations = {
     backend_checking: 'Checking…',
 
     // Dashboard (US-E1)
-    dash_services_title: 'Services health',
-    dash_services_subtitle: '9 FinZuu services + Faker, probed live by the backend',
-    dash_service_down_banner: 'service(s) unreachable — runs depending on them will fail',
+    dash_services_title: 'Platform health',
+    dash_services_subtitle: 'The 9 FinZuu components and the Faker generator, probed live.',
+    dash_service_down_banner: 'unreachable — runs depending on them will fail',
+    // Probes — business labels (the technical name stays in the tooltip)
+    svc_user: 'Users & access',
+    svc_config: 'Configuration',
+    svc_identity: 'Identity (KYC)',
+    svc_account: 'Accounts & balances',
+    svc_company: 'Companies',
+    svc_product: 'Product catalog',
+    svc_depositary: 'Depositaries',
+    svc_client: 'Clients',
+    svc_collect: 'Collections',
+    svc_faker: 'Faker generator',
     dash_kpi_title: 'Latest run counters',
     dash_kpi_branches: 'Branches',
     dash_kpi_agences: 'Agencies',

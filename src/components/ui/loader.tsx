@@ -25,25 +25,34 @@ export function Skeleton({ height = 16, width = '100%' }: { height?: number; wid
   )
 }
 
-// ── HealthDot — la pastille de sante d'un service (US-E1) ───────────────────
+// ── HealthDot — la pastille de sante d'un composant sonde (US-E1) ───────────
+// `icone` (20/08, demande JJB) : le pictogramme METIER du composant — le
+// cockpit parle a des professionnels, pas a des devs. L'etat reste porte par
+// la pastille coloree, jamais par l'icone (daltonisme, coherence).
 export function HealthDot({
   nom,
   etat,
   latenceMs,
   detail,
+  icone,
+  technique,
 }: {
   nom: string
   etat: 'up' | 'down' | 'inconnu'
   latenceMs?: number
+  /** Court et VISIBLE en panne (erreur, HTTP) — jamais un nom technique. */
   detail?: string
+  icone?: React.ReactNode
+  /** Le nom technique + detail — TOOLTIP seulement (tracabilite sans jargon). */
+  technique?: string
 }) {
   const couleur =
     etat === 'up' ? 'var(--secondary)' : etat === 'down' ? '#ef4444' : '#f59e0b'
   return (
     <div
       className="flex items-center gap-2 rounded-xl border px-3 py-2"
-      style={{ borderColor: 'var(--border)', background: '#fff' }}
-      title={detail}
+      style={{ borderColor: 'var(--border)', background: 'var(--bg)' }}
+      title={technique ?? detail}
     >
       <span
         className="w-2.5 h-2.5 rounded-full flex-shrink-0"
@@ -51,6 +60,15 @@ export function HealthDot({
         role="img"
         aria-label={`${nom} : ${etat}`}
       />
+      {icone && (
+        <span
+          className="flex-shrink-0 flex items-center justify-center rounded-lg"
+          style={{ width: 26, height: 26, background: 'var(--primary-light)', color: 'var(--primary-dark)' }}
+          aria-hidden
+        >
+          {icone}
+        </span>
+      )}
       <div className="min-w-0">
         <p className="text-xs font-semibold truncate" style={{ color: 'var(--text-primary)' }}>
           {nom}
