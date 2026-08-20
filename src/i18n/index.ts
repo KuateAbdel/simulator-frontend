@@ -548,7 +548,7 @@ export const translations = {
       'Un dépositaire ne naît jamais « en l’air » : un QUARTIER + une company À NOUS — le Loader compose le reste.',
     dep_etape_composer: 'Choisir quartier & company',
     dep_doctrine:
-      'Le nom devient DEMO_Kiosque <quartier> (comme au run), la devise est DÉRIVÉE du pays du quartier — jamais saisie. La cohérence company↔quartier est vérifiée : pas de kiosque à Douala pour une company de Dakar (422 nommé). Un quartier n’héberge qu’UN kiosque. Aucun DELETE n’existe (D-DEP-3) : un doublon serait permanent — d’où l’aperçu avant tout.',
+      'Le nom devient Kiosque <quartier> (comme au run, sans préfixe), la devise est DÉRIVÉE du pays du quartier — jamais saisie. La cohérence company↔quartier est vérifiée : pas de kiosque à Douala pour une company de Dakar (422 nommé). Un quartier n’héberge qu’UN kiosque. Aucun DELETE n’existe (D-DEP-3) : un doublon serait permanent — d’où l’aperçu avant tout.',
     dep_quartier: 'Quartier (pays — ville — quartier)',
     dep_quartier_note: 'Choisi dans le référentiel (EF-02) — un quartier déjà occupé est refusé.',
     dep_company: 'Company À NOUS',
@@ -745,7 +745,7 @@ export const translations = {
     pur_etape_lire: 'Lire & décider',
     pur_etape_faite: 'Purge exécutée',
     pur_doctrine:
-      'La v1 n’a qu’UNE action réversible : les groupes (DELETE existe). Tout le reste — companies, dépositaires, clients, identités, comptes — n’a AUCUN DELETE côté plateforme : ces résidus restent, marqués DEMO_, et chaque carte dit son verdict mesuré. La purge ne cache rien.',
+      'La v1 n’a qu’UNE action réversible : les groupes (DELETE existe). Tout le reste — companies, dépositaires, clients, identités, comptes — n’a AUCUN DELETE côté plateforme : ces résidus restent, reconnus au REGISTRE, et chaque carte dit son verdict mesuré. La purge ne cache rien.',
     pur_accueil:
       'Préparer dresse l’inventaire : ce qui peut partir, ce qui restera et pourquoi. Aucune écriture ne part de la préparation.',
     pur_preparer: 'Préparer la purge',
@@ -1326,7 +1326,7 @@ export const translations = {
       'A depositary is never born “in the air”: a DISTRICT + a company of OURS — the Loader composes the rest.',
     dep_etape_composer: 'Pick district & company',
     dep_doctrine:
-      'The name becomes DEMO_Kiosque <district> (as in a run), the currency is DERIVED from the district’s country — never typed. Company↔district coherence is checked: no kiosk in Douala for a Dakar company (named 422). A district hosts ONE kiosk. No DELETE exists (D-DEP-3): a duplicate would be permanent — hence the preview first.',
+      'The name becomes Kiosque <district> (as in a run, no prefix), the currency is DERIVED from the district’s country — never typed. Company↔district coherence is checked: no kiosk in Douala for a Dakar company (named 422). A district hosts ONE kiosk. No DELETE exists (D-DEP-3): a duplicate would be permanent — hence the preview first.',
     dep_quartier: 'District (country — city — district)',
     dep_quartier_note: 'Picked from the reference data (EF-02) — an occupied district is refused.',
     dep_company: 'Company of OURS',
@@ -1523,7 +1523,7 @@ export const translations = {
     pur_etape_lire: 'Read & decide',
     pur_etape_faite: 'Purge executed',
     pur_doctrine:
-      'v1 has ONE reversible action: groups (a DELETE exists). Everything else — companies, depositaries, clients, identities, accounts — has NO DELETE on the platform: those residues stay, marked DEMO_, and each card states its measured verdict. The purge hides nothing.',
+      'v1 has ONE reversible action: groups (a DELETE exists). Everything else — companies, depositaries, clients, identities, accounts — has NO DELETE on the platform: those residues stay, recognised via the REGISTRY, and each card states its measured verdict. The purge hides nothing.',
     pur_accueil:
       'Prepare draws the inventory: what can go, what will stay and why. No write leaves the preparation.',
     pur_preparer: 'Prepare the purge',

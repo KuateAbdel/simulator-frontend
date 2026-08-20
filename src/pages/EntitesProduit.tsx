@@ -241,7 +241,7 @@ export function EntitesProduit() {
               <ErreurInline texte={codeEtat} />
               {fCode && codeEtat === null && (
                 <p className="text-[10px] mt-1 font-mono" style={{ color: 'var(--text-muted)' }}>
-                  {t('prod_marqueur_annonce')} DEMO_{fCode}
+                  {t('prod_marqueur_annonce')} {fCode}
                 </p>
               )}
             </div>

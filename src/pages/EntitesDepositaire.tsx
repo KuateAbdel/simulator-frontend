@@ -3,7 +3,7 @@
 // NOTRE conception : un depositaire n'existe jamais « en l'air » — il naît
 // d'un QUARTIER (CR-02 : un quartier = UN kiosque) et d'une company A NOUS.
 // L'ecran ne demande QUE ces deux choix ; le Loader compose le nom
-// (DEMO_Kiosque <Quartier>), DERIVE la devise du pays, et VERIFIE la
+// (Kiosque <Quartier>, sans prefixe depuis le 20/08), DERIVE la devise du pays, et VERIFIE la
 // coherence company<->quartier (pas de kiosque a Douala pour une company de
 // Dakar — le 422 INCOHERENCE du backend s'affiche nomme).
 

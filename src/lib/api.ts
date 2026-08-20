@@ -690,7 +690,7 @@ export function lireInventaire(
 
 // --------------------------------------------------------------------------
 // US-D3 (16/08) — le depositaire naît d'un QUARTIER + une company A NOUS.
-// Le Loader COMPOSE : nom DEMO_Kiosque <Quartier>, devise du pays, coherence
+// Le Loader COMPOSE : nom Kiosque <Quartier> (sans prefixe, 20/08), devise du pays, coherence
 // company<->quartier verifiee (pas de kiosque a Douala pour une company de
 // Dakar — 422 INCOHERENCE nomme).
 // --------------------------------------------------------------------------
@@ -1000,7 +1000,7 @@ export function listerJournal(
 /** US-D2 — le formulaire produit. COLLECT seulement, 3 interfaces par policy_type. */
 export type ProduitDemande = {
   nom: string
-  /** Code court du marqueur — DEMO_<code> partira dans short_name (CR-07). */
+  /** Code court — partira TEL QUEL dans short_name (sans prefixe, 20/08). */
   code: string
   policy_type: 'CASH' | 'CASH_DAT' | 'PRODUCT'
   categorie: 'INDIVIDUAL' | 'CORPORATE'
