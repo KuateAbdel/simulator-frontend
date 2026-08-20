@@ -33,28 +33,65 @@ import { Tracabilite } from './pages/Tracabilite'
 import { Inventaire } from './pages/Inventaire'
 import { Purge } from './pages/Purge'
 import { EnConstruction } from './pages/EnConstruction'
+import { SectionOnglets } from './components/SectionOnglets'
 
 function Router() {
   const { currentPage } = useApp()
   if (currentPage === 'tableau-de-bord') return <TableauDeBord />
   if (currentPage === 'configuration') return <Configuration />
-  if (currentPage === 'runs-preparer') return <RunsPreparer />
-  if (currentPage === 'runs-progression') return <RunsProgression />
-  if (currentPage === 'runs-historique') return <RunsHistorique />
-  if (currentPage === 'ref-geographie') return <RefGeographie />
-  if (currentPage === 'ref-pays-monnaies') return <RefPaysMonnaies />
-  if (currentPage === 'ref-telcos') return <RefTelcos />
-  if (currentPage === 'ref-catalogue') return <RefCatalogue />
-  if (currentPage === 'entites-company') return <EntitesCompany />
-  if (currentPage === 'entites-produit') return <EntitesProduit />
-  if (currentPage === 'entites-groupe') return <EntitesGroupe />
-  if (currentPage === 'entites-depositaire') return <EntitesDepositaire />
   if (currentPage === 'admin-comptes') return <AdminComptes />
-  if (currentPage === 'ecosysteme') return <Ecosysteme />
-  if (currentPage === 'population') return <Population />
-  if (currentPage === 'tracabilite') return <Tracabilite />
-  if (currentPage === 'inventaire') return <Inventaire />
-  if (currentPage === 'purge') return <Purge />
+  // Sections a onglets (refonte nav 20/08) — la page fine choisit l'onglet.
+  if (['runs-preparer', 'runs-progression', 'runs-historique'].includes(currentPage))
+    return (
+      <SectionOnglets
+        pages={[
+          { page: 'runs-preparer', element: <RunsPreparer /> },
+          { page: 'runs-progression', element: <RunsProgression /> },
+          { page: 'runs-historique', element: <RunsHistorique /> },
+        ]}
+      />
+    )
+  if (['ecosysteme', 'population', 'tracabilite'].includes(currentPage))
+    return (
+      <SectionOnglets
+        pages={[
+          { page: 'ecosysteme', element: <Ecosysteme /> },
+          { page: 'population', element: <Population /> },
+          { page: 'tracabilite', element: <Tracabilite /> },
+        ]}
+      />
+    )
+  if (['entites-company', 'entites-produit', 'entites-groupe', 'entites-depositaire'].includes(currentPage))
+    return (
+      <SectionOnglets
+        pages={[
+          { page: 'entites-company', element: <EntitesCompany /> },
+          { page: 'entites-produit', element: <EntitesProduit /> },
+          { page: 'entites-groupe', element: <EntitesGroupe /> },
+          { page: 'entites-depositaire', element: <EntitesDepositaire /> },
+        ]}
+      />
+    )
+  if (['ref-geographie', 'ref-pays-monnaies', 'ref-telcos', 'ref-catalogue'].includes(currentPage))
+    return (
+      <SectionOnglets
+        pages={[
+          { page: 'ref-geographie', element: <RefGeographie /> },
+          { page: 'ref-pays-monnaies', element: <RefPaysMonnaies /> },
+          { page: 'ref-telcos', element: <RefTelcos /> },
+          { page: 'ref-catalogue', element: <RefCatalogue /> },
+        ]}
+      />
+    )
+  if (['inventaire', 'purge'].includes(currentPage))
+    return (
+      <SectionOnglets
+        pages={[
+          { page: 'inventaire', element: <Inventaire /> },
+          { page: 'purge', element: <Purge /> },
+        ]}
+      />
+    )
   return <EnConstruction page={currentPage} />
 }
 

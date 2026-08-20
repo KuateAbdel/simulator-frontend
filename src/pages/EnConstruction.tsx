@@ -28,7 +28,7 @@ export function EnConstruction({ page, sansTitre = false }: { page: Page; sansTi
           <Hammer size={20} style={{ color: 'var(--primary-dark)' }} />
         </div>
         <p className="font-display font-semibold text-sm mb-1" style={{ color: 'var(--text-primary)' }}>
-          {t('under_construction')} — {t('delivered_in_phase')} {item.phase}
+          {t('under_construction')}
         </p>
         <p className="text-xs mb-3 font-mono" style={{ color: 'var(--primary-dark)' }}>
           {item.stories}

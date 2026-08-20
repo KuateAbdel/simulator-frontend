@@ -6,7 +6,7 @@
 import type React from 'react'
 import { ChevronLeft, ChevronRight, LogOut } from 'lucide-react'
 import { useApp } from '../../context/AppContext'
-import { NAV_GROUPS } from './nav'
+import { NAV_ITEMS, entreeActive } from './nav'
 import { roleAuMoins, type RoleLoader } from '../../types'
 import type { TranslationKey } from '../../i18n'
 
@@ -86,27 +86,15 @@ export function Sidebar() {
         )}
       </div>
 
-      {/* Navigation — les 6 epopees */}
+      {/* Navigation — 8 entrees de section, le detail vit en onglets (20/08) */}
       <nav className="flex-1 py-3 overflow-y-auto overflow-x-hidden">
-        {NAV_GROUPS.map((groupe, gi) => {
-          const items = groupe.items.filter((it) => !it.roleMin || roleAuMoins(role, it.roleMin))
-          if (items.length === 0) return null
+        {(() => {
+          const items = NAV_ITEMS.filter((it) => !it.roleMin || roleAuMoins(role, it.roleMin))
           return (
-          <div key={gi} className="px-2 mb-1">
-            {groupe.labelKey && sidebarOpen && (
-              <p
-                className="px-3 pt-3 pb-1 text-[10px] font-semibold uppercase tracking-widest"
-                style={{ color: 'rgba(255,255,255,0.35)' }}
-              >
-                {t(groupe.labelKey)}
-              </p>
-            )}
-            {groupe.labelKey && !sidebarOpen && (
-              <div className="mx-3 my-2 border-t" style={{ borderColor: 'rgba(255,255,255,0.12)' }} />
-            )}
+          <div className="px-2 mb-1">
             <div className="space-y-0.5">
               {items.map((item) => {
-                const actif = currentPage === item.page
+                const actif = entreeActive(item, currentPage)
                 const Icone = item.icon
                 return (
                   <button
@@ -151,7 +139,7 @@ export function Sidebar() {
             </div>
           </div>
           )
-        })}
+        })()}
       </nav>
 
       {/* Bas — session reelle + deconnexion */}
