@@ -935,6 +935,26 @@ export function changerRoleCompte(
 }
 
 // --------------------------------------------------------------------------
+// Journal d'administration (audit) — contrat de app/routes/admin_journal.py
+// « Qui a fait quoi, quand ». Super-Admin seulement (403 sinon). Lecture seule.
+// --------------------------------------------------------------------------
+
+export type EntreeJournal = {
+  quand: string
+  operation: string
+  entite: string
+  cible: string
+  acteur: string | null
+  details: Record<string, unknown>
+}
+
+export function listerJournal(
+  limite = 200,
+): Promise<{ entrees: EntreeJournal[]; total: number; note: string }> {
+  return api(`/admin/journal?limite=${limite}`)
+}
+
+// --------------------------------------------------------------------------
 // Entites a l'unite (Lot D + Lot H) — contrat de app/routes/admin_entites.py
 // Le rite en DEUX temps (D-01) : /apercu ne fait AUCUNE ecriture ; la
 // confirmation re-valide les MEMES champs puis pousse et RELIT (FRA-218).

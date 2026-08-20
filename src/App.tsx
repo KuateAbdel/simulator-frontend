@@ -27,6 +27,7 @@ import { EntitesProduit } from './pages/EntitesProduit'
 import { EntitesGroupe } from './pages/EntitesGroupe'
 import { EntitesDepositaire } from './pages/EntitesDepositaire'
 import { AdminComptes } from './pages/AdminComptes'
+import { AdminJournal } from './pages/AdminJournal'
 import { Ecosysteme } from './pages/Ecosysteme'
 import { Population } from './pages/Population'
 import { Tracabilite } from './pages/Tracabilite'
@@ -50,6 +51,7 @@ function Router() {
   if (currentPage === 'entites-groupe') return <EntitesGroupe />
   if (currentPage === 'entites-depositaire') return <EntitesDepositaire />
   if (currentPage === 'admin-comptes') return <AdminComptes />
+  if (currentPage === 'admin-journal') return <AdminJournal />
   if (currentPage === 'ecosysteme') return <Ecosysteme />
   if (currentPage === 'population') return <Population />
   if (currentPage === 'tracabilite') return <Tracabilite />

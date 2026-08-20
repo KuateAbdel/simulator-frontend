@@ -19,6 +19,7 @@ import {
   Package,
   PlayCircle,
   Radio,
+  ScrollText,
   Settings2,
   Store,
   ShieldCheck,
@@ -55,6 +56,7 @@ export const NAV_GROUPS: NavGroup[] = [
       { page: 'tableau-de-bord', labelKey: 'nav_dashboard', icon: LayoutDashboard, stories: 'US-E1', phase: 2 },
       { page: 'configuration', labelKey: 'nav_configuration', icon: Settings2, stories: 'US-B1 · US-B2 · US-B3', phase: 2 },
       { page: 'admin-comptes', labelKey: 'nav_comptes', icon: UserCog, stories: 'RBAC', phase: 5, roleMin: 'super_admin' },
+      { page: 'admin-journal', labelKey: 'nav_journal', icon: ScrollText, stories: 'Audit', phase: 5, roleMin: 'super_admin' },
     ],
   },
   {
