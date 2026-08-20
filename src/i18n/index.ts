@@ -391,6 +391,21 @@ export const translations = {
     cpt_perm_operer: 'Opérer : lancer des runs, éditer référentiels et entités',
     cpt_perm_comptes: 'Gérer les utilisateurs : créer, rôles, activer / désactiver',
     cpt_perm_purge: 'Purge et opérations destructrices',
+    cpt_col_derniere_connexion: 'Dernière connexion',
+    cpt_jamais_connecte: 'jamais connecté',
+
+    // Notifications — la cloche (in-app, 20/08)
+    notif_titre: 'Notifications',
+    notif_aria: 'Notifications',
+    notif_vide:
+      'Rien à signaler — les gestes sensibles des autres admins apparaîtront ici.',
+    notif_tout_lu: 'Tout marquer lu',
+    notif_marquer_lu: 'Marquer lu',
+    notif_erreur: 'Notifications indisponibles — nouvel essai au prochain cycle.',
+    notif_compte_cree: '{acteur} a créé le compte {email} (rôle {role})',
+    notif_role_change: 'Le rôle de {email} est passé à {role} (par {acteur})',
+    notif_compte_desactive: '{acteur} a désactivé {email} — motif : {motif}',
+    notif_compte_reactive: '{acteur} a réactivé {email}',
     // Audit — écran Journal
     jrn_titre: 'Journal d’administration',
     jrn_sous_titre: 'Qui a fait quoi, quand — les actions d’administration, les plus récentes d’abord.',
@@ -1144,6 +1159,20 @@ export const translations = {
     cpt_perm_operer: 'Operate: launch runs, edit referentials and entities',
     cpt_perm_comptes: 'Manage users: create, roles, activate / deactivate',
     cpt_perm_purge: 'Purge and destructive operations',
+    cpt_col_derniere_connexion: 'Last sign-in',
+    cpt_jamais_connecte: 'never signed in',
+
+    // Notifications — the bell (in-app, Aug 20)
+    notif_titre: 'Notifications',
+    notif_aria: 'Notifications',
+    notif_vide: 'Nothing to report — sensitive actions by other admins will show up here.',
+    notif_tout_lu: 'Mark all read',
+    notif_marquer_lu: 'Mark read',
+    notif_erreur: 'Notifications unavailable — retrying next cycle.',
+    notif_compte_cree: '{acteur} created the account {email} (role {role})',
+    notif_role_change: '{email}’s role changed to {role} (by {acteur})',
+    notif_compte_desactive: '{acteur} deactivated {email} — reason: {motif}',
+    notif_compte_reactive: '{acteur} reactivated {email}',
     // Audit — log screen
     jrn_titre: 'Administration log',
     jrn_sous_titre: 'Who did what, when — administration actions, most recent first.',

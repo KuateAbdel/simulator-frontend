@@ -889,6 +889,8 @@ export type CompteAdmin = {
   must_change_password: boolean
   cree_par: string | null
   cree_le: string | null
+  /** Posée au login (traçabilité 20/08) — null tant que jamais connecté. */
+  derniere_connexion: string | null
 }
 
 export function listerComptes(): Promise<{ comptes: CompteAdmin[]; compte: number; note: string }> {
@@ -932,6 +934,41 @@ export function changerRoleCompte(
     method: 'PUT',
     body: { role },
   })
+}
+
+// --------------------------------------------------------------------------
+// Notifications in-app (20/08) — la boite du compte CONNECTE, jamais celle
+// d'un autre (le backend borne au jeton). Le texte n'arrive PAS tout fait :
+// `type` + `donnees` structurées, le rendu localisé FR/EN se fait à l'écran.
+// --------------------------------------------------------------------------
+
+export type NotificationAdmin = {
+  id: string
+  /** 'compte_cree' | 'role_change' | 'compte_desactive' | 'compte_reactive'… */
+  type: string
+  donnees: Record<string, unknown>
+  lu: boolean
+  quand: string
+}
+
+export function listerNotifications(): Promise<{
+  notifications: NotificationAdmin[]
+  non_lues: number
+}> {
+  return api('/admin/notifications')
+}
+
+/** Le compteur de la cloche — léger, sondé souvent. */
+export function compterNonLues(): Promise<{ non_lues: number }> {
+  return api('/admin/notifications/non-lues')
+}
+
+export function marquerNotifLue(id: string): Promise<{ lu: boolean }> {
+  return api(`/admin/notifications/${encodeURIComponent(id)}/lu`, { method: 'PUT' })
+}
+
+export function marquerToutLu(): Promise<{ marquees: number }> {
+  return api('/admin/notifications/tout-lu', { method: 'PUT' })
 }
 
 // --------------------------------------------------------------------------

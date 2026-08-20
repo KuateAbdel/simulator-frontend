@@ -10,6 +10,7 @@ import { ConfirmDialog, useToast } from '../ui/loader'
 import { useApp } from '../../context/AppContext'
 import { ApiError } from '../../lib/api'
 import { navItemDe } from './nav'
+import { NotifCloche } from './NotifCloche'
 
 function formaterCompteARebours(secondes: number): string {
   const h = Math.floor(secondes / 3600)
@@ -194,6 +195,9 @@ export function Header() {
           <Clock size={11} />
           {formaterCompteARebours(sessionSecondsLeft)}
         </span>
+
+        {/* Cloche de notifications — badge non-lues + panneau in-app */}
+        <NotifCloche />
 
         {/* Bascule thème clair/sombre — couleurs FinZuu */}
         <button

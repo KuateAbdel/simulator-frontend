@@ -343,6 +343,7 @@ export function AdminComptes() {
                         <th>{t('cpt_col_role')}</th>
                         <th>{t('cpt_col_etat')}</th>
                         <th>{t('cpt_col_mdp')}</th>
+                        <th>{t('cpt_col_derniere_connexion')}</th>
                         <th>{t('cpt_col_cree_par')}</th>
                         <th></th>
                       </tr>
@@ -366,6 +367,14 @@ export function AdminComptes() {
                             </td>
                             <td className="text-[10px]" style={{ color: 'var(--text-secondary)' }}>
                               {compte.must_change_password ? t('cpt_mdp_initial') : t('cpt_mdp_durable')}
+                            </td>
+                            <td className="text-[10px]" style={{ color: 'var(--text-secondary)', whiteSpace: 'nowrap' }}>
+                              {compte.derniere_connexion
+                                ? new Date(compte.derniere_connexion).toLocaleString(undefined, {
+                                    dateStyle: 'short',
+                                    timeStyle: 'short',
+                                  })
+                                : t('cpt_jamais_connecte')}
                             </td>
                             <td className="text-[10px] font-mono" style={{ color: 'var(--text-muted)' }}>
                               {compte.cree_par ?? t('cpt_bootstrap')}
