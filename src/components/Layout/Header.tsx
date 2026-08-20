@@ -5,7 +5,7 @@
 // Les gadgets fintech de la base JJB (QR, filtres, alertes mock) sont partis.
 
 import { useState } from 'react'
-import { Clock, Globe, KeyRound, LogOut, Menu, Moon, Sun } from 'lucide-react'
+import { Clock, Eye, Globe, KeyRound, LogOut, Menu, Moon, Sun } from 'lucide-react'
 import { ConfirmDialog, useToast } from '../ui/loader'
 import { useApp } from '../../context/AppContext'
 import { ApiError } from '../../lib/api'
@@ -117,7 +117,7 @@ function ChangerMonMotDePasse() {
 }
 
 export function Header() {
-  const { t, lang, setLang, theme, toggleTheme, currentPage, sessionSecondsLeft, seDeconnecter, estMobile, setSidebarOpen } =
+  const { t, lang, setLang, theme, toggleTheme, currentPage, sessionSecondsLeft, seDeconnecter, estMobile, setSidebarOpen, peutEcrire, session } =
     useApp()
   const item = navItemDe(currentPage)
 
@@ -169,6 +169,18 @@ export function Header() {
 
       {/* Droite */}
       <div className="flex items-center gap-2 flex-shrink-0">
+        {/* RBAC — signal GLOBAL de lecture seule (viewer). Les ecrans cachent
+            leurs actions ; ceci le dit d'un coup d'oeil, partout. */}
+        {session && !peutEcrire && (
+          <span
+            className="hidden sm:inline-flex items-center gap-1 text-[11px] font-semibold rounded-md px-2 py-1"
+            style={{ background: 'rgba(120,124,140,0.16)', color: 'var(--text-secondary)' }}
+            title={t('lecture_seule_note')}
+          >
+            <Eye size={12} />
+            {t('lecture_seule')}
+          </span>
+        )}
         {/* Compte a rebours de session — la verite du jeton, pas un chrono decoratif */}
         <span
           className="session-timer hidden sm:flex items-center gap-1.5"

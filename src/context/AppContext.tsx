@@ -12,6 +12,7 @@ import React, {
   useState,
 } from 'react'
 import type { Page, Session } from '../types'
+import { roleAuMoins } from '../types'
 import type { Lang, TranslationKey } from '../i18n'
 import { translations } from '../i18n'
 import * as api from '../lib/api'
@@ -63,6 +64,10 @@ interface AppContextType {
   seDeconnecter: (motif?: 'expiree') => void
   /** Motif affiche sur l'ecran de login (ex. session expiree). */
   motifDeconnexion: 'expiree' | null
+  /** RBAC — vrai si le role peut ECRIRE (>= admin). Un viewer est en lecture
+   *  seule : les ecrans cachent leurs actions d'ecriture (l'API 403 reste le
+   *  juge). */
+  peutEcrire: boolean
 }
 
 const AppContext = createContext<AppContextType>({} as AppContextType)
@@ -230,6 +235,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         reinitialiserParCode,
         seDeconnecter,
         motifDeconnexion,
+        peutEcrire: session ? roleAuMoins(session.role, 'admin') : false,
       }}
     >
       {children}

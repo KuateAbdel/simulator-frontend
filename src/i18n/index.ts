@@ -371,6 +371,9 @@ export const translations = {
     role_viewer: 'Viewer',
     role_admin: 'Admin',
     role_super_admin: 'Super-Admin',
+    lecture_seule: 'Lecture seule',
+    lecture_seule_note:
+      'Votre rôle est en lecture seule — les modifications sont réservées aux rôles Admin et Super-Admin.',
     cpt_onglet_comptes: 'Comptes',
     cpt_onglet_roles: 'Rôles & permissions',
     cpt_col_role: 'Rôle',
@@ -1109,6 +1112,9 @@ export const translations = {
     role_viewer: 'Viewer',
     role_admin: 'Admin',
     role_super_admin: 'Super-Admin',
+    lecture_seule: 'Read-only',
+    lecture_seule_note:
+      'Your role is read-only — changes are reserved for the Admin and Super-Admin roles.',
     cpt_onglet_comptes: 'Accounts',
     cpt_onglet_roles: 'Roles & permissions',
     cpt_col_role: 'Role',
