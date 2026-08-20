@@ -5,6 +5,13 @@ versionnage [SemVer](https://semver.org/lang/fr/). La version affichée dans
 l'app (bas de sidebar + login) vient de `package.json`, injectée au build
 avec le commit court — elle ne peut pas mentir.
 
+## [1.2.1] — 2026-08-20
+
+### Modifié
+- Plus aucune mention `DEMO_` dans l'UI (décision direction, backend v0.7.0) :
+  l'aperçu Produit annonce le code tel quel, le Dépositaire compose
+  « Kiosque <quartier> », l'aide Purge dit « reconnus au REGISTRE ». FR+EN.
+
 ## [1.2.0] — 2026-08-20
 
 **Notifications, traçabilité et l'ergonomie d'une vraie console** — les
