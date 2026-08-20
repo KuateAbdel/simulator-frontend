@@ -27,7 +27,7 @@ import {
   Coins,
   ClipboardList,
 } from 'lucide-react'
-import type { Page } from '../../types'
+import type { Page, RoleLoader } from '../../types'
 import type { TranslationKey } from '../../i18n'
 
 export interface NavItem {
@@ -38,6 +38,9 @@ export interface NavItem {
   stories: string
   /** Phase du plan qui livre l'ecran (1 = deja la). */
   phase: number
+  /** RBAC — role MINIMAL pour voir l'entree. Absent = visible par tous les
+   *  roles. C'est une PROJECTION : l'API reste seule juge (403). */
+  roleMin?: RoleLoader
 }
 
 export interface NavGroup {
@@ -51,7 +54,7 @@ export const NAV_GROUPS: NavGroup[] = [
     items: [
       { page: 'tableau-de-bord', labelKey: 'nav_dashboard', icon: LayoutDashboard, stories: 'US-E1', phase: 2 },
       { page: 'configuration', labelKey: 'nav_configuration', icon: Settings2, stories: 'US-B1 · US-B2 · US-B3', phase: 2 },
-      { page: 'admin-comptes', labelKey: 'nav_comptes', icon: UserCog, stories: 'RBAC', phase: 5 },
+      { page: 'admin-comptes', labelKey: 'nav_comptes', icon: UserCog, stories: 'RBAC', phase: 5, roleMin: 'super_admin' },
     ],
   },
   {

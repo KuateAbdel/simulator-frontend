@@ -25,11 +25,26 @@ export type Page =
   | 'tracabilite' // US-E4
   | 'purge' // US-F1/F2
 
-/** La session Super-Admin du Loader (jeton 4 h emis par /admin/auth/login). */
+/** Les 3 roles RBAC du Loader (matrice FZ-RBAC-LOADER). Ordre de privilege
+ *  croissant : viewer < admin < super_admin. C'est le backend (403) qui fait
+ *  autorite ; ce type ne sert qu'a la PROJECTION de l'UI. */
+export type RoleLoader = 'viewer' | 'admin' | 'super_admin'
+
+/** Rang de privilege — sert aux comparaisons de projection UI. */
+export const RANG_ROLE: Record<RoleLoader, number> = { viewer: 0, admin: 1, super_admin: 2 }
+
+/** Vrai si `role` atteint au moins `min` (projection UI ; l'API reste juge). */
+export function roleAuMoins(role: RoleLoader, min: RoleLoader): boolean {
+  return RANG_ROLE[role] >= RANG_ROLE[min]
+}
+
+/** La session du Loader (jeton 4 h emis par /admin/auth/login). */
 export interface Session {
   email: string
   /** Epoch ms de peremption, calcule depuis `expires_in` a la connexion. */
   expiresAt: number
   /** US-A2 — tant que vrai, la seule route ouverte est le changement de mdp. */
   mustChangePassword: boolean
+  /** RBAC — le role porte par le compte, remonte au login. */
+  role: RoleLoader
 }

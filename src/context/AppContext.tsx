@@ -30,7 +30,10 @@ function lireSession(): Session | null {
     if (!brut || !api.getToken()) return null
     const session = JSON.parse(brut) as Session
     if (session.expiresAt <= Date.now()) return null
-    return session
+    // Retro-compat : une session stockee AVANT le RBAC n'a pas de role — on la
+    // traite en super_admin (le seul compte d'alors, comme le defaut du modele
+    // backend). Le prochain login posera le vrai role.
+    return { ...session, role: session.role ?? 'super_admin' }
   } catch {
     return null
   }
@@ -151,6 +154,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       email,
       expiresAt: Date.now() + jeton.expires_in * 1000,
       mustChangePassword: jeton.must_change_password,
+      role: jeton.role ?? 'super_admin',
     }
     localStorage.setItem(SESSION_KEY, JSON.stringify(nouvelle))
     setSession(nouvelle)

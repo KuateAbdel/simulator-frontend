@@ -5,6 +5,8 @@
 // jeton JWT du Super-Admin en Bearer. Le contrat suit exactement l'OpenAPI
 // publie sur /docs (le meme backend).
 
+import type { RoleLoader } from '../types'
+
 const BASE =
   import.meta.env.VITE_API_URL?.replace(/\/$/, '') ??
   'https://simul.api.fintech4esg.com'
@@ -100,6 +102,8 @@ export type SessionJeton = {
   token_type: string
   expires_in: number
   must_change_password: boolean
+  /** RBAC — le role du compte, remonte pour projeter le bon dashboard. */
+  role: RoleLoader
 }
 
 export const apiBase = () => BASE
@@ -879,6 +883,8 @@ export function confirmerPurge(supprimerGroupes: boolean): Promise<{
 
 export type CompteAdmin = {
   email: string
+  /** RBAC — 'viewer' | 'admin' | 'super_admin'. */
+  role: RoleLoader
   actif: boolean
   must_change_password: boolean
   cree_par: string | null
@@ -889,14 +895,18 @@ export function listerComptes(): Promise<{ comptes: CompteAdmin[]; compte: numbe
   return api('/admin/comptes')
 }
 
-export function creerCompte(email: string): Promise<{
+export function creerCompte(
+  email: string,
+  role: RoleLoader,
+): Promise<{
   compte: CompteAdmin
   /** Affiche UNE fois — jamais rejoue par aucune API. */
   mot_de_passe_initial: string
   email_envoye: boolean
   note: string
 }> {
-  return api('/admin/comptes', { method: 'POST', body: { email } })
+  // Le backend a un defaut FAIL-CLOSED 'viewer' ; on envoie le role choisi.
+  return api('/admin/comptes', { method: 'POST', body: { email, role } })
 }
 
 export function changerEtatCompte(
@@ -907,6 +917,20 @@ export function changerEtatCompte(
   return api(`/admin/comptes/${encodeURIComponent(email)}/etat`, {
     method: 'PUT',
     body: { actif, motif },
+  })
+}
+
+/** Change le role RBAC d'un compte — PUT /admin/comptes/{email}/role.
+ *  Super-Admin seulement (403 sinon), anti-lock-out sur le dernier super-admin
+ *  (409), effectif au PROCHAIN login du compte (le jeton en cours garde son
+ *  role). `note` porte ce rappel. */
+export function changerRoleCompte(
+  email: string,
+  role: RoleLoader,
+): Promise<{ compte: CompteAdmin; note: string }> {
+  return api(`/admin/comptes/${encodeURIComponent(email)}/role`, {
+    method: 'PUT',
+    body: { role },
   })
 }
 

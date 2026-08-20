@@ -7,6 +7,15 @@ import type React from 'react'
 import { ChevronLeft, ChevronRight, LogOut } from 'lucide-react'
 import { useApp } from '../../context/AppContext'
 import { NAV_GROUPS } from './nav'
+import { roleAuMoins, type RoleLoader } from '../../types'
+import type { TranslationKey } from '../../i18n'
+
+/** Le libelle i18n d'un role — partage sidebar / ecran Utilisateurs. */
+export const CLE_LIBELLE_ROLE: Record<RoleLoader, TranslationKey> = {
+  viewer: 'role_viewer',
+  admin: 'role_admin',
+  super_admin: 'role_super_admin',
+}
 
 export function Sidebar() {
   const {
@@ -23,6 +32,11 @@ export function Sidebar() {
   const initiales = session
     ? session.email.slice(0, 2).toUpperCase()
     : '··'
+
+  // RBAC — la nav est une PROJECTION du role : on cache ce que le role ne peut
+  // pas atteindre (ex. « Utilisateurs » reserve au super_admin). Fail-closed :
+  // sans session, le role le plus bas. L'API reste seule juge (403).
+  const role: RoleLoader = session?.role ?? 'viewer'
 
   // Sur MOBILE la sidebar est un TIROIR superpose : elle glisse par-dessus le
   // contenu (jamais en flux — elle mangeait 230px sur 390), et le backdrop du
@@ -74,7 +88,10 @@ export function Sidebar() {
 
       {/* Navigation — les 6 epopees */}
       <nav className="flex-1 py-3 overflow-y-auto overflow-x-hidden">
-        {NAV_GROUPS.map((groupe, gi) => (
+        {NAV_GROUPS.map((groupe, gi) => {
+          const items = groupe.items.filter((it) => !it.roleMin || roleAuMoins(role, it.roleMin))
+          if (items.length === 0) return null
+          return (
           <div key={gi} className="px-2 mb-1">
             {groupe.labelKey && sidebarOpen && (
               <p
@@ -88,7 +105,7 @@ export function Sidebar() {
               <div className="mx-3 my-2 border-t" style={{ borderColor: 'rgba(255,255,255,0.12)' }} />
             )}
             <div className="space-y-0.5">
-              {groupe.items.map((item) => {
+              {items.map((item) => {
                 const actif = currentPage === item.page
                 const Icone = item.icon
                 return (
@@ -133,7 +150,8 @@ export function Sidebar() {
               })}
             </div>
           </div>
-        ))}
+          )
+        })}
       </nav>
 
       {/* Bas — session reelle + deconnexion */}
@@ -153,7 +171,7 @@ export function Sidebar() {
             <>
               <div className="overflow-hidden flex-1">
                 <p className="text-white text-xs font-semibold truncate">{session?.email}</p>
-                <p className="text-white/40 text-[10px] truncate">Super-Admin</p>
+                <p className="text-white/40 text-[10px] truncate">{t(CLE_LIBELLE_ROLE[role])}</p>
               </div>
               <button
                 onClick={() => seDeconnecter()}
