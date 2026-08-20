@@ -1,14 +1,17 @@
 // src/pages/AdminJournal.tsx — le JOURNAL d'administration (audit).
 //
 // « Qui a fait quoi, quand » : les dernières actions d'administration
-// (gestion des comptes/rôles, entités hors run), les plus récentes d'abord.
-// Réservé au Super-Admin (la nav le cache aux autres ; l'API 403 sinon).
-// LECTURE SEULE — aucune action, on ne fait que relire ce que d'autres ont
-// inscrit.
+// (gestion des comptes/rôles, connexions, entités hors run), les plus
+// récentes d'abord. LECTURE SEULE — aucune action, on ne fait que relire.
+//
+// Depuis le 20/08 (décision Yaniv : ne pas surcharger la sidebar), le Journal
+// n'est plus une page mais un ONGLET de l'écran Utilisateurs — même garde
+// Super-Admin (la nav cache l'écran aux autres ; l'API 403 sinon). Les
+// données ne se chargent qu'à l'ouverture de l'onglet (montage du composant).
 
 import { useCallback, useEffect, useState } from 'react'
 import { RotateCcw } from 'lucide-react'
-import { Card, SectionHeader } from '../components/ui'
+import { Card } from '../components/ui'
 import { Banniere, Skeleton } from '../components/ui/loader'
 import { useApp } from '../context/AppContext'
 import { usePagination } from '../hooks/usePagination'
@@ -28,7 +31,7 @@ function resumeDetails(details: Record<string, unknown>): string {
   return paires.map(([k, v]) => `${k}: ${String(v)}`).join(' · ')
 }
 
-export function AdminJournal() {
+export function JournalOnglet() {
   const { t } = useApp()
   const messageDe = useMessageDe()
   const [etat, setEtat] = useState<Etat>({ phase: 'chargement' })
@@ -52,8 +55,7 @@ export function AdminJournal() {
   const pg = usePagination(entreesListe, 25)
 
   return (
-    <div className="animate-fade-in">
-      <SectionHeader title={t('jrn_titre')} subtitle={t('jrn_sous_titre')} />
+    <>
       <Banniere ton="info">{t('jrn_doctrine')}</Banniere>
 
       <div className="mt-4">
@@ -127,6 +129,6 @@ export function AdminJournal() {
           </>
         )}
       </div>
-    </div>
+    </>
   )
 }

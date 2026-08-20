@@ -29,6 +29,7 @@ import {
   type CompteAdmin,
 } from '../lib/api'
 import type { RoleLoader } from '../types'
+import { JournalOnglet } from './AdminJournal'
 import { useMessageDe } from './runs-commun'
 import { ChampLabel, FautesBloc, fautesDe } from './entites-commun'
 
@@ -200,11 +201,20 @@ export function AdminComptes() {
           tabs={[
             { id: 'comptes', label: t('cpt_onglet_comptes') },
             { id: 'roles', label: t('cpt_onglet_roles') },
+            // Le Journal d'audit — en onglet, pas en entree de sidebar
+            // (decision 20/08). Charge a l'ouverture seulement.
+            { id: 'journal', label: t('nav_journal') },
           ]}
           active={onglet}
           onChange={setOnglet}
         />
       </div>
+
+      {onglet === 'journal' && (
+        <div className="mt-4">
+          <JournalOnglet />
+        </div>
+      )}
 
       {onglet === 'roles' && (
         <Card>
