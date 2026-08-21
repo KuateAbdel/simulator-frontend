@@ -58,6 +58,17 @@ export function PaliersListe({ paliers }: { paliers: Palier[] }) {
           <span className="text-[10px] font-mono ml-auto" style={{ color: 'var(--text-muted)' }}>
             {new Date(palier.horodatage).toLocaleTimeString()}
           </span>
+          {/* Le RÉSUMÉ du palier (21/08) : le backend range l'essentiel du
+              rapport de module dans chaque checkpoint — le POURQUOI se lit
+              PENDANT le run, pas seulement au rapport final. */}
+          {typeof palier.detail?.detail === 'string' && palier.detail.detail && (
+            <span
+              className="basis-full text-[10px]"
+              style={{ color: 'var(--text-secondary)', overflowWrap: 'break-word' }}
+            >
+              {palier.detail.detail}
+            </span>
+          )}
         </li>
       ))}
     </ol>
