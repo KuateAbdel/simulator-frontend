@@ -1139,3 +1139,30 @@ export function creerPays(demande: {
 }> {
   return api('/admin/referentiels/pays', { method: 'POST', body: demande })
 }
+
+/** `C1` (22/08) — la fiche pays du Loader, avec sa completude et son etat
+ *  operationnel verifie EN DIRECT contre config-service (`null` = plateforme
+ *  muette, jamais un faux « non »). C'est la matiere du globe. */
+export type FichePays = {
+  iso2: string
+  nom_fr: string
+  nom_en: string
+  capitale: string
+  dial_code: string
+  devise_iso: string
+  tva_percent: number
+  timezone: string
+  region_africa: string
+  regulateur_telco: string
+  regulateur_finance: string
+  origine: 'classeur' | 'surcouche'
+  completude: { regions: number; villes: number; quartiers: number; telcos: number }
+  sur_config_service: boolean | null
+}
+
+export function lireFichesPays(): Promise<{
+  pays: FichePays[]
+  surcouche: { resume: string; version: number }
+}> {
+  return api('/admin/referentiels/pays')
+}

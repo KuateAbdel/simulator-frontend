@@ -201,6 +201,20 @@ export const translations = {
     run_retour_liste: 'Retour à la liste',
     run_actualiser: 'Actualiser',
 
+    // Globe Afrique (C1, 22/08) — le référentiel dessiné, états vérifiés en direct
+    globe_titre: 'Globe Afrique',
+    globe_sous_titre:
+      'Frontières réelles (Natural Earth 1:50m). Un pays qui clignote est EN OPÉRATION : présent au Loader ET sur config-service — vérifié en direct à chaque chargement.',
+    globe_operation: 'En opération (clignote)',
+    globe_geo: 'Géographie prête au Loader',
+    globe_fiche: 'Fiche seule',
+    globe_villes_gps: 'villes aux coordonnées réelles',
+    globe_etat_operation: 'EN OPÉRATION — Loader + config-service',
+    globe_etat_geo: 'Géographie prête au Loader',
+    globe_etat_fiche: 'Fiche seule — géographie attendue',
+    globe_aria: 'Carte de l’Afrique : état de chaque pays dans le Loader',
+    globe_indisponible: 'Fiches pays indisponibles — le globe reviendra au prochain chargement.',
+
     // Référentiels — Géographie (US-B4/B5, lot H)
     geo_titre: 'Géographie',
     geo_sous_titre:
@@ -988,6 +1002,20 @@ export const translations = {
     geo_titre: 'Geography',
     geo_sous_titre:
       'The tree the platform does not have: country → region → city → district. The exact reference data the next run will use.',
+    // Globe Afrique (C1, 22/08)
+    globe_titre: 'Africa Globe',
+    globe_sous_titre:
+      'Real borders (Natural Earth 1:50m). A blinking country is IN OPERATION: present in the Loader AND on config-service — checked live on every load.',
+    globe_operation: 'In operation (blinking)',
+    globe_geo: 'Geography ready in the Loader',
+    globe_fiche: 'Country sheet only',
+    globe_villes_gps: 'cities at real coordinates',
+    globe_etat_operation: 'IN OPERATION — Loader + config-service',
+    globe_etat_geo: 'Geography ready in the Loader',
+    globe_etat_fiche: 'Sheet only — geography pending',
+    globe_aria: 'Map of Africa: each country’s state in the Loader',
+    globe_indisponible: 'Country sheets unavailable — the globe will return on next load.',
+
     geo_part_config: '↗ goes to config-service',
     geo_reste_ici: '⌂ lives here',
     geo_reste_ici_bulle:

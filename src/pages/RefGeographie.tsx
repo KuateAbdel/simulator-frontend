@@ -15,9 +15,12 @@ import {
   ajouterQuartier,
   ajouterRegion,
   ajouterVille,
+  lireFichesPays,
   lireGeographie,
+  type FichePays,
   type VueGeographie,
 } from '../lib/api'
+import { GlobeAfrique } from '../components/GlobeAfrique'
 import { useMessageDe } from './runs-commun'
 
 type Etat =
@@ -60,10 +63,20 @@ export function RefGeographie() {
   const [fLon, setFLon] = useState('')
   const [fZone, setFZone] = useState('residential')
 
+  // Le globe (C1, 22/08) : les fiches pays avec leur etat operationnel,
+  // verifie EN DIRECT par le backend. Meilleur-effort — si les fiches
+  // manquent, l'arbre vit sans le globe, jamais l'inverse.
+  const [fiches, setFiches] = useState<FichePays[] | null>(null)
+
   const charger = useCallback(async () => {
     setEtat({ phase: 'chargement' })
     try {
-      setEtat({ phase: 'pret', vue: await lireGeographie() })
+      const [vue, reponseFiches] = await Promise.all([
+        lireGeographie(),
+        lireFichesPays().catch(() => null),
+      ])
+      setFiches(reponseFiches ? reponseFiches.pays : null)
+      setEtat({ phase: 'pret', vue })
     } catch (err) {
       setEtat({ phase: 'erreur', message: messageDe(err) })
     }
@@ -209,6 +222,21 @@ export function RefGeographie() {
           {vue.surcouche.resume}
         </span>
       </div>
+
+      {/* Globe Afrique (C1, 22/08) — le referentiel DESSINE, etats en direct */}
+      {fiches && (
+        <Card className="mb-4">
+          <div className="flex items-baseline justify-between flex-wrap gap-2 mb-2">
+            <p className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>
+              {t('globe_titre')}
+            </p>
+            <p className="text-[10px]" style={{ color: 'var(--text-muted)' }}>
+              {t('globe_sous_titre')}
+            </p>
+          </div>
+          <GlobeAfrique fiches={fiches} geographie={vue.pays} />
+        </Card>
+      )}
 
       {/* Formulaire d'ajout (un seul a la fois, hierarchie EF-02 imposee) */}
       {formulaire && (
