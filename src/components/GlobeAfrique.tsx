@@ -155,7 +155,7 @@ export function GlobeAfrique({
               <path
                 key={a2}
                 d={d}
-                fill={fiche ? FONDS[etatDe(fiche)] : 'var(--background)'}
+                fill={fiche ? FONDS[etatDe(fiche)] : 'var(--border)'}
                 stroke="var(--border)"
                 strokeWidth={0.7}
                 style={fiche ? { cursor: 'pointer' } : undefined}
