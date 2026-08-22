@@ -223,6 +223,27 @@ export function RefGeographie() {
         </span>
       </div>
 
+      {/* Tuiles de synthese — les vraies donnees, comme dans l'artefact */}
+      {fiches && (
+        <div className="grid gap-2 mb-3" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(118px, 1fr))' }}>
+          {[
+            { valeur: fiches.length, libelle: t('globe_tuile_pays') },
+            { valeur: fiches.filter((f) => f.sur_config_service).length, libelle: t('globe_operation'), couleur: 'var(--globe-op, #15803D)' },
+            { valeur: fiches.filter((f) => !f.sur_config_service && f.completude.regions > 0).length, libelle: t('globe_geo'), couleur: 'var(--globe-geo, #B45309)' },
+            { valeur: fiches.filter((f) => !f.sur_config_service && f.completude.regions === 0).length, libelle: t('globe_fiche') },
+            { valeur: fiches.reduce((somme, f) => somme + f.completude.villes, 0), libelle: t('geo_villes') },
+            { valeur: fiches.reduce((somme, f) => somme + f.completude.quartiers, 0), libelle: t('geo_quartiers') },
+          ].map((tuile) => (
+            <Card key={tuile.libelle} style={{ padding: '10px 12px 8px' }}>
+              <div className="text-xl font-bold tabular-nums" style={{ color: tuile.couleur ?? 'var(--text-primary)' }}>
+                {tuile.valeur}
+              </div>
+              <div className="text-[10px]" style={{ color: 'var(--text-secondary)' }}>{tuile.libelle}</div>
+            </Card>
+          ))}
+        </div>
+      )}
+
       {/* Globe Afrique (C1, 22/08) — le referentiel DESSINE, etats en direct */}
       {fiches && (
         <Card className="mb-4">
@@ -357,6 +378,11 @@ export function RefGeographie() {
         </Card>
       )}
 
+      {/* L'arbre detaille — replie : le globe est la vue principale */}
+      <details className="mt-2">
+        <summary className="cursor-pointer text-xs font-semibold mb-2" style={{ color: 'var(--text-secondary)' }}>
+          {t('geo_explorer_arbre')}
+        </summary>
       {/* Recherche */}
       <input
         className="input-base mb-3"
@@ -445,6 +471,7 @@ export function RefGeographie() {
           </div>
         ))}
       </Card>
+      </details>
     </div>
   )
 }
