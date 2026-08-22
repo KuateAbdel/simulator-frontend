@@ -566,14 +566,7 @@ export function retirerProfession(label: string): Promise<unknown> {
 /** La matiere qu'un 5e pays exigerait — chaque manque avec sa raison (US-B6). */
 export type MatiereRequise = { matiere: string; pourquoi: string }
 
-export function creerDevise(demande: {
-  iso_name: string
-  name_en: string
-  name_fr: string
-  accepts_decimal: boolean
-}): Promise<{ devise: Record<string, unknown>; statut: string; note: string }> {
-  return api('/admin/referentiels/devises', { method: 'POST', body: demande })
-}
+// creerDevise SUPPRIME (22/08) : pousserPays cree la devise la-bas depuis NOTRE fiche.
 
 // --------------------------------------------------------------------------
 // Phase 6 — Ecosysteme US-E2, Population US-E3, Tracabilite US-E4,
@@ -1121,24 +1114,8 @@ export function lirePermissions(): Promise<{ permissions: string[]; compte: numb
   return api('/admin/referentiels/permissions')
 }
 
-export function creerPays(demande: {
-  iso_name: string
-  name_en: string
-  name_fr: string
-  dial_code: string
-  region: string
-  continent?: string
-  devise_iso: string
-  cities: string[]
-  telcos_ids?: string[]
-}): Promise<{
-  pays: Record<string, unknown>
-  statut: string
-  note: string
-  matiere_pour_generer: MatiereRequise[]
-}> {
-  return api('/admin/referentiels/pays', { method: 'POST', body: demande })
-}
+// creerPays SUPPRIME (22/08) : les pays entrent par l'import backend ; la mise en
+// operation passe par pousserPays.
 
 /** `C1` (22/08) — la fiche pays du Loader, avec sa completude et son etat
  *  operationnel verifie EN DIRECT contre config-service (`null` = plateforme
@@ -1162,7 +1139,22 @@ export type FichePays = {
 
 export function lireFichesPays(): Promise<{
   pays: FichePays[]
+  /** Le 4e etat de la machine : presents sur config-service mais INCONNUS du
+   *  Loader — anomalies montrees, jamais cachees. `null` = plateforme muette. */
+  hors_loader: string[] | null
   surcouche: { resume: string; version: number }
 }> {
   return api('/admin/referentiels/pays')
+}
+
+/** Mettre un pays EN OPERATION — depuis NOTRE fiche, rien n'est ressaisi :
+ *  devise creee la-bas si absente, villes du referentiel envoyees. Idempotent. */
+export function pousserPays(iso: string): Promise<{
+  pays: { iso2: string; id: string; nom_fr: string }
+  statut: 'mis_en_operation' | 'deja_en_operation'
+  devise: { code: string; statut: string }
+  villes_envoyees: number
+  note: string
+}> {
+  return api(`/admin/referentiels/pays/${encodeURIComponent(iso)}/pousser`, { method: 'POST' })
 }
