@@ -214,6 +214,11 @@ export const translations = {
     globe_etat_fiche: 'Fiche seule — géographie attendue',
     globe_aria: 'Carte de l’Afrique : état de chaque pays dans le Loader',
     globe_indisponible: 'Fiches pays indisponibles — le globe reviendra au prochain chargement.',
+    globe_table: 'Vue table — les fiches pays',
+    globe_col_pays: 'Pays',
+    globe_col_etat: 'État',
+    globe_col_devise: 'Devise',
+    globe_col_tva: 'TVA %',
 
     // Référentiels — Géographie (US-B4/B5, lot H)
     geo_titre: 'Géographie',
@@ -1015,6 +1020,11 @@ export const translations = {
     globe_etat_fiche: 'Sheet only — geography pending',
     globe_aria: 'Map of Africa: each country’s state in the Loader',
     globe_indisponible: 'Country sheets unavailable — the globe will return on next load.',
+    globe_table: 'Table view — country sheets',
+    globe_col_pays: 'Country',
+    globe_col_etat: 'State',
+    globe_col_devise: 'Currency',
+    globe_col_tva: 'VAT %',
 
     geo_part_config: '↗ goes to config-service',
     geo_reste_ici: '⌂ lives here',

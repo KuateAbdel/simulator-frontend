@@ -106,14 +106,28 @@ export function GlobeAfrique({
   }, [fiches])
 
   const FONDS: Record<EtatPays, string> = {
-    operation: 'var(--secondary-light)',
-    geo: 'var(--primary-light)',
-    fiche: 'var(--surface)',
+    operation: 'var(--globe-op-fond)',
+    geo: 'var(--globe-geo-fond)',
+    fiche: 'var(--globe-fiche-fond)',
   }
 
   return (
-    <div className="relative">
+    <div className="relative globe-scope">
       <style>{`
+        .globe-scope {
+          --globe-mer: #DCE8EE; --globe-hors: #EDEAE0; --globe-frontiere: #B9B4A5;
+          --globe-op: #15803D; --globe-op-fond: #CFE8D6;
+          --globe-geo: #B45309; --globe-geo-fond: #F3DFC4;
+          --globe-fiche: #64748B; --globe-fiche-fond: #E4E7EC;
+          --globe-encre: #20261F;
+        }
+        :root[data-theme='dark'] .globe-scope {
+          --globe-mer: #141E26; --globe-hors: #232920; --globe-frontiere: #4A5244;
+          --globe-op: #4ADE80; --globe-op-fond: #1D3A28;
+          --globe-geo: #F59E0B; --globe-geo-fond: #33291A;
+          --globe-fiche: #94A3B8; --globe-fiche-fond: #2A313C;
+          --globe-encre: #E7E5DC;
+        }
         @keyframes globe-pulse { 0%,100%{opacity:1;transform:scale(1);} 50%{opacity:.4;transform:scale(1.65);} }
         .globe-clignote { animation: globe-pulse 1.6s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
         @media (prefers-reduced-motion: reduce) { .globe-clignote { animation: none; } }
@@ -122,21 +136,21 @@ export function GlobeAfrique({
         <span>
           <span
             className="inline-block w-2.5 h-2.5 rounded-full mr-1.5 align-[-1px]"
-            style={{ background: 'var(--secondary)' }}
+            style={{ background: 'var(--globe-op)' }}
           />
           {t('globe_operation')} ({compte.operation})
         </span>
         <span>
           <span
             className="inline-block w-2.5 h-2.5 rounded-full mr-1.5 align-[-1px]"
-            style={{ background: 'var(--primary)' }}
+            style={{ background: 'var(--globe-geo)' }}
           />
           {t('globe_geo')} ({compte.geo})
         </span>
         <span>
           <span
             className="inline-block w-2.5 h-2.5 rounded-full mr-1.5 align-[-1px] border-2"
-            style={{ borderColor: 'var(--text-secondary)' }}
+            style={{ borderColor: 'var(--globe-fiche)' }}
           />
           {t('globe_fiche')} ({compte.fiche})
         </span>
@@ -146,7 +160,7 @@ export function GlobeAfrique({
       </div>
       <div
         className="rounded-xl overflow-hidden border"
-        style={{ borderColor: 'var(--border)', background: 'var(--primary-light)' }}
+        style={{ borderColor: 'var(--border)', background: 'var(--globe-mer)' }}
       >
         <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={t('globe_aria')} className="block w-full h-auto">
           {tracés.map(({ a2, d }) => {
@@ -155,8 +169,8 @@ export function GlobeAfrique({
               <path
                 key={a2}
                 d={d}
-                fill={fiche ? FONDS[etatDe(fiche)] : 'var(--border)'}
-                stroke="var(--border)"
+                fill={fiche ? FONDS[etatDe(fiche)] : 'var(--globe-hors)'}
+                stroke="var(--globe-frontiere)"
                 strokeWidth={0.7}
                 style={fiche ? { cursor: 'pointer' } : undefined}
                 onMouseMove={
@@ -174,7 +188,7 @@ export function GlobeAfrique({
               cx={px(v.lo).toFixed(1)}
               cy={py(v.la).toFixed(1)}
               r={1.4}
-              fill="var(--text-primary)"
+              fill="var(--globe-encre)"
               opacity={0.35}
             />
           ))}
@@ -186,15 +200,15 @@ export function GlobeAfrique({
               <g key={a2} pointerEvents="none">
                 {etat === 'operation' && (
                   <>
-                    <circle cx={cx} cy={cy} r={13} fill="var(--secondary)" opacity={0.25} className="globe-clignote" />
-                    <circle cx={cx} cy={cy} r={7} fill="var(--secondary)" stroke="var(--surface)" strokeWidth={2} className="globe-clignote" />
+                    <circle cx={cx} cy={cy} r={13} fill="var(--globe-op)" opacity={0.25} className="globe-clignote" />
+                    <circle cx={cx} cy={cy} r={7} fill="var(--globe-op)" stroke="var(--globe-mer)" strokeWidth={2} className="globe-clignote" />
                   </>
                 )}
                 {etat === 'geo' && (
-                  <circle cx={cx} cy={cy} r={6} fill="var(--primary-dark)" stroke="var(--surface)" strokeWidth={2} />
+                  <circle cx={cx} cy={cy} r={6} fill="var(--globe-geo)" stroke="var(--globe-mer)" strokeWidth={2} />
                 )}
                 {etat === 'fiche' && (
-                  <circle cx={cx} cy={cy} r={5.5} fill="none" stroke="var(--text-secondary)" strokeWidth={2.5} />
+                  <circle cx={cx} cy={cy} r={5.5} fill="none" stroke="var(--globe-fiche)" strokeWidth={2.5} />
                 )}
                 <text
                   x={cx}
@@ -202,7 +216,7 @@ export function GlobeAfrique({
                   textAnchor="middle"
                   fontSize={11}
                   fontWeight={600}
-                  fill="var(--text-primary)"
+                  fill="var(--globe-encre)"
                 >
                   {a2}
                 </text>
@@ -211,6 +225,52 @@ export function GlobeAfrique({
           })}
         </svg>
       </div>
+      <details className="mt-3">
+        <summary className="cursor-pointer text-xs" style={{ color: 'var(--text-secondary)' }}>
+          {t('globe_table')} ({fiches.length})
+        </summary>
+        <div className="overflow-x-auto mt-2">
+          <table className="w-full text-xs" style={{ borderCollapse: 'collapse' }}>
+            <thead>
+              <tr style={{ color: 'var(--text-secondary)' }}>
+                {[t('globe_col_pays'), t('globe_col_etat'), t('globe_col_devise'),
+                  t('globe_col_tva'), t('geo_regions'), t('geo_villes'), t('geo_quartiers')].map(
+                  (entete) => (
+                    <th key={entete} className="text-left px-2 py-1 border-b"
+                        style={{ borderColor: 'var(--border)' }}>
+                      {entete}
+                    </th>
+                  ),
+                )}
+              </tr>
+            </thead>
+            <tbody>
+              {fiches.map((fiche) => {
+                const etat = etatDe(fiche)
+                return (
+                  <tr key={fiche.iso2} style={{ color: 'var(--text-primary)' }}>
+                    <td className="px-2 py-1 border-b" style={{ borderColor: 'var(--border)' }}>
+                      {fiche.nom_fr} ({fiche.iso2})
+                    </td>
+                    <td className="px-2 py-1 border-b font-semibold"
+                        style={{ borderColor: 'var(--border)',
+                                 color: etat === 'operation' ? 'var(--globe-op)'
+                                   : etat === 'geo' ? 'var(--globe-geo)' : 'var(--globe-fiche)' }}>
+                      {etat === 'operation' ? t('globe_etat_operation')
+                        : etat === 'geo' ? t('globe_etat_geo') : t('globe_etat_fiche')}
+                    </td>
+                    <td className="px-2 py-1 border-b" style={{ borderColor: 'var(--border)' }}>{fiche.devise_iso}</td>
+                    <td className="px-2 py-1 border-b text-right tabular-nums" style={{ borderColor: 'var(--border)' }}>{fiche.tva_percent}</td>
+                    <td className="px-2 py-1 border-b text-right tabular-nums" style={{ borderColor: 'var(--border)' }}>{fiche.completude.regions}</td>
+                    <td className="px-2 py-1 border-b text-right tabular-nums" style={{ borderColor: 'var(--border)' }}>{fiche.completude.villes}</td>
+                    <td className="px-2 py-1 border-b text-right tabular-nums" style={{ borderColor: 'var(--border)' }}>{fiche.completude.quartiers}</td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
+        </div>
+      </details>
       {bulle && (
         <div
           className="fixed z-50 rounded-xl border px-3 py-2 text-xs shadow-lg pointer-events-none"
@@ -231,9 +291,9 @@ export function GlobeAfrique({
             style={{
               color:
                 etatDe(bulle.fiche) === 'operation'
-                  ? 'var(--secondary-dark)'
+                  ? 'var(--globe-op)'
                   : etatDe(bulle.fiche) === 'geo'
-                    ? 'var(--primary-dark)'
+                    ? 'var(--globe-geo)'
                     : 'var(--text-secondary)',
             }}
           >
