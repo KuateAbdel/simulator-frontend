@@ -30,6 +30,7 @@ import {
 } from '../lib/api'
 import type { RoleLoader } from '../types'
 import { JournalOnglet } from './AdminJournal'
+import { VersionsOnglet } from './AdminVersions'
 import { useMessageDe } from './runs-commun'
 import { ChampLabel, FautesBloc, fautesDe } from './entites-commun'
 
@@ -204,6 +205,9 @@ export function AdminComptes() {
             // Le Journal d'audit — en onglet, pas en entree de sidebar
             // (decision 20/08). Charge a l'ouverture seulement.
             { id: 'journal', label: t('nav_journal') },
+            // V-01 — ce que PORTENT les services, et ce qui a change.
+            // Le tableau de bord dit s'ils sont vivants ; pas la meme question.
+            { id: 'versions', label: t('ver_onglet') },
           ]}
           active={onglet}
           onChange={setOnglet}
@@ -213,6 +217,12 @@ export function AdminComptes() {
       {onglet === 'journal' && (
         <div className="mt-4">
           <JournalOnglet />
+        </div>
+      )}
+
+      {onglet === 'versions' && (
+        <div className="mt-4">
+          <VersionsOnglet />
         </div>
       )}
 

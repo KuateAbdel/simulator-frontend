@@ -1158,3 +1158,47 @@ export function pousserPays(iso: string): Promise<{
 }> {
   return api(`/admin/referentiels/pays/${encodeURIComponent(iso)}/pousser`, { method: 'POST' })
 }
+
+// --------------------------------------------------------------------------
+// V-01 — l'onglet VERSIONS (contrat de app/routes/admin_versions.py)
+//
+// Le tableau de bord dit si un service est VIVANT ; celui-ci dit ce qu'il
+// PORTE, et surtout SI CA A CHANGE. La gravite et la phrase sont calculees
+// par le BACKEND : deux ecrans qui refont la comparaison chacun de leur cote
+// finissent par ne plus dire la meme chose.
+// --------------------------------------------------------------------------
+
+/** `changement` version ou contrat qui bouge - `anomalie` titre incoherent -
+ *  `stable` rien a faire - `jamais_lu` version jamais obtenue. Pas d'etat
+ *  « injoignable » : le vivant/mort est deja dit par le tableau de bord. */
+export type GraviteVersion = 'changement' | 'anomalie' | 'stable' | 'jamais_lu'
+
+export interface VersionService {
+  service: string
+  version: string | null
+  titre: string | null
+  chemins: number | null
+  operations: number | null
+  gravite: GraviteVersion
+  commentaire: string
+  releve_le: string | null
+  stable_depuis: string | null
+}
+
+export interface ReponseVersions {
+  services: VersionService[]
+  compte: number
+  a_surveiller: number
+  releve_il_y_a_secondes: number | null
+  note: string
+}
+
+/** Sert le cache ; le rafraichit lui-meme s'il a plus de 3 h. */
+export function listerVersions(): Promise<ReponseVersions> {
+  return api('/admin/versions')
+}
+
+/** Le bouton « Relever maintenant » — la preuve plutot que la promesse. */
+export function releverVersions(): Promise<ReponseVersions> {
+  return api('/admin/versions/relever', { method: 'POST' })
+}
