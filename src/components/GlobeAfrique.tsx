@@ -18,6 +18,9 @@ import { useCallback, useMemo, useRef, useState } from 'react'
 import { useApp } from '../context/AppContext'
 import type { FichePays, PaysGeo } from '../lib/api'
 import FRONTIERES from '../data/afrique-frontieres.json'
+import { BarreFiltre, useFiltreListe } from './FiltreListe'
+import { usePagination } from '../hooks/usePagination'
+import { Pager } from './Pager'
 
 type Frontiere = { a2: string; polys: number[][][][] }
 
@@ -139,6 +142,20 @@ export function GlobeAfrique({
     },
     [centre, largeurVue, hauteurVue],
   )
+
+  // LA TABLE SOUS LE GLOBE — ordre alphabetique par NOM (demande
+  // administration, 23/08 : personne ne cherche « ZA », tout le monde cherche
+  // « Afrique du Sud »), recherche rapide et pagination.
+  const fichesTriees = useMemo(
+    () => [...fiches].sort((a, b) => a.nom_fr.localeCompare(b.nom_fr, 'fr')),
+    [fiches],
+  )
+  const filtre = useFiltreListe(
+    fichesTriees,
+    (f) => [f.nom_fr, f.nom_en, f.iso2, f.capitale, f.devise_iso],
+    (f) => f.nom_fr,
+  )
+  const pgFiches = usePagination(filtre.resultat, 15, filtre.cle)
 
   /** La barre d'echelle : une distance RONDE qui tient dans ~130 px.
    *  Annoncee pour la latitude du centre de la vue, parce que c'est la que
@@ -422,6 +439,14 @@ export function GlobeAfrique({
         <summary className="cursor-pointer text-xs" style={{ color: 'var(--text-secondary)' }}>
           {t('globe_table')} ({fiches.length})
         </summary>
+        <div className="mt-2">
+          <BarreFiltre
+            filtre={filtre}
+            items={fichesTriees}
+            initiale={(f) => f.nom_fr}
+            placeholder={t('flt_geo')}
+          />
+        </div>
         <div className="overflow-x-auto mt-2">
           <table className="w-full text-xs" style={{ borderCollapse: 'collapse' }}>
             <thead>
@@ -438,7 +463,7 @@ export function GlobeAfrique({
               </tr>
             </thead>
             <tbody>
-              {fiches.map((fiche) => {
+              {pgFiches.pageItems.map((fiche) => {
                 const etat = etatDe(fiche)
                 return (
                   <tr key={fiche.iso2} style={{ color: 'var(--text-primary)' }}>
@@ -462,7 +487,22 @@ export function GlobeAfrique({
               })}
             </tbody>
           </table>
+          {filtre.resultat.length === 0 && (
+            <p className="text-center text-xs py-6" style={{ color: 'var(--text-muted)' }}>
+              {t('flt_vide')}
+            </p>
+          )}
         </div>
+        <Pager
+          page={pgFiches.page}
+          nbPages={pgFiches.nbPages}
+          size={pgFiches.size}
+          total={pgFiches.total}
+          from={pgFiches.from}
+          to={pgFiches.to}
+          onPage={pgFiches.setPage}
+          onSize={pgFiches.setSize}
+        />
       </details>
       {bulle && (
         <div

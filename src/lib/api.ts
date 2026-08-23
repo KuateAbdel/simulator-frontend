@@ -1135,6 +1135,13 @@ export type FichePays = {
   origine: 'classeur' | 'surcouche'
   completude: { regions: number; villes: number; quartiers: number; telcos: number }
   sur_config_service: boolean | null
+  /** `V-02` — LA REGLE VIENT DU BACKEND, l'ecran ne la devine plus.
+   *  Il affichait un bouton « Pousser » cliquable sur des pays que la porte
+   *  refusait ensuite en 422 : un clic pour une erreur. `manques` donne
+   *  l'infobulle qui dit POURQUOI le bouton n'est pas la. */
+  poussable: boolean
+  manques: string[]
+  avertissements: string[]
 }
 
 export function lireFichesPays(): Promise<{

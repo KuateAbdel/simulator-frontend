@@ -16,6 +16,9 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { RefreshCw, Send } from 'lucide-react'
 import { Card, SectionHeader } from '../components/ui'
+import { BarreFiltre, useFiltreListe } from '../components/FiltreListe'
+import { usePagination } from '../hooks/usePagination'
+import { Pager } from '../components/Pager'
 import { Banniere, Skeleton, useToast } from '../components/ui/loader'
 import { useApp } from '../context/AppContext'
 import {
@@ -33,7 +36,11 @@ type EtatPays = 'operation' | 'pret' | 'fiche'
 
 function etatDe(fiche: FichePays): EtatPays {
   if (fiche.sur_config_service) return 'operation'
-  if (fiche.completude.regions > 0) return 'pret'
+  // `V-02` (23/08) — « prêt » N'EST PLUS DEVINÉ ICI. L'écran regardait
+  // `completude.regions > 0`, ce qui n'a jamais été la règle de la porte : un
+  // pays avec des régions mais sans opérateur affichait un bouton « Pousser »
+  // qui répondait 422. La règle vit dans le backend, l'écran la lit.
+  if (fiche.poussable) return 'pret'
   return 'fiche'
 }
 
@@ -84,6 +91,22 @@ export function RefPaysMonnaies() {
   useEffect(() => {
     void charger()
   }, [charger])
+
+  // ORDRE ALPHABETIQUE (demande administration, 23/08) — par NOM, pas par code
+  // ISO : personne ne cherche « ZA », tout le monde cherche « Afrique du Sud ».
+  // `localeCompare` classe les accents comme le fait un annuaire francais.
+  const fichesTriees = useMemo(
+    () => [...(fiches ?? [])].sort((a, b) => a.nom_fr.localeCompare(b.nom_fr, 'fr')),
+    [fiches],
+  )
+  const fPays = useFiltreListe(
+    fichesTriees,
+    (f) => [f.nom_fr, f.nom_en, f.iso2, f.devise_iso, f.capitale],
+    (f) => f.nom_fr,
+  )
+  // `cle` en resetKey : un filtre qui change ramene a la page 1, sinon on
+  // reste sur une page 7 qui n'existe plus dans le resultat filtre.
+  const pgPays = usePagination(fPays.resultat, 25, fPays.cle)
 
   const comptes = useMemo(() => {
     const compte = { operation: 0, pret: 0, fiche: 0 }
@@ -164,6 +187,12 @@ export function RefPaysMonnaies() {
 
           {/* LA TABLE DES FICHES + l'action Pousser */}
           <Card className="mb-4" style={{ padding: '8px 12px' }}>
+            <BarreFiltre
+              filtre={fPays}
+              items={fichesTriees}
+              initiale={(f) => f.nom_fr}
+              placeholder={t('flt_pays')}
+            />
             <div className="overflow-x-auto">
               <table className="w-full text-xs" style={{ borderCollapse: 'collapse' }}>
                 <thead>
@@ -178,7 +207,7 @@ export function RefPaysMonnaies() {
                   </tr>
                 </thead>
                 <tbody>
-                  {fiches.map((fiche) => {
+                  {pgPays.pageItems.map((fiche) => {
                     const etat = etatDe(fiche)
                     return (
                       <tr key={fiche.iso2} style={{ color: 'var(--text-primary)' }}>
@@ -195,7 +224,7 @@ export function RefPaysMonnaies() {
                         <td className="px-2 py-1.5 border-b text-right tabular-nums" style={{ borderColor: 'var(--border)' }}>{fiche.completude.villes}</td>
                         <td className="px-2 py-1.5 border-b text-right tabular-nums" style={{ borderColor: 'var(--border)' }}>{fiche.completude.quartiers}</td>
                         <td className="px-2 py-1.5 border-b text-right" style={{ borderColor: 'var(--border)' }}>
-                          {etat === 'pret' && (
+                          {fiche.poussable && !fiche.sur_config_service && (
                             <button
                               className="btn-primary text-[10px]"
                               style={{ height: 24, opacity: envoiIso ? 0.6 : 1 }}
@@ -204,6 +233,18 @@ export function RefPaysMonnaies() {
                             >
                               <Send size={10} /> {envoiIso === fiche.iso2 ? t('loading') : t('pm_pousser')}
                             </button>
+                          )}
+                          {/* L'absence du bouton s'EXPLIQUE. Un bouton qui
+                              manque sans raison est aussi frustrant qu'un
+                              bouton qui echoue. */}
+                          {!fiche.poussable && !fiche.sur_config_service && (
+                            <span
+                              className="text-[9px]"
+                              style={{ color: 'var(--text-muted)' }}
+                              title={fiche.manques.join(' · ')}
+                            >
+                              {fiche.manques.join(' · ')}
+                            </span>
                           )}
                           {resultats[fiche.iso2] && (
                             <p className="text-[9px] mt-0.5 text-left" style={{ color: 'var(--text-muted)' }} role="status">
@@ -217,6 +258,21 @@ export function RefPaysMonnaies() {
                 </tbody>
               </table>
             </div>
+            {fPays.resultat.length === 0 && (
+              <p className="text-center text-xs py-6" style={{ color: 'var(--text-muted)' }}>
+                {t('flt_vide')}
+              </p>
+            )}
+            <Pager
+              page={pgPays.page}
+              nbPages={pgPays.nbPages}
+              size={pgPays.size}
+              total={pgPays.total}
+              from={pgPays.from}
+              to={pgPays.to}
+              onPage={pgPays.setPage}
+              onSize={pgPays.setSize}
+            />
           </Card>
         </>
       )}

@@ -11,6 +11,7 @@ import { Card, SectionHeader } from '../components/ui'
 import { Banniere, Skeleton, useToast } from '../components/ui/loader'
 import { useApp } from '../context/AppContext'
 import { usePagination } from '../hooks/usePagination'
+import { BarreFiltre, useFiltreListe } from '../components/FiltreListe'
 import { Pager } from '../components/Pager'
 import {
   ajouterTelco,
@@ -141,8 +142,19 @@ export function RefTelcos() {
     return sommeActuelle + part > 100 ? t('tel_somme_depasse') : null
   }, [fPart, sommeActuelle, t])
 
-  const telcosListe = configTelcos ?? []
-  const pgTelcos = usePagination(telcosListe, 10)
+  // ORDRE ALPHABETIQUE + recherche rapide (demande administration, 23/08).
+  // On cherche sur le NOM de l'operateur, son code, ET les pays porteurs :
+  // « qui opere au Cameroun ? » est la question la plus posee sur cet ecran.
+  const telcosListe = useMemo(
+    () => [...(configTelcos ?? [])].sort((a, b) => a.nom.localeCompare(b.nom, 'fr')),
+    [configTelcos],
+  )
+  const fTelcos = useFiltreListe(
+    telcosListe,
+    (x) => [x.nom, x.code, ...x.porteurs],
+    (x) => x.nom,
+  )
+  const pgTelcos = usePagination(fTelcos.resultat, 10, fTelcos.cle)
 
   const formulaireValide =
     fPays !== '' &&
@@ -345,6 +357,17 @@ export function RefTelcos() {
         {configTelcos === null && configErreur === null && <Skeleton height={80} />}
         {configTelcos !== null && (
           <>
+          <BarreFiltre
+            filtre={fTelcos}
+            items={telcosListe}
+            initiale={(x) => x.nom}
+            placeholder={t('flt_pays_telco')}
+          />
+          {fTelcos.resultat.length === 0 && (
+            <p className="text-center text-xs py-6" style={{ color: 'var(--text-muted)' }}>
+              {t('flt_vide')}
+            </p>
+          )}
           <div style={{ overflowX: 'auto' }}>
             <table className="data-table">
               <thead>
