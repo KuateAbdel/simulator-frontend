@@ -667,6 +667,9 @@ export type MesuresEco = {
     quartiers_libres: number
   }
   integrite: {
+    /** `null` quand la plateforme est muette : on ne dit PAS 0, ce serait
+     *  une affirmation qu'on n'a pas mesuree. */
+    kiosques_disparus_la_bas?: number | null
     kiosques_sans_agent: number
     kiosques_sans_depositaire: number
     kiosques_sans_client: number
@@ -675,8 +678,19 @@ export type MesuresEco = {
     imf_sans_nom: number
   }
 }
+/** `V-03` — l'arbre CONFRONTE a la plateforme. `org_hierarchy` est notre
+ *  memoire d'un run ; la plateforme peut avoir ete videe de son cote, et
+ *  l'arbre afficherait alors des kiosques dont le Depositaire n'existe plus.
+ *  `verifie: false` = on n'a PAS pu mesurer — jamais « tout va bien ». */
+export type VerificationEco = {
+  verifie: boolean
+  kiosques_disparus: number
+  depositaires_disparus?: string[]
+  motif: string
+}
 export type VueEcosysteme = {
   run_id: string | null
+  verification?: VerificationEco
   comptes?: Record<string, number>
   /** L'arbre a CINQ niveaux (V-03). */
   pays?: PaysEco[]
@@ -754,6 +768,9 @@ export type LigneInventaire = {
   short_name?: string
   /** Depositaires : l'is_active de la plateforme (null si la fiche ne le porte pas). */
   actif?: boolean | null
+  /** `V-04` — la date de creation, du journal d'audit. `null` quand ce n'est
+   *  pas nous qui l'avons creee : pas de date, pas de nous. Jamais inventee. */
+  cree_le?: string | null
 }
 export type VueInventaire = {
   a_nous: LigneInventaire[]
@@ -933,7 +950,17 @@ export function adopterGroupes(groupeIds: string[]): Promise<{
 
 export type ResiduMarque = { compte: number; verdict: string; note?: string }
 export type VuePurgePreparee = {
-  purgeable: { groupes: { id: string; nom: string }[]; regle: string }
+  purgeable: {
+    groupes: {
+      id: string
+      nom: string
+      /** `V-04` — la DATE DE CREATION, du journal d'audit. `null` quand nous
+       *  ne l'avons pas creee : ce n'est pas un trou, c'est l'information
+       *  « pas de date, pas de nous ». Jamais une date inventee. */
+      cree_le: string | null
+    }[]
+    regle: string
+  }
   residus_marques: Record<string, ResiduMarque>
   note: string
 }

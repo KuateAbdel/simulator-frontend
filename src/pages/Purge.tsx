@@ -160,16 +160,32 @@ export function Purge() {
                 {t('pur_rien_a_purger')}
               </p>
             ) : (
-              <div className="flex flex-wrap gap-1.5">
+              /* `V-04` — LA DATE, devant une purge.
+                 C'est la premiere question qu'on se pose avant de supprimer :
+                 « ca date de quand ? ». Un residu de la semaine derniere ne se
+                 traite pas comme une entite du run d'aujourd'hui, et trois
+                 services n'ont AUCUN DELETE. Une pastille ne suffisait plus :
+                 il faut une ligne par groupe, avec sa date. */
+              <div className="flex flex-col gap-1">
                 {etape.vue.purgeable.groupes.map((groupe) => (
-                  <span
+                  <div
                     key={groupe.id}
-                    className="text-[10px] rounded-full px-2 py-0.5"
+                    className="flex items-baseline justify-between gap-3 text-[11px] rounded px-2 py-1"
                     style={{ background: 'var(--secondary-light)', color: 'var(--secondary-dark)' }}
                     title={groupe.id}
                   >
-                    {groupe.nom}
-                  </span>
+                    <span className="truncate">{groupe.nom}</span>
+                    <span className="font-mono text-[10px] whitespace-nowrap tabular-nums">
+                      {groupe.cree_le ? (
+                        new Date(groupe.cree_le).toLocaleString()
+                      ) : (
+                        /* Pas de date = pas de nous. On le DIT au lieu
+                           d'afficher « aujourd'hui » par defaut, ce qui
+                           ferait mentir l'ecran la ou il sert a decider. */
+                        <span style={{ opacity: 0.6 }}>{t('pur_date_inconnue')}</span>
+                      )}
+                    </span>
+                  </div>
                 ))}
               </div>
             )}

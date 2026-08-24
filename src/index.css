@@ -23,7 +23,7 @@
      leurs couleurs en dur, et tout `var(--danger)` ecrit ailleurs etait une
      propriete INVALIDE — donc ignoree. Symptome exact : une tuile rouge
      rendue transparente, texte blanc sur blanc, invisible. C'est le meme
-     piege que `var(--background)` le 22/08 (les pays hors referentiel
+     piege que le token `background` le 22/08 (les pays hors referentiel
      rendaient noir). Un token doit exister avant d'etre utilise. */
   --danger: #b91c1c;
   --danger-soft: #fee2e2;

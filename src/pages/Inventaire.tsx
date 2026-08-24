@@ -294,6 +294,7 @@ export function Inventaire() {
                     <th>{t('inv_col_nom')}</th>
                     {(domaine === 'produits' || domaine === 'companies') && <th>short_name</th>}
                     <th>{t('inv_col_statut')}</th>
+                    <th>{t('inv_col_cree_le')}</th>
                     {domaine === 'depositaires' && <th>{t('inv_col_etat')}</th>}
                     <th>{t('inv_col_id')}</th>
                     {domaine !== 'produits' && <th />}
@@ -328,6 +329,17 @@ export function Inventaire() {
                         >
                           {t(`inv_${ligne.statut}` as Parameters<typeof t>[0])}
                         </span>
+                      </td>
+                      {/* `V-04` — LA DATE. Devant une reconciliation, savoir
+                          QUAND une entite est nee separe le residu d'hier de
+                          l'entite du run en cours. `null` n'est pas un trou :
+                          c'est « pas cree par nous », dit sans detour. */}
+                      <td className="font-mono text-[10px] whitespace-nowrap tabular-nums">
+                        {ligne.cree_le ? (
+                          new Date(ligne.cree_le).toLocaleString()
+                        ) : (
+                          <span style={{ color: 'var(--text-muted)' }}>—</span>
+                        )}
                       </td>
                       {domaine === 'depositaires' && (
                         <td>

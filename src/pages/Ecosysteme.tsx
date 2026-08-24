@@ -62,7 +62,7 @@ type Etat =
 
 /** Les couleurs d'institution — la teinte porte QUI, jamais une décoration.
  *  Trois suffisent : deux IMF par pays, plus une réserve. */
-const TEINTES = ['var(--primary)', 'var(--secondary)', 'var(--accent, #7C6AAD)']
+const TEINTES = ['var(--primary)', 'var(--secondary)', 'var(--primary-dark)']
 
 /** Le survol : ce qui n'entre pas dans la ligne. Jamais une répétition — le
  *  chemin complet et les IDENTIFIANTS RÉELS côté plateforme, pour qu'on
@@ -212,6 +212,23 @@ export function Ecosysteme() {
     <div className="animate-fade-in" onMouseLeave={() => setSurvol(null)}>
       <SectionHeader title={t('eco_titre')} subtitle={t('eco_sous_titre')} />
 
+      {/* ============ L'ARBRE EST-IL ENCORE VRAI ? ============
+          `org_hierarchy` est NOTRE mémoire d'un run. La purge n'y touche pas,
+          et la plateforme peut être vidée de son côté : l'arbre afficherait
+          alors des kiosques dont le Dépositaire n'existe plus, sans le dire.
+          Ce bandeau est la première chose qu'on lit, parce que tout ce qui
+          suit en dépend. */}
+      {vue.verification && vue.verification.kiosques_disparus > 0 && (
+        <div className="mb-3">
+          <Banniere ton="danger">{vue.verification.motif}</Banniere>
+        </div>
+      )}
+      {vue.verification && !vue.verification.verifie && (
+        <div className="mb-3">
+          <Banniere ton="info">{t('eco_non_verifie')}</Banniere>
+        </div>
+      )}
+
       {/* ============ LES TROIS MESURES — « est-ce crédible ? » ============ */}
       {mesures && (
         <div className="grid gap-2 mb-4" style={{ gridTemplateColumns: 'repeat(auto-fit,minmax(13rem,1fr))' }}>
@@ -273,12 +290,23 @@ export function Ecosysteme() {
               {t('eco_m_integrite')}
             </p>
             <p className="text-2xl font-semibold tabular-nums">
-              {mesures.integrite.kiosques_sans_agent + mesures.integrite.agences_sans_kiosque + mesures.integrite.branches_sans_agence}
+              {mesures.integrite.kiosques_sans_agent +
+                mesures.integrite.agences_sans_kiosque +
+                mesures.integrite.branches_sans_agence +
+                (mesures.integrite.kiosques_disparus_la_bas ?? 0)}
             </p>
             <p className="text-[11px]" style={{ color: 'var(--text-secondary)' }}>
               {mesures.integrite.kiosques_sans_agent} {t('eco_i_sans_agent')} ·{' '}
               {mesures.integrite.agences_sans_kiosque} {t('eco_i_agence_vide')} ·{' '}
               {mesures.integrite.branches_sans_agence} {t('eco_i_branche_vide')}
+              {/* `null` = non mesuré. On l'écrit « ? », jamais 0 : un 0 serait
+                  une affirmation qu'on n'a pas faite. */}
+              {mesures.integrite.kiosques_disparus_la_bas !== undefined && (
+                <>
+                  {' · '}
+                  {mesures.integrite.kiosques_disparus_la_bas ?? '?'} {t('eco_i_disparus')}
+                </>
+              )}
             </p>
           </Card>
 
