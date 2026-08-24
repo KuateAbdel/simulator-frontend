@@ -102,8 +102,15 @@ export const NAV_ITEMS: NavItem[] = [
     page: 'inventaire',
     labelKey: 'nav_inventaire_purge',
     icon: Boxes,
-    stories: 'A-13 · US-F1 · US-F2',
+    stories: 'A-13 · US-F1 · US-F2 · US-F3',
     pages: ['inventaire', 'purge'],
+    // RBAC — l'entree n'avait AUCUN `roleMin` : elle s'affichait pour TOUS les
+    // roles, et l'ecran Purge avec elle. L'API refusait bien en 403
+    // (`exige_super_admin` sur `/preparer` comme sur `/confirmer`), mais offrir
+    // une porte qu'on claque au nez n'est pas du controle d'acces : c'est une
+    // fausse promesse. `US-F3` rend l'ecran capable de vider notre carte —
+    // raison de plus pour qu'il ne soit meme pas visible ailleurs.
+    roleMin: 'super_admin',
   },
   {
     page: 'admin-comptes',

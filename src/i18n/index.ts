@@ -854,6 +854,12 @@ export const translations = {
     pur_rien_a_purger: 'Aucun groupe à nous sur la plateforme — rien à purger.',
     pur_residus_titre: 'Résidus marqués — resteront, et voici pourquoi',
     pur_case: 'Je comprends : seuls NOS groupes seront supprimés, définitivement',
+    pur_notre_base_titre: 'Notre carte — ce que le Loader a noté de son côté',
+    pur_notre_base_effacable: 'Effaçable',
+    pur_notre_base_protege: 'Protégé — jamais touché',
+    pur_notre_base_case: 'Vider NOTRE CARTE : arbre, runs, journal, registres',
+    pur_notre_base_avert:
+      'N’efface RIEN chez FinZuu et ne touche AUCUNE collection protégée. Après ce geste, l’Observatoire sera vide : la carte aura disparu. Un prochain run la reconstruira en reconnaissant ce qui existe déjà là-bas, sans créer de doublon.',
     pur_rien_explication:
       'Il n’y a rien à supprimer : les résidus ci-dessus ne sont pas purgeables, et chaque ligne en donne la raison mesurée. Le seul service qui expose un DELETE est user-service, et aucun groupe à nous n’y subsiste.',
     pur_executer: 'Exécuter la purge',
@@ -1735,6 +1741,12 @@ export const translations = {
     pur_rien_a_purger: 'No group of ours on the platform — nothing to purge.',
     pur_residus_titre: 'Marked residues — will stay, and here is why',
     pur_case: 'I understand: only OUR groups will be deleted, permanently',
+    pur_notre_base_titre: 'Our map — what the Loader recorded on its side',
+    pur_notre_base_effacable: 'Erasable',
+    pur_notre_base_protege: 'Protected — never touched',
+    pur_notre_base_case: 'Clear OUR MAP: tree, runs, journal, registries',
+    pur_notre_base_avert:
+      'Erases NOTHING on FinZuu and touches NO protected collection. After this, the Observatory will be empty: the map is gone. A next run rebuilds it by recognising what already exists there, without creating duplicates.',
     pur_rien_explication:
       'There is nothing to delete: the residues above are not purgeable, and each row gives the measured reason. The only service exposing a DELETE is user-service, and no group of ours remains there.',
     pur_executer: 'Execute the purge',

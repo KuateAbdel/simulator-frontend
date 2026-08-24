@@ -982,6 +982,16 @@ export type VuePurgePreparee = {
     regle: string
   }
   residus_marques: Record<string, ResiduMarque>
+  /** `US-F3` — NOTRE base, les deux camps cote a cote. Le compte PROTEGE est
+   *  rendu aussi, et c'est le point : l'operateur doit voir de ses yeux que
+   *  ses 48 pays ne sont pas dans la colonne effacable. Une garantie qu'on ne
+   *  peut pas verifier a l'ecran n'est pas une garantie. */
+  notre_base?: {
+    effacable: Record<string, { compte: number; contenu: string }>
+    total_effacable: number
+    protege: Record<string, { compte: number; contenu: string }>
+    regle: string
+  }
   note: string
 }
 
@@ -990,15 +1000,24 @@ export function preparerPurge(): Promise<VuePurgePreparee> {
   return api('/admin/purge/preparer', { method: 'POST' })
 }
 
-export function confirmerPurge(supprimerGroupes: boolean): Promise<{
+export function confirmerPurge(
+  supprimerGroupes: boolean,
+  viderNotreBase = false,
+): Promise<{
   supprimes: string[]
   echecs: { groupe: string; motif: string }[]
   residus_marques: Record<string, ResiduMarque>
+  notre_base_videe: {
+    videes: Record<string, number>
+    total: number
+    epargnees: Record<string, number>
+    note: string
+  } | null
   note: string
 }> {
   return api('/admin/purge/confirmer', {
     method: 'POST',
-    body: { supprimer_groupes: supprimerGroupes },
+    body: { supprimer_groupes: supprimerGroupes, vider_notre_base: viderNotreBase },
   })
 }
 

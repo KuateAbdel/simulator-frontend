@@ -72,6 +72,9 @@ export function Purge() {
   const [envoi, setEnvoi] = useState(false)
   const [fautes, setFautes] = useState<string[]>([])
   const [caseCochee, setCaseCochee] = useState(false)
+  // `US-F3` — la seconde decision, INDEPENDANTE de la premiere : vider notre
+  // carte n'a rien a voir avec supprimer des groupes chez FinZuu.
+  const [viderCarte, setViderCarte] = useState(false)
   const [confirmerOuvert, setConfirmerOuvert] = useState(false)
 
   const preparer = async () => {
@@ -93,7 +96,7 @@ export function Purge() {
     setEnvoi(true)
     setFautes([])
     try {
-      const reponse = await confirmerPurge(true)
+      const reponse = await confirmerPurge(caseCochee, viderCarte)
       setConfirmerOuvert(false)
       setEtape({
         phase: 'purgee',
@@ -198,6 +201,70 @@ export function Purge() {
             {etape.vue.note}
           </p>
 
+          {/* `US-F3` — NOTRE CARTE, les deux camps cote a cote.
+
+              La colonne PROTEGEE est affichee avec ses comptes, et c'est tout
+              l'objet : l'operateur doit VOIR que ses pays, ses villes et ses
+              telcos ne sont pas dans la colonne effacable. Une garantie qu'on
+              ne peut pas verifier a l'ecran n'est pas une garantie. */}
+          {etape.vue.notre_base && (
+            <div className="border-t mt-4 pt-4" style={{ borderColor: 'var(--border)' }}>
+              <p className="text-xs font-semibold mb-3" style={{ color: 'var(--text-primary)' }}>
+                {t('pur_notre_base_titre')}
+              </p>
+              <div className="grid md:grid-cols-2 gap-4">
+                <div>
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-[10px] font-semibold uppercase tracking-wide" style={{ color: 'var(--danger)' }}>
+                      {t('pur_notre_base_effacable')}
+                    </span>
+                    <span className="badge-primary font-mono">{etape.vue.notre_base.total_effacable}</span>
+                  </div>
+                  <div className="space-y-1">
+                    {Object.entries(etape.vue.notre_base.effacable).map(([nom, info]) => (
+                      <div key={nom} className="flex items-baseline justify-between gap-2">
+                        <span className="text-[11px] font-mono truncate" style={{ color: 'var(--text-secondary)' }} title={info.contenu}>
+                          {nom}
+                        </span>
+                        <span className="text-[11px] font-mono" style={{ color: 'var(--danger)' }}>
+                          {info.compte}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-[10px] font-semibold uppercase tracking-wide" style={{ color: 'var(--success)' }}>
+                      {t('pur_notre_base_protege')}
+                    </span>
+                  </div>
+                  <div className="space-y-1">
+                    {Object.entries(etape.vue.notre_base.protege).map(([nom, info]) => (
+                      <div key={nom} className="flex items-baseline justify-between gap-2">
+                        <span className="text-[11px] font-mono truncate" style={{ color: 'var(--text-secondary)' }} title={info.contenu}>
+                          {nom}
+                        </span>
+                        <span className="text-[11px] font-mono" style={{ color: 'var(--success)' }}>
+                          {info.compte}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+              <label className="flex items-start gap-2 text-xs mt-4" style={{ color: 'var(--text-primary)', cursor: 'pointer' }}>
+                <input type="checkbox" checked={viderCarte} onChange={(e) => setViderCarte(e.target.checked)} />
+                <span>{t('pur_notre_base_case')}</span>
+              </label>
+              {viderCarte && (
+                <p className="text-[10px] mt-2" style={{ color: 'var(--warning)' }}>
+                  {t('pur_notre_base_avert')}
+                </p>
+              )}
+            </div>
+          )}
+
           {/* La decision — case EXPLICITE puis dialogue danger.
 
               DEFAUT CORRIGE LE 24/08. Quand il n'y a RIEN a purger, cet ecran
@@ -237,10 +304,10 @@ export function Purge() {
                   border: 'none',
                   background: '#b91c1c',
                   color: '#fff',
-                  cursor: caseCochee ? 'pointer' : 'default',
-                  opacity: caseCochee && !envoi ? 1 : 0.5,
+                  cursor: caseCochee || viderCarte ? 'pointer' : 'default',
+                  opacity: (caseCochee || viderCarte) && !envoi ? 1 : 0.5,
                 }}
-                disabled={!caseCochee || envoi}
+                disabled={(!caseCochee && !viderCarte) || envoi}
                 onClick={() => setConfirmerOuvert(true)}
               >
                 <ShieldAlert size={12} style={{ display: 'inline', marginRight: 4 }} />
