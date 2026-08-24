@@ -31,7 +31,13 @@ export function Tracabilite() {
     setEtat({ phase: 'chargement' })
     try {
       const vue = await lireTracabilite()
-      if (vue.run_id === null) {
+      // `P-06` — meme correction qu'a l'Ecosysteme : `run_id === null` est le
+      // perimetre CUMULATIF (tous les runs), pas une absence. Ce qui fait un
+      // ecran vide, c'est un journal sans aucune intention.
+      const vide =
+        (vue.journal?.nb_entrees ?? 0) === 0 &&
+        Object.keys(vue.registre_faker?.par_pays ?? {}).length === 0
+      if (vide) {
         setEtat({ phase: 'vide', message: vue.note ?? t('tra_vide') })
       } else {
         setEtat({ phase: 'pret', vue })

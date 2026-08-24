@@ -97,7 +97,11 @@ export function Ecosysteme() {
     setEtat({ phase: 'chargement' })
     try {
       const vue = await lireEcosysteme()
-      if (vue.run_id === null || (vue.pays ?? []).length === 0) {
+      // `P-06` — `run_id === null` ne veut PLUS dire « rien » : c'est le
+      // perimetre CUMULATIF, le cas le plus plein. Seule l'absence de pays
+      // fait un ecran vide. Tester le run_id ici aurait masque tout
+      // l'ecosysteme derriere un « aucun run en base ».
+      if ((vue.pays ?? []).length === 0) {
         setEtat({ phase: 'vide', message: vue.note ?? t('eco_vide') })
       } else {
         setEtat({ phase: 'pret', vue })
@@ -441,7 +445,7 @@ export function Ecosysteme() {
           </span>
         ))}
         <span className="text-[10px] font-mono" style={{ color: 'var(--text-muted)' }}>
-          run {vue.run_id}
+          {vue.libelle ?? (vue.run_id ? `run ${vue.run_id.slice(0, 8)}` : '')}
         </span>
       </div>
 

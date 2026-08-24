@@ -688,8 +688,24 @@ export type VerificationEco = {
   depositaires_disparus?: string[]
   motif: string
 }
-export type VueEcosysteme = {
+/**
+ * `P-06` — L'ENTETE DE PERIMETRE, RENDU PAR CHAQUE ECRAN DE L'OBSERVATOIRE.
+ *
+ * Un ecran doit dire CE QU'IL COUVRE. Sans cela il montre une tranche en se
+ * presentant comme le tout : le 24/08, l'Ecosysteme affichait 1 pays et
+ * 4 kiosques (le dernier run) alors que la plateforme en portait 49 a nous.
+ *
+ * `portee: 'tous'` = tout ce que le Loader a bati, tous runs confondus —
+ * l'etat reel du systeme, et le defaut. `portee: 'run'` = un run designe.
+ */
+export type EntetePerimetre = {
   run_id: string | null
+  portee?: 'tous' | 'run'
+  libelle?: string
+  runs_connus?: { run_id: string; mode: string; statut: string; cree_le: string | null }[]
+}
+
+export type VueEcosysteme = EntetePerimetre & {
   verification?: VerificationEco
   comptes?: Record<string, number>
   /** L'arbre a CINQ niveaux (V-03). */
@@ -708,28 +724,30 @@ export function lireEcosysteme(): Promise<VueEcosysteme> {
 export type MesureCible = { mesure: number; cible: number }
 export type QuotasPays = {
   pays: string
-  clients: MesureCible
+  /** `en_base` et `ecart` : le recoupement contre les noeuds reels (`P-06`). */
+  clients: MesureCible & { en_base?: number; ecart?: string }
   corporate: MesureCible
   femmes: MesureCible
   jeunes: MesureCible
   agricoles: MesureCible
   profils: Record<string, MesureCible>
 }
-export type VuePopulation = {
-  run_id: string
-  mode: 'DRY_RUN' | 'REAL'
+export type VuePopulation = EntetePerimetre & {
+  /** Plusieurs runs peuvent avoir peuple : la Population les cumule. */
+  modes?: string[]
+  runs_mesures?: string[]
+  note?: string
   quotas_par_pays: QuotasPays[]
-  occupations: { distinctes: number; total: number; top: Record<string, number> }
-  soldes: { tranches: Record<string, number>; total_dote: number }
-  naissances: { a_l_etranger: number; au_pays: number }
+  occupations?: { distinctes: number; total: number; top: Record<string, number> }
+  soldes?: { tranches: Record<string, number>; total_dote: number }
+  naissances?: { a_l_etranger: number; au_pays: number }
 }
 
 export function lirePopulation(): Promise<VuePopulation> {
   return api('/admin/dashboard/population')
 }
 
-export type VueIndexInverse = {
-  run_id: string
+export type VueIndexInverse = EntetePerimetre & {
   clients_par_produit: { product_id: string; marqueur: string; clients: number }[]
   clients_par_kiosque: { kiosque_id: string; nom: string; clients: number }[]
   note: string
@@ -739,8 +757,7 @@ export function lireIndexInverse(): Promise<VueIndexInverse> {
   return api('/admin/dashboard/index-inverse')
 }
 
-export type VueTracabilite = {
-  run_id: string | null
+export type VueTracabilite = EntetePerimetre & {
   note?: string
   registre_faker?: {
     par_pays: Record<string, number>

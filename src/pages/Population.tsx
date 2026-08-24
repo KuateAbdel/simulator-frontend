@@ -134,19 +134,47 @@ export function Population() {
   }
 
   const { vue, index } = etat
-  const totalSoldes = Object.values(vue.soldes.tranches).reduce((s, n) => s + n, 0)
-  const maxTranche = Math.max(...Object.values(vue.soldes.tranches), 1)
-  const topOccupations = Object.entries(vue.occupations.top)
+
+  // `P-06` — UN PERIMETRE SANS POPULATION EST UN ETAT, PAS UNE ERREUR.
+  // La route rendait 404 et l'ecran affichait une erreur technique la ou la
+  // verite est simple : le Loader n'a encore peuple personne. Elle rend
+  // desormais 200 avec son motif, et c'est ce motif qu'on montre.
+  if (vue.quotas_par_pays.length === 0) {
+    return (
+      <div className="animate-fade-in">
+        <SectionHeader title={t('pop_titre')} subtitle={t('pop_sous_titre')} />
+        <Card>
+          <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>
+            {vue.note ?? t('empty_no_data')}
+          </p>
+        </Card>
+      </div>
+    )
+  }
+
+  const tranches = vue.soldes?.tranches ?? {}
+  const totalSoldes = Object.values(tranches).reduce((s, n) => s + n, 0)
+  const maxTranche = Math.max(...Object.values(tranches), 1)
+  const topOccupations = Object.entries(vue.occupations?.top ?? {})
   const maxOccupation = Math.max(...topOccupations.map(([, n]) => n), 1)
-  const totalNaissances = vue.naissances.au_pays + vue.naissances.a_l_etranger
+  const naissances = vue.naissances ?? { au_pays: 0, a_l_etranger: 0 }
+  const totalNaissances = naissances.au_pays + naissances.a_l_etranger
 
   return (
     <div className="animate-fade-in">
       <SectionHeader title={t('pop_titre')} subtitle={t('pop_sous_titre')} />
+      {/* `P-06` — l'ecran DIT ce qu'il couvre : tous les runs, ou un seul. */}
       <div className="flex flex-wrap gap-2 mb-4">
-        <span className="badge-primary font-mono">{vue.mode}</span>
+        {(vue.modes ?? []).map((m) => (
+          <span key={m} className="badge-primary font-mono">
+            {m}
+          </span>
+        ))}
         <span className="text-[10px] font-mono self-center" style={{ color: 'var(--text-muted)' }}>
-          run {vue.run_id}
+          {vue.libelle ?? (vue.run_id ? `run ${vue.run_id.slice(0, 8)}` : '')}
+          {vue.runs_mesures && vue.runs_mesures.length > 1
+            ? ` — ${vue.runs_mesures.length} runs cumulés`
+            : ''}
         </span>
       </div>
 
@@ -199,7 +227,7 @@ export function Population() {
           </p>
           <div className="space-y-1.5">
             {ORDRE_TRANCHES.map((tranche, i) => {
-              const compte = vue.soldes.tranches[tranche] ?? 0
+              const compte = tranches[tranche] ?? 0
               const eligible = i >= INDEX_FRONTIERE
               return (
                 <div key={tranche}>
@@ -234,7 +262,7 @@ export function Population() {
             })}
           </div>
           <p className="text-[10px] font-mono mt-3" style={{ color: 'var(--text-muted)' }}>
-            {t('pop_total_dote')} : {vue.soldes.total_dote.toLocaleString('fr-FR')}
+            {t('pop_total_dote')} : {(vue.soldes?.total_dote ?? 0).toLocaleString('fr-FR')}
           </p>
         </Card>
 
@@ -247,7 +275,7 @@ export function Population() {
                 {t('pop_occupations_titre')}
               </p>
               <span className="badge-secondary font-mono">
-                {vue.occupations.distinctes} / {vue.occupations.total}
+                {(vue.occupations?.distinctes ?? 0)} / {(vue.occupations?.total ?? 0)}
               </span>
             </div>
             <p className="text-[10px] mb-3" style={{ color: 'var(--text-muted)' }}>
@@ -280,15 +308,15 @@ export function Population() {
             <div className="progress-bar" style={{ height: 10 }}>
               <div
                 className="progress-fill"
-                style={{ width: `${totalNaissances ? (vue.naissances.au_pays / totalNaissances) * 100 : 0}%` }}
+                style={{ width: `${totalNaissances ? (naissances.au_pays / totalNaissances) * 100 : 0}%` }}
               />
             </div>
             <div className="flex justify-between mt-1 text-[10px] font-mono" style={{ color: 'var(--text-secondary)' }}>
               <span>
-                {t('pop_au_pays')} : {vue.naissances.au_pays}
+                {t('pop_au_pays')} : {naissances.au_pays}
               </span>
               <span>
-                {t('pop_etranger')} : {vue.naissances.a_l_etranger}
+                {t('pop_etranger')} : {naissances.a_l_etranger}
               </span>
             </div>
           </Card>
