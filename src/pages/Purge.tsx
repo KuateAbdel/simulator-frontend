@@ -198,39 +198,57 @@ export function Purge() {
             {etape.vue.note}
           </p>
 
-          {/* La decision — case EXPLICITE puis dialogue danger */}
+          {/* La decision — case EXPLICITE puis dialogue danger.
+
+              DEFAUT CORRIGE LE 24/08. Quand il n'y a RIEN a purger, cet ecran
+              affichait quand meme la case a cocher (`disabled`) et le bouton
+              rouge (grise) : deux commandes MORTES, sans un mot d'explication.
+              L'operateur cochait dans le vide et concluait, legitimement, que
+              l'ecran etait casse.
+
+              Une commande qu'on ne peut pas actionner ne doit pas etre offerte.
+              A la place, on DIT pourquoi il n'y a rien a faire — la meme
+              discipline que partout ailleurs : l'ecran explique, il ne laisse
+              jamais deviner. */}
           <div className="border-t mt-4 pt-4" style={{ borderColor: 'var(--border)' }}>
-            <label className="flex items-start gap-2 text-xs mb-3" style={{ color: 'var(--text-primary)', cursor: 'pointer' }}>
-              <input
-                type="checkbox"
-                checked={caseCochee}
-                onChange={(e) => setCaseCochee(e.target.checked)}
-                disabled={etape.vue.purgeable.groupes.length === 0}
-              />
-              <span>
-                {t('pur_case')} ({etape.vue.purgeable.groupes.length})
-              </span>
-            </label>
+            {etape.vue.purgeable.groupes.length === 0 ? (
+              <p className="text-xs mb-3" style={{ color: 'var(--text-secondary)' }}>
+                {t('pur_rien_explication')}
+              </p>
+            ) : (
+              <label className="flex items-start gap-2 text-xs mb-3" style={{ color: 'var(--text-primary)', cursor: 'pointer' }}>
+                <input
+                  type="checkbox"
+                  checked={caseCochee}
+                  onChange={(e) => setCaseCochee(e.target.checked)}
+                />
+                <span>
+                  {t('pur_case')} ({etape.vue.purgeable.groupes.length})
+                </span>
+              </label>
+            )}
             <div className="flex gap-2">
               <button className="btn-ghost text-xs" style={{ height: 32 }} onClick={() => setEtape({ phase: 'accueil' })}>
                 {t('back')}
               </button>
-              <button
-                className="text-xs font-semibold rounded-lg px-4"
-                style={{
-                  height: 32,
-                  border: 'none',
-                  background: '#b91c1c',
-                  color: '#fff',
-                  cursor: caseCochee ? 'pointer' : 'default',
-                  opacity: caseCochee && !envoi ? 1 : 0.5,
-                }}
-                disabled={!caseCochee || envoi}
-                onClick={() => setConfirmerOuvert(true)}
-              >
-                <ShieldAlert size={12} style={{ display: 'inline', marginRight: 4 }} />
-                {t('pur_executer')}
-              </button>
+              {etape.vue.purgeable.groupes.length > 0 && (
+                <button
+                  className="text-xs font-semibold rounded-lg px-4"
+                  style={{
+                    height: 32,
+                    border: 'none',
+                    background: '#b91c1c',
+                    color: '#fff',
+                    cursor: caseCochee ? 'pointer' : 'default',
+                    opacity: caseCochee && !envoi ? 1 : 0.5,
+                  }}
+                  disabled={!caseCochee || envoi}
+                  onClick={() => setConfirmerOuvert(true)}
+                >
+                  <ShieldAlert size={12} style={{ display: 'inline', marginRight: 4 }} />
+                  {t('pur_executer')}
+                </button>
+              )}
             </div>
           </div>
         </Card>

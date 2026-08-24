@@ -854,6 +854,8 @@ export const translations = {
     pur_rien_a_purger: 'Aucun groupe à nous sur la plateforme — rien à purger.',
     pur_residus_titre: 'Résidus marqués — resteront, et voici pourquoi',
     pur_case: 'Je comprends : seuls NOS groupes seront supprimés, définitivement',
+    pur_rien_explication:
+      'Il n’y a rien à supprimer : les résidus ci-dessus ne sont pas purgeables, et chaque ligne en donne la raison mesurée. Le seul service qui expose un DELETE est user-service, et aucun groupe à nous n’y subsiste.',
     pur_executer: 'Exécuter la purge',
     pur_confirmer_titre: 'Exécuter la purge maintenant ?',
     pur_confirmer_corps:
@@ -1733,6 +1735,8 @@ export const translations = {
     pur_rien_a_purger: 'No group of ours on the platform — nothing to purge.',
     pur_residus_titre: 'Marked residues — will stay, and here is why',
     pur_case: 'I understand: only OUR groups will be deleted, permanently',
+    pur_rien_explication:
+      'There is nothing to delete: the residues above are not purgeable, and each row gives the measured reason. The only service exposing a DELETE is user-service, and no group of ours remains there.',
     pur_executer: 'Execute the purge',
     pur_confirmer_titre: 'Execute the purge now?',
     pur_confirmer_corps:
