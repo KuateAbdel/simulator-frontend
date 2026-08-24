@@ -18,6 +18,20 @@
   --radius: 12px;
   --shadow: 0 2px 16px rgba(198, 140, 255, 0.12);
   --shadow-md: 0 4px 32px rgba(198, 140, 255, 0.18);
+
+  /* ETATS — ajoutes le 24/08. Ils N'EXISTAIENT PAS : les badges portaient
+     leurs couleurs en dur, et tout `var(--danger)` ecrit ailleurs etait une
+     propriete INVALIDE — donc ignoree. Symptome exact : une tuile rouge
+     rendue transparente, texte blanc sur blanc, invisible. C'est le meme
+     piege que `var(--background)` le 22/08 (les pays hors referentiel
+     rendaient noir). Un token doit exister avant d'etre utilise. */
+  --danger: #b91c1c;
+  --danger-soft: #fee2e2;
+  --warning: #92400e;
+  --warning-soft: #fef9c3;
+  --success: #15803d;
+  --success-soft: #dcfce7;
+  --surface-hover: #f3eeff;
 }
 
 /* Thème sombre — mêmes accents FinZuu (violet + vert), fond violet-nuit.
@@ -37,6 +51,16 @@
   --text-muted: #8a7bab;
   --shadow: 0 2px 16px rgba(0, 0, 0, 0.5);
   --shadow-md: 0 8px 40px rgba(0, 0, 0, 0.6);
+
+  /* Etats en sombre : la teinte reste la meme, la LUMINOSITE s'inverse —
+     un rouge de mode clair sur fond violet-nuit devient illisible. */
+  --danger: #f19a92;
+  --danger-soft: #40201d;
+  --warning: #e0b463;
+  --warning-soft: #3a2e15;
+  --success: #6ee7a8;
+  --success-soft: #143122;
+  --surface-hover: #251a41;
 }
 
 * {

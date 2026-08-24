@@ -577,23 +577,111 @@ export type MatiereRequise = { matiere: string; pourquoi: string }
 export type KiosqueEco = {
   id: string
   nom: string
+  /** Le NOM du quartier (V-03) — « Bastos », plus « CM-DT-001 ». */
   quartier: string | null
+  quartier_id?: string | null
   depositary_id: string | null
   nb_agents: number
   nb_clients: number
+  agregats: AgregatsEco
+  /** Nommees, jamais tues : « aucun agent — UC-09 exige un Agent par
+   *  Kiosque », « aucun depositary_id — le Kiosque n'existe pas la-bas ». */
+  anomalies: string[]
 }
-export type AgenceEco = { id: string; nom: string; ville: string | null; kiosques: KiosqueEco[] }
+export type AgenceEco = {
+  id: string
+  nom: string
+  ville: string | null
+  ville_id?: string | null
+  kiosques: KiosqueEco[]
+  agregats: AgregatsEco
+  anomalies: string[]
+}
 export type BrancheEco = {
   id: string
   nom: string
   pays: string
+  pays_nom?: string
   region: string | null
+  region_id?: string | null
   company_id: string
+  company_nom?: string | null
   agences: AgenceEco[]
+  agregats: AgregatsEco
+  anomalies: string[]
+}
+/** `V-03` — les agregats portes par CHAQUE niveau. Une ligne qui porte ses
+ *  totaux n'oblige jamais a deplier pour savoir ce qu'il y a dessous. */
+export type AgregatsEco = {
+  companies: number
+  branches: number
+  agences: number
+  kiosques: number
+  agents: number
+  clients: number
+}
+export type QuartierLibre = {
+  district_id: string
+  quartier: string
+  ville: string
+  region: string | null
+}
+export type CompanyEco = {
+  id: string
+  nom: string | null
+  /** `true` sur un run anterieur a V-03 : l'ecran le DIT au lieu d'inventer. */
+  nom_inconnu: boolean
+  branches: BrancheEco[]
+  agregats: AgregatsEco
+}
+export type PaysEco = {
+  iso2: string
+  nom: string
+  companies: CompanyEco[]
+  agregats: AgregatsEco
+  quartiers_libres: { compte: number; exemples: QuartierLibre[] }
+}
+export type MesuresEco = {
+  concentration: {
+    part_max_pourcent: number
+    /** La part d'un reseau PARFAITEMENT reparti (100 / nb_imf) — sans elle,
+     *  « 16,7 % » ne juge rien. */
+    part_attendue_pourcent: number
+    ecart_a_l_equilibre: number
+    /** 0 = parfaitement egal, 1 = une seule institution porte tout. Voit ce
+     *  que le maximum seul ne voit pas. */
+    gini: number
+    min_kiosques: number
+    max_kiosques: number
+    imf: string | null
+    nb_imf: number
+    verdict: 'concentre' | 'reparti'
+  }
+  couverture: {
+    pays: number
+    regions: number
+    villes: number
+    villes_du_referentiel: number
+    quartiers: number
+    quartiers_du_referentiel: number
+    quartiers_libres: number
+  }
+  integrite: {
+    kiosques_sans_agent: number
+    kiosques_sans_depositaire: number
+    kiosques_sans_client: number
+    agences_sans_kiosque: number
+    branches_sans_agence: number
+    imf_sans_nom: number
+  }
 }
 export type VueEcosysteme = {
   run_id: string | null
   comptes?: Record<string, number>
+  /** L'arbre a CINQ niveaux (V-03). */
+  pays?: PaysEco[]
+  mesures?: MesuresEco
+  /** La meme matiere a plat — conservee, aucun appelant ne tombe. */
   branches: BrancheEco[]
   note?: string
 }
