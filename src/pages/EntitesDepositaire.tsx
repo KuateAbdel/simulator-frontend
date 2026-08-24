@@ -53,8 +53,31 @@ export function EntitesDepositaire() {
   const [confirmerOuvert, setConfirmerOuvert] = useState(false)
   const [fautes, setFautes] = useState<string[]>([])
 
+  // La cascade : chaque niveau REINITIALISE ses enfants. Sans cela, choisir
+  // le Cameroun puis le Senegal laisserait « Yaounde » selectionne — un etat
+  // incoherent que le backend refuserait en 422 apres coup.
+  const [fPays, setFPaysBrut] = useState('')
+  const [fRegion, setFRegionBrut] = useState('')
+  const [fVille, setFVilleBrut] = useState('')
   const [fQuartier, setFQuartier] = useState('')
   const [fCompany, setFCompany] = useState('')
+
+  const setFPays = (v: string) => {
+    setFPaysBrut(v)
+    setFRegionBrut('')
+    setFVilleBrut('')
+    setFQuartier('')
+    setFCompany('') // la company depend du pays : elle repart aussi
+  }
+  const setFRegion = (v: string) => {
+    setFRegionBrut(v)
+    setFVilleBrut('')
+    setFQuartier('')
+  }
+  const setFVille = (v: string) => {
+    setFVilleBrut(v)
+    setFQuartier('')
+  }
 
   const charger = useCallback(async () => {
     setMatiereErreur(null)
@@ -74,20 +97,68 @@ export function EntitesDepositaire() {
     void charger()
   }, [charger])
 
-  // Les quartiers, groupes pays — ville pour un choix GUIDE (EF-02).
-  const quartiers = useMemo(() => {
+  // ================= LA CASCADE (V-05, 24/08) =================
+  //
+  // AVANT : UNE liste plate de plusieurs centaines de quartiers, libellee
+  // « Cameroun — Yaounde — Bastos (residential) ». On y cherchait a l'oeil.
+  //
+  // MAINTENANT : pays -> region -> ville -> quartier, chaque niveau ne
+  // proposant que ce qui appartient au precedent. Deux regles la rendent
+  // COHERENTE, et sans elles une cascade ment autant qu'une liste plate :
+  //
+  //   1. ON N'OFFRE JAMAIS UNE IMPASSE. Une region dont aucune ville ne porte
+  //      de quartier n'apparait pas : la choisir menerait a une liste vide,
+  //      et l'utilisateur croirait a une panne.
+  //   2. CHANGER UN PARENT REINITIALISE SES ENFANTS. Sans cela, choisir le
+  //      Cameroun puis le Senegal laisserait « Yaounde » selectionne — un
+  //      etat incoherent que le backend refuserait en 422 apres coup.
+  //
+  // La DEVISE n'est PAS dans la cascade : elle est DERIVEE du pays du
+  // quartier (`D-DEP-6`). Le serveur accepte n'importe quelle chaine comme
+  // `currency` (`FRA-201`, « ZZZ_INVENTE » passe) ; la laisser saisir ferait
+  // entrer une devise inventee dans un service sans DELETE.
+  const paysDisponibles = useMemo(() => {
     if (!matiere) return []
-    return matiere.geo.pays.flatMap((pays) =>
-      pays.regions.flatMap((region) =>
-        region.villes.flatMap((ville) =>
-          (ville.quartiers_detail ?? []).map((quartier) => ({
-            id: quartier.id,
-            libelle: `${pays.pays} — ${ville.nom} — ${quartier.nom} (${quartier.zone_type})`,
-          })),
+    return matiere.geo.pays
+      .map((pays) => ({
+        code: pays.pays,
+        regions: pays.regions.filter((r) =>
+          r.villes.some((v) => (v.quartiers_detail ?? []).length > 0),
         ),
-      ),
-    )
+      }))
+      .filter((p) => p.regions.length > 0)
   }, [matiere])
+
+  const regionsDuPays = useMemo(
+    () => paysDisponibles.find((p) => p.code === fPays)?.regions ?? [],
+    [paysDisponibles, fPays],
+  )
+
+  const villesDeLaRegion = useMemo(
+    () =>
+      (regionsDuPays.find((r) => r.id === fRegion)?.villes ?? []).filter(
+        (v) => (v.quartiers_detail ?? []).length > 0,
+      ),
+    [regionsDuPays, fRegion],
+  )
+
+  const quartiersDeLaVille = useMemo(
+    () => villesDeLaRegion.find((v) => v.id === fVille)?.quartiers_detail ?? [],
+    [villesDeLaRegion, fVille],
+  )
+
+  // LES COMPANIES DU PAYS CHOISI, et elles seules (demande Yaniv, 24/08).
+  // Le backend refuse deja « un kiosque a Douala pour une company de Dakar »
+  // (422 INCOHERENCE) — mais l'ecran le proposait quand meme, et faisait donc
+  // travailler l'utilisateur pour rien. Le pays vient de `lenders_registry`
+  // (EF-12), jamais d'une deduction sur le nom. Une company SANS pays connu
+  // reste offerte : la cacher ferait disparaitre une company reelle sur la
+  // foi d'une information qu'on n'a pas.
+  const companiesDuPays = useMemo(() => {
+    if (!matiere) return []
+    if (!fPays) return matiere.companies
+    return matiere.companies.filter((c) => !c.pays || c.pays === fPays)
+  }, [matiere, fPays])
 
   const demande = () => ({ quartier_id: fQuartier, company_id: fCompany })
   const formulaireValide = fQuartier !== '' && fCompany !== ''
@@ -156,14 +227,67 @@ export function EntitesDepositaire() {
             <Skeleton height={120} />
           ) : matiere !== null ? (
             <>
-              <div className="grid sm:grid-cols-2 gap-3">
+              {/* LA CASCADE — chaque liste ne montre que ce qui appartient
+                  au niveau du dessus, et un niveau non encore choisi reste
+                  DESACTIVE plutot que vide : un select vide se lit comme une
+                  panne, un select desactive se lit comme « pas encore ton
+                  tour ». */}
+              <div className="grid sm:grid-cols-4 gap-3 mb-3">
+                <div>
+                  <ChampLabel texte={t('dep_pays')} requis />
+                  <select className="input-base" value={fPays} onChange={(e) => setFPays(e.target.value)}>
+                    <option value="">{t('geo_choisir')}</option>
+                    {paysDisponibles.map((pays) => (
+                      <option key={pays.code} value={pays.code}>
+                        {pays.code}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <ChampLabel texte={t('dep_region')} requis />
+                  <select
+                    className="input-base"
+                    value={fRegion}
+                    disabled={!fPays}
+                    onChange={(e) => setFRegion(e.target.value)}
+                  >
+                    <option value="">{fPays ? t('geo_choisir') : t('dep_choisir_pays_dabord')}</option>
+                    {regionsDuPays.map((region) => (
+                      <option key={region.id} value={region.id}>
+                        {region.nom}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <ChampLabel texte={t('dep_ville')} requis />
+                  <select
+                    className="input-base"
+                    value={fVille}
+                    disabled={!fRegion}
+                    onChange={(e) => setFVille(e.target.value)}
+                  >
+                    <option value="">{fRegion ? t('geo_choisir') : t('dep_choisir_region_dabord')}</option>
+                    {villesDeLaRegion.map((ville) => (
+                      <option key={ville.id} value={ville.id}>
+                        {ville.nom}
+                      </option>
+                    ))}
+                  </select>
+                </div>
                 <div>
                   <ChampLabel texte={t('dep_quartier')} requis />
-                  <select className="input-base" value={fQuartier} onChange={(e) => setFQuartier(e.target.value)}>
-                    <option value="">{t('geo_choisir')}</option>
-                    {quartiers.map((quartier) => (
+                  <select
+                    className="input-base"
+                    value={fQuartier}
+                    disabled={!fVille}
+                    onChange={(e) => setFQuartier(e.target.value)}
+                  >
+                    <option value="">{fVille ? t('geo_choisir') : t('dep_choisir_ville_dabord')}</option>
+                    {quartiersDeLaVille.map((quartier) => (
                       <option key={quartier.id} value={quartier.id}>
-                        {quartier.libelle}
+                        {quartier.nom} ({quartier.zone_type})
                       </option>
                     ))}
                   </select>
@@ -171,6 +295,9 @@ export function EntitesDepositaire() {
                     {t('dep_quartier_note')}
                   </p>
                 </div>
+              </div>
+
+              <div className="grid sm:grid-cols-2 gap-3">
                 <div>
                   <ChampLabel texte={t('dep_company')} requis />
                   {matiere.companies.length === 0 ? (
@@ -188,9 +315,10 @@ export function EntitesDepositaire() {
                     <>
                       <select className="input-base" value={fCompany} onChange={(e) => setFCompany(e.target.value)}>
                         <option value="">{t('geo_choisir')}</option>
-                        {matiere.companies.map((company) => (
+                        {companiesDuPays.map((company) => (
                           <option key={company.id} value={company.id}>
                             {company.nom}
+                            {company.pays ? ` (${company.pays})` : ''}
                           </option>
                         ))}
                       </select>

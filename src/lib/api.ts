@@ -771,6 +771,9 @@ export type LigneInventaire = {
   /** `V-04` — la date de creation, du journal d'audit. `null` quand ce n'est
    *  pas nous qui l'avons creee : pas de date, pas de nous. Jamais inventee. */
   cree_le?: string | null
+  /** `V-05` — companies : le pays, lu de `lenders_registry` (EF-12). `null`
+   *  quand la company n'y figure pas — jamais devine depuis le nom. */
+  pays?: string | null
 }
 export type VueInventaire = {
   a_nous: LigneInventaire[]
