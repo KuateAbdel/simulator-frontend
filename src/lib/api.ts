@@ -1349,6 +1349,11 @@ export interface VersionService {
   commentaire: string
   releve_le: string | null
   stable_depuis: string | null
+  /** `V-06` — le jour ou l'hote est apparu publiquement, depuis les journaux
+   *  de transparence des certificats. `null` = non relevé, JAMAIS une date
+   *  approchee. Ce n'est pas la date du dernier deploiement de code : un
+   *  service redeploye aujourd'hui garde sa date d'origine. */
+  expose_depuis: string | null
 }
 
 export interface ReponseVersions {

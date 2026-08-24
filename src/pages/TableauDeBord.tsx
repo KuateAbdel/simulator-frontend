@@ -8,6 +8,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import {
   Activity,
+  Banknote,
+  Bell,
   Building2,
   Dices,
   Fingerprint,
@@ -15,6 +17,7 @@ import {
   HandCoins,
   Landmark,
   Package,
+  Smartphone,
   RefreshCw,
   SlidersHorizontal,
   Store,
@@ -45,6 +48,14 @@ const SONDE_META: Record<string, { icone: LucideIcon; labelKey: TranslationKey }
   'depositary-service': { icone: Store, labelKey: 'svc_depositary' },
   'client-service': { icone: UserRound, labelKey: 'svc_client' },
   'collect-service': { icone: HandCoins, labelKey: 'svc_collect' },
+  // Les trois services ajoutes le 24/08. `ussd-service` manquait au releve
+  // alors qu'il porte le canal par lequel les clients accedent au systeme ;
+  // les deux autres ont ete DECOUVERTS dans les journaux de transparence des
+  // certificats — le Loader les ignorait, donc personne ne voyait ni leur
+  // etat ni leur changement de version.
+  'ussd-service': { icone: Smartphone, labelKey: 'svc_ussd' },
+  'bulk-paiement-service': { icone: Banknote, labelKey: 'svc_bulk_paiement' },
+  'notification-service': { icone: Bell, labelKey: 'svc_notification' },
   faker: { icone: Dices, labelKey: 'svc_faker' },
 }
 

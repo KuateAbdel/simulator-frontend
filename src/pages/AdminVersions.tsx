@@ -137,6 +137,7 @@ export function VersionsOnglet() {
                     <th>{t('ver_col_service')}</th>
                     <th>{t('ver_col_version')}</th>
                     <th style={{ textAlign: 'right' }}>{t('ver_col_chemins')}</th>
+                    <th className="whitespace-nowrap">{t('ver_col_expose')}</th>
                     <th>{t('ver_col_commentaire')}</th>
                   </tr>
                 </thead>
@@ -162,6 +163,20 @@ export function VersionsOnglet() {
                           style={{ textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}
                         >
                           {s.chemins === null ? '—' : `${s.chemins} · ${s.operations ?? '—'}`}
+                        </td>
+                        {/* `V-06` — « exposé depuis », pas « déployé le ».
+                            La nuance n'est pas cosmétique : cette date est
+                            celle de la PREMIÈRE apparition publique de l'hôte
+                            (journaux de transparence des certificats), pas
+                            celle du dernier déploiement de code. La confondre
+                            afficherait un faux. Un tiret quand la source ne
+                            porte rien — jamais une date approchée. */}
+                        <td
+                          className="text-[11px] whitespace-nowrap"
+                          style={{ color: 'var(--text-secondary)', fontVariantNumeric: 'tabular-nums' }}
+                          title={s.expose_depuis ? t('ver_expose_aide') : undefined}
+                        >
+                          {s.expose_depuis ?? '—'}
                         </td>
                         <td className="text-[11px]" style={{ color: 'var(--text-secondary)' }}>
                           {s.commentaire}

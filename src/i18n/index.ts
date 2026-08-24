@@ -97,6 +97,9 @@ export const translations = {
     svc_depositary: 'Dépositaires',
     svc_client: 'Clients',
     svc_collect: 'Collectes',
+    svc_ussd: 'Canal USSD',
+    svc_bulk_paiement: 'Paiements de masse',
+    svc_notification: 'Notifications',
     svc_faker: 'Générateur Faker',
     dash_kpi_title: 'Compteurs du dernier run',
     dash_kpi_branches: 'Branches',
@@ -474,6 +477,9 @@ export const translations = {
     ver_col_service: 'Service',
     ver_col_version: 'Version',
     ver_col_chemins: 'Chemins · opérations',
+    ver_col_expose: 'Exposé depuis',
+    ver_expose_aide:
+      'Première apparition publique de l’hôte, d’après les journaux de transparence des certificats. Ce n’est pas la date du dernier déploiement de code.',
     ver_col_commentaire: 'Commentaire',
     // Globe — commandes de carte (23/08)
     globe_zoom_aria: 'Commandes de la carte',
@@ -989,6 +995,9 @@ export const translations = {
     svc_depositary: 'Depositaries',
     svc_client: 'Clients',
     svc_collect: 'Collections',
+    svc_ussd: 'USSD channel',
+    svc_bulk_paiement: 'Bulk payments',
+    svc_notification: 'Notifications',
     svc_faker: 'Faker generator',
     dash_kpi_title: 'Latest run counters',
     dash_kpi_branches: 'Branches',
@@ -1364,6 +1373,9 @@ export const translations = {
     ver_col_service: 'Service',
     ver_col_version: 'Version',
     ver_col_chemins: 'Paths · operations',
+    ver_col_expose: 'Exposed since',
+    ver_expose_aide:
+      'First public appearance of the host, from certificate transparency logs. This is not the date of the last code deployment.',
     ver_col_commentaire: 'Comment',
     // Globe — map controls (23/08)
     globe_zoom_aria: 'Map controls',
