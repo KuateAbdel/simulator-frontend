@@ -211,44 +211,41 @@ export function Purge() {
               discipline que partout ailleurs : l'ecran explique, il ne laisse
               jamais deviner. */}
           <div className="border-t mt-4 pt-4" style={{ borderColor: 'var(--border)' }}>
-            {etape.vue.purgeable.groupes.length === 0 ? (
-              <p className="text-xs mb-3" style={{ color: 'var(--text-secondary)' }}>
+            <label className="flex items-start gap-2 text-xs mb-2" style={{ color: 'var(--text-primary)', cursor: 'pointer' }}>
+              <input
+                type="checkbox"
+                checked={caseCochee}
+                onChange={(e) => setCaseCochee(e.target.checked)}
+              />
+              <span>
+                {t('pur_case')} ({etape.vue.purgeable.groupes.length})
+              </span>
+            </label>
+            {etape.vue.purgeable.groupes.length === 0 && (
+              <p className="text-[10px] mb-3" style={{ color: 'var(--text-muted)' }}>
                 {t('pur_rien_explication')}
               </p>
-            ) : (
-              <label className="flex items-start gap-2 text-xs mb-3" style={{ color: 'var(--text-primary)', cursor: 'pointer' }}>
-                <input
-                  type="checkbox"
-                  checked={caseCochee}
-                  onChange={(e) => setCaseCochee(e.target.checked)}
-                />
-                <span>
-                  {t('pur_case')} ({etape.vue.purgeable.groupes.length})
-                </span>
-              </label>
             )}
             <div className="flex gap-2">
               <button className="btn-ghost text-xs" style={{ height: 32 }} onClick={() => setEtape({ phase: 'accueil' })}>
                 {t('back')}
               </button>
-              {etape.vue.purgeable.groupes.length > 0 && (
-                <button
-                  className="text-xs font-semibold rounded-lg px-4"
-                  style={{
-                    height: 32,
-                    border: 'none',
-                    background: '#b91c1c',
-                    color: '#fff',
-                    cursor: caseCochee ? 'pointer' : 'default',
-                    opacity: caseCochee && !envoi ? 1 : 0.5,
-                  }}
-                  disabled={!caseCochee || envoi}
-                  onClick={() => setConfirmerOuvert(true)}
-                >
-                  <ShieldAlert size={12} style={{ display: 'inline', marginRight: 4 }} />
-                  {t('pur_executer')}
-                </button>
-              )}
+              <button
+                className="text-xs font-semibold rounded-lg px-4"
+                style={{
+                  height: 32,
+                  border: 'none',
+                  background: '#b91c1c',
+                  color: '#fff',
+                  cursor: caseCochee ? 'pointer' : 'default',
+                  opacity: caseCochee && !envoi ? 1 : 0.5,
+                }}
+                disabled={!caseCochee || envoi}
+                onClick={() => setConfirmerOuvert(true)}
+              >
+                <ShieldAlert size={12} style={{ display: 'inline', marginRight: 4 }} />
+                {t('pur_executer')}
+              </button>
             </div>
           </div>
         </Card>
