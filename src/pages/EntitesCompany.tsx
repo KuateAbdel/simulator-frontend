@@ -16,9 +16,11 @@ import {
   apercuCompany,
   creerCompany,
   lireCatalogueStatique,
+  lireFichesPays,
   lireGeographie,
   type CatalogueStatique,
   type CompanyDemande,
+  type FichePays,
   type DiffRelecture,
   type OwnerOverride,
   type VueGeographie,
@@ -51,7 +53,18 @@ type Etape =
       note: string
     }
 
-const PAYS: Pays[] = ['CM', 'CI', 'BF', 'SN']
+// LA LISTE DES PAYS N'EST PLUS FIGEE (24/08, signale par Yaniv).
+//
+// `const PAYS = ['CM','CI','BF','SN']` figeait l'ecran sur quatre pays alors
+// que le backend avait retire ce verrou le 22/08 : les quatre etaient le
+// PREMIER USAGE, jamais une constante de conception. Consequence : mettre un
+// 5e pays en operation depuis le Loader ne changeait RIEN a cet ecran — on ne
+// pouvait pas y creer de company, sans qu'aucun message ne l'explique.
+//
+// La liste vient desormais de `GET /admin/referentiels/pays`, et ne garde que
+// les pays EN OPERATION (`sur_config_service`) : c'est exactement la regle que
+// le backend applique (`_exiger_pays_operationnel`). Offrir un pays qu'il
+// refusera ensuite ferait cliquer pour rien.
 
 /** Sélecteur multi-valeurs alimenté par le référentiel : une LISTE DÉROULANTE
  * pour AJOUTER, des puces pour voir/retirer. Composant module-level (jamais
@@ -243,7 +256,7 @@ function OwnerEditor({
 }
 
 export function EntitesCompany() {
-  const { t } = useApp()
+  const { t, setCurrentPage } = useApp()
   const { pousser } = useToast()
   const messageDe = useMessageDe()
   const [geo, setGeo] = useState<VueGeographie | null>(null)
@@ -253,8 +266,12 @@ export function EntitesCompany() {
   const [confirmerOuvert, setConfirmerOuvert] = useState(false)
   const [fautes, setFautes] = useState<string[]>([])
 
+  // Les pays EN OPERATION — la MEME regle que le backend applique. Vide tant
+  // que la lecture n'a pas repondu : on ne prejuge d'aucun pays.
+  const [paysOperationnels, setPaysOperationnels] = useState<FichePays[] | null>(null)
+
   const [fType, setFType] = useState<TypeCompany>('IMF')
-  const [fPays, setFPays] = useState<Pays>('CM')
+  const [fPays, setFPays] = useState<Pays>('')
   const [fVille, setFVille] = useState('')
   const [fNom, setFNom] = useState('')
   // « Regenerer une variante » : meme demande+variante = meme fiche (CR-03) ;
@@ -276,6 +293,37 @@ export function EntitesCompany() {
     void lireCatalogueStatique()
       .then(setCatalogue)
       .catch(() => setCatalogue(null))
+  }, [])
+
+  // LES PAYS OFFERTS SONT CEUX QUI SONT EN OPERATION, verifie EN DIRECT par le
+  // backend (`sur_config_service`). Un pays porte par le Loader mais absent de
+  // la plateforme serait refuse a la creation : l'offrir ferait cliquer pour
+  // rien. Le premier pays disponible est preselectionne — jamais « CM » en dur.
+  // TROIS ETATS, JAMAIS CONFONDUS — un select vide et muet est un cul-de-sac :
+  //   des pays en operation  -> on les offre
+  //   aucun pays en operation -> on le DIT, avec le geste (« pousser un pays »)
+  //   plateforme MUETTE       -> `sur_config_service` vaut null : on ne sait
+  //                              pas, et on le dit. Offrir « tous les pays du
+  //                              Loader » serait inventer une operation qu'on
+  //                              n'a pas verifiee.
+  const [paysMuet, setPaysMuet] = useState(false)
+
+  useEffect(() => {
+    void lireFichesPays()
+      .then((reponse) => {
+        const enOperation = reponse.pays.filter((p) => p.sur_config_service === true)
+        setPaysMuet(reponse.pays.some((p) => p.sur_config_service === null))
+        setPaysOperationnels(enOperation)
+        setFPays((courant) =>
+          courant && enOperation.some((p) => p.iso2 === courant)
+            ? courant
+            : (enOperation[0]?.iso2 ?? ''),
+        )
+      })
+      .catch(() => {
+        setPaysOperationnels([])
+        setPaysMuet(true)
+      })
   }, [])
 
   const optIndustries = useMemo(() => {
@@ -491,6 +539,33 @@ export function EntitesCompany() {
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
             <div>
               <ChampLabel texte={t('geo_pays_champ')} requis />
+              {/* QUATRIEME ETAT : LE CHARGEMENT. Oublie a la premiere version —
+                  l'ecran restait un select VIDE et MUET pendant que la lecture
+                  courait (config-service peut mettre plusieurs secondes). Un
+                  select vide sans explication se lit comme une panne. */}
+              {paysOperationnels === null && (
+                <p className="text-[11px] mb-1" style={{ color: 'var(--text-muted)' }}>
+                  {t('cmp_pays_chargement')}
+                </p>
+              )}
+              {paysOperationnels !== null && paysOperationnels.length === 0 && (
+                <Banniere ton={paysMuet ? 'info' : 'attention'}>
+                  {paysMuet ? (
+                    t('cmp_pays_muet')
+                  ) : (
+                    <>
+                      {t('cmp_aucun_pays_operation')}{' '}
+                      <button
+                        className="underline font-semibold"
+                        style={{ background: 'none', border: 'none', color: 'inherit', cursor: 'pointer', padding: 0 }}
+                        onClick={() => setCurrentPage('ref-pays-monnaies')}
+                      >
+                        {t('cmp_aller_pousser')}
+                      </button>
+                    </>
+                  )}
+                </Banniere>
+              )}
               <select
                 className="input-base"
                 value={fPays}
@@ -499,7 +574,8 @@ export function EntitesCompany() {
                   setFVille('')
                 }}
               >
-                {PAYS.map((code) => (
+                {paysOperationnels === null && <option value="">{t('cmp_pays_chargement')}</option>}
+                {(paysOperationnels ?? []).map(({ iso2: code }) => (
                   <option key={code} value={code}>
                     {code}
                   </option>
@@ -630,7 +706,7 @@ export function EntitesCompany() {
                   setFVille('')
                 }}
               >
-                {PAYS.map((code) => (
+                {(paysOperationnels ?? []).map(({ iso2: code }) => (
                   <option key={code} value={code}>
                     {code}
                   </option>

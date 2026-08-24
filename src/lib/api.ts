@@ -1150,7 +1150,12 @@ export function creerProduit(demande: ProduitDemande): Promise<{
 /** US-D1 — 3-4 champs saisis, ~40 composes par le Loader (sequence S3-03). */
 export type CompanyDemande = {
   type_company: 'IMF' | 'BANK' | 'MERCHANT' | 'FONDATION'
-  pays: 'CM' | 'CI' | 'BF' | 'SN'
+  /** ISO2, LIBRE — le verrou statique `'CM' | 'CI' | 'BF' | 'SN'` est RETIRE
+   *  (24/08). Le backend l'a retire le 22/08 : les 4 pays etaient le PREMIER
+   *  USAGE, jamais une constante de conception, et il valide `^[A-Z]{2}$` puis
+   *  applique la regle VIVANTE (`_exiger_pays_operationnel`). Ce type figeait
+   *  l'ecran sur quatre pays alors qu'on peut en mettre 48 en operation. */
+  pays: string
   ville: string
   /** Raison sociale imposee — sinon le Loader la compose (patronyme reel). */
   nom?: string

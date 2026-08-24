@@ -156,8 +156,18 @@ export function EntitesDepositaire() {
   // foi d'une information qu'on n'a pas.
   const companiesDuPays = useMemo(() => {
     if (!matiere) return []
-    if (!fPays) return matiere.companies
-    return matiere.companies.filter((c) => !c.pays || c.pays === fPays)
+    return matiere.companies.filter((c) => {
+      // ACTIVES SEULEMENT (demande Yaniv, 24/08). `actif === false` est un
+      // fait mesure : la company est desactivee la-bas, lui rattacher un
+      // kiosque n'a pas de sens. `actif === null/undefined` veut dire que la
+      // fiche plateforme ne porte PAS l'information — on ne cache pas une
+      // company reelle sur la foi d'une donnee qu'on n'a pas.
+      if (c.actif === false) return false
+      // DU PAYS CHOISI. Une company sans pays connu (absente de
+      // `lenders_registry`) reste offerte, meme raison.
+      if (fPays && c.pays && c.pays !== fPays) return false
+      return true
+    })
   }, [matiere, fPays])
 
   const demande = () => ({ quartier_id: fQuartier, company_id: fCompany })
@@ -319,6 +329,9 @@ export function EntitesDepositaire() {
                           <option key={company.id} value={company.id}>
                             {company.nom}
                             {company.pays ? ` (${company.pays})` : ''}
+                            {company.actif === null || company.actif === undefined
+                              ? ` — ${t('dep_etat_inconnu')}`
+                              : ''}
                           </option>
                         ))}
                       </select>
