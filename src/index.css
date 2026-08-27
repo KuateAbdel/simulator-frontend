@@ -16,6 +16,20 @@
   --text-secondary: #6b5b8e;
   --text-muted: #a599be;
   --radius: 12px;
+
+  /* ── Échelle typographique (conception attribution, 27/08) ──────────────
+     Cinq jetons NOMMENT des tailles déjà présentes dans ce fichier — aucune
+     valeur n'est inventée, on donne un nom à l'existant pour que les écrans
+     nouveaux cessent d'écrire des tailles au cas par cas. Seul --fs-kpi est
+     neuf : la valeur d'indicateur, un cran au-dessus du titre. Les règles
+     existantes ne sont PAS réécrites ici (chantier séparé, comme les deux
+     vérités de jeton). */
+  --fs-etiquette: 0.72rem; /* badges, en-têtes de colonne */
+  --fs-note: 0.78rem;      /* notes, pagination */
+  --fs-corps: 0.83rem;     /* tableaux, sous-titres */
+  --fs-champ: 0.875rem;    /* boutons, champs */
+  --fs-titre: 1.25rem;     /* titres de section */
+  --fs-kpi: 1.6rem;        /* NEUF — la valeur d'un indicateur */
   --shadow: 0 2px 16px rgba(198, 140, 255, 0.12);
   --shadow-md: 0 4px 32px rgba(198, 140, 255, 0.18);
 
@@ -27,6 +41,11 @@
      rendaient noir). Un token doit exister avant d'etre utilise. */
   --danger: #b91c1c;
   --danger-soft: #fee2e2;
+  /* Texte posé SUR un fond --danger (bouton destructif plein). Un littéral
+     blanc serait illisible en sombre : là-bas --danger est un rouge CLAIR,
+     et c'est un texte foncé qui tient le contraste (conception attribution,
+     diapo 8 : 7,9:1 clair · 8,6:1 sombre — calculés, pas supposés). */
+  --sur-danger: #ffffff;
   --warning: #92400e;
   --warning-soft: #fef9c3;
   --success: #15803d;
@@ -56,6 +75,7 @@
      un rouge de mode clair sur fond violet-nuit devient illisible. */
   --danger: #f19a92;
   --danger-soft: #40201d;
+  --sur-danger: #2a0f0d;
   --warning: #e0b463;
   --warning-soft: #3a2e15;
   --success: #6ee7a8;
@@ -207,6 +227,115 @@ html, body, #root {
   border-color: var(--primary);
   color: var(--primary-dark);
   background: var(--primary-light);
+}
+
+/* ── Bouton destructif (conception attribution, 27/08) ──────────────────
+   Il n'existait PAS : la Purge composait son rouge à la main. Il entre dans
+   le vocabulaire commun, aux côtés de .btn-primary/.btn-secondary/.btn-ghost.
+   Trois états — plein, contour, désactivé — sur les jetons --danger/--sur-
+   danger, qui existent dans LES DEUX thèmes depuis le 24/08 (un jeton doit
+   exister avant d'être utilisé). */
+.btn-danger {
+  background: var(--danger);
+  color: var(--sur-danger);
+  border: 1.5px solid var(--danger);
+  border-radius: 8px;
+  padding: 8px 18px;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 600;
+  font-size: var(--fs-champ);
+  cursor: pointer;
+  transition: box-shadow 0.2s ease, transform 0.1s ease, opacity 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.btn-danger:hover:not(:disabled) {
+  box-shadow: 0 4px 16px color-mix(in srgb, var(--danger) 40%, transparent);
+  transform: translateY(-1px);
+}
+.btn-danger:active:not(:disabled) { transform: translateY(0); }
+
+.btn-danger-contour {
+  background: transparent;
+  color: var(--danger);
+  border: 1.5px solid var(--danger);
+  border-radius: 8px;
+  padding: 7px 16px;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 600;
+  font-size: var(--fs-champ);
+  cursor: pointer;
+  transition: background 0.2s ease, opacity 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.btn-danger-contour:hover:not(:disabled) { background: var(--danger-soft); }
+
+.btn-danger:disabled,
+.btn-danger-contour:disabled {
+  opacity: 0.4;
+  cursor: default;
+  transform: none;
+  box-shadow: none;
+}
+
+/* ── Panneau latéral (conception attribution, 27/08) ────────────────────
+   Le dossier s'ouvre SANS faire perdre la liste : 420 px au-delà de 1024,
+   380 px avec fond estompé entre 768 et 1023, plein écran en dessous. Le
+   voile capte le clic hors panneau (fermeture) — transparent en large où
+   la liste doit rester lisible, estompé quand l'espace se resserre. */
+.panneau-voile {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  background: transparent;
+}
+.panneau-lateral {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 61;
+  width: 420px;
+  max-width: 100vw;
+  background: var(--bg);
+  border-left: 1px solid var(--border);
+  box-shadow: var(--shadow-md);
+  display: flex;
+  flex-direction: column;
+  animation: panneauEntre 0.25s ease-out both;
+}
+@keyframes panneauEntre {
+  from { transform: translateX(24px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+@media (max-width: 1023px) {
+  .panneau-voile { background: rgba(0, 0, 0, 0.35); }
+  .panneau-lateral { width: 380px; }
+}
+@media (max-width: 767px) {
+  .panneau-lateral { width: 100%; border-left: none; }
+}
+.panneau-tete {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.panneau-corps {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 20px;
+}
+.panneau-pied {
+  padding: 14px 20px;
+  border-top: 1px solid var(--border);
+  flex-shrink: 0;
+  background: var(--surface);
 }
 
 /* Sidebar */
