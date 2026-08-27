@@ -33,6 +33,7 @@ import { Tracabilite } from './pages/Tracabilite'
 import { Inventaire } from './pages/Inventaire'
 import { Purge } from './pages/Purge'
 import { EnConstruction } from './pages/EnConstruction'
+import { AttributionBaux } from './pages/AttributionBaux'
 import { SectionOnglets } from './components/SectionOnglets'
 
 function Router() {
@@ -80,6 +81,26 @@ function Router() {
           { page: 'ref-pays-monnaies', element: <RefPaysMonnaies /> },
           { page: 'ref-telcos', element: <RefTelcos /> },
           { page: 'ref-catalogue', element: <RefCatalogue /> },
+        ]}
+      />
+    )
+  if (
+    ['attribution-vue', 'attribution-baux', 'attribution-population', 'attribution-journal'].includes(
+      currentPage,
+    )
+  )
+    return (
+      <SectionOnglets
+        pages={[
+          // Les écrans non livrés rendent EnConstruction — une porte honnête,
+          // jamais une page blanche. Chaque PR d'écran en remplace un.
+          { page: 'attribution-vue', element: <EnConstruction page="attribution-vue" /> },
+          { page: 'attribution-baux', element: <AttributionBaux /> },
+          {
+            page: 'attribution-population',
+            element: <EnConstruction page="attribution-population" />,
+          },
+          { page: 'attribution-journal', element: <EnConstruction page="attribution-journal" /> },
         ]}
       />
     )
