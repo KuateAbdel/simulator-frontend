@@ -1454,3 +1454,67 @@ export async function reprendreBaux(
     body: { msisdns, motif },
   })
 }
+
+/** Un bloc du dossier : sa donnée, OU sa raison d'absence — jamais ni l'un
+ *  ni l'autre en silence (AFF-06 appliquée au transport). */
+export type BlocDossier<T> = ({ present: true } & T) | { present: false; raison: string }
+
+export interface DossierClient {
+  entete: {
+    msisdn: string
+    interlocuteur: string | null
+    profil: { pays: string; genre: string; categorie: string } | null
+    appareil: string | null
+    attribue_le: string
+    expire_le: string
+    etat: 'actif' | 'echu'
+    releve_le: string
+    langue: string | null
+    segment: string | null
+  }
+  identite: BlocDossier<Record<string, unknown>>
+  territoire: {
+    present: boolean
+    rattachement: {
+      rattache_au_kiosque: string | null
+      quartier: string | null
+      ville: string | null
+      region: string | null
+      pays: string | null
+    } | null
+    adresse: Record<string, unknown> | null
+  }
+  compte: BlocDossier<{
+    balance: number
+    balance_avail?: number
+    currency: string
+    status: string
+    account_number?: string
+    direct_momo?: boolean
+    type?: string
+  }>
+  produits: BlocDossier<{ souscrits: { name?: string; type?: string; description?: string }[] }>
+  epargne: BlocDossier<{ collectes: unknown[]; note: string | null }>
+  releve: { disponible: boolean; route: string }
+}
+
+export async function dossierClient(msisdn: string): Promise<DossierClient> {
+  return api<DossierClient>(`/admin/attributions/${msisdn}/dossier`)
+}
+
+export interface LigneReleve {
+  reference?: string
+  type?: string
+  sens?: string
+  amount?: number
+  fees?: number
+  label?: string
+  status?: string
+  created_at?: string
+}
+
+export async function releveClient(
+  msisdn: string,
+): Promise<{ operations: BlocDossier<{ lignes: LigneReleve[]; total: number }> }> {
+  return api(`/admin/attributions/${msisdn}/releve`)
+}

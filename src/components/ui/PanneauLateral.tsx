@@ -17,6 +17,7 @@
 // Une ref garde la dernière valeur ; l'effet ne tourne qu'à l'ouverture.
 
 import { useEffect, useRef, type ReactNode } from 'react'
+import { createPortal } from 'react-dom'
 import { X } from 'lucide-react'
 
 export function PanneauLateral({
@@ -87,7 +88,12 @@ export function PanneauLateral({
 
   if (!ouvert) return null
 
-  return (
+  // PORTAIL vers <body> — leçon du banc (27/08) : l'écran hôte porte une
+  // animation d'entrée dont le `transform` résiduel (fill: both) fait de lui
+  // le référent des `position: fixed`. Le panneau s'y retrouvait ENCASTRÉ
+  // dans la zone de contenu au lieu de couvrir la fenêtre. Le portail rend
+  // le composant indifférent à tout conteneur — même remède que les toasts.
+  return createPortal(
     <>
       {/* Le voile capte le CLIC HORS PANNEAU — transparent en large (la
           liste reste lisible), estompé sous 1024 (index.css). */}
@@ -129,6 +135,7 @@ export function PanneauLateral({
         <div className="panneau-corps">{children}</div>
         {pied && <div className="panneau-pied">{pied}</div>}
       </div>
-    </>
+    </>,
+    document.body,
   )
 }
