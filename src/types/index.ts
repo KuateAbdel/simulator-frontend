@@ -24,6 +24,10 @@ export type Page =
   | 'inventaire' // reconciliation 4 statuts + adoption A-13
   | 'tracabilite' // US-E4
   | 'purge' // US-F1/F2
+  | 'attribution-vue' // FZ-SPEC-DASHATTRIB §5.1 — le système tient-il ?
+  | 'attribution-baux' // §5.2 — qui détient quoi, combien de temps reste-t-il ?
+  | 'attribution-population' // §5.4 — quelles combinaisons sont fragiles ?
+  | 'attribution-journal' // §5.5 — que s'est-il passé, y compris les échecs ?
 
 /** Les 3 roles RBAC du Loader (matrice FZ-RBAC-LOADER). Ordre de privilege
  *  croissant : viewer < admin < super_admin. C'est le backend (403) qui fait

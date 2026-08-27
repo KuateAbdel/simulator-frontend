@@ -21,6 +21,7 @@ import {
   Network,
   PlayCircle,
   Settings2,
+  Smartphone,
   UserCog,
 } from 'lucide-react'
 import type { Page, RoleLoader } from '../../types'
@@ -48,6 +49,10 @@ export const PAGE_META: Record<Page, { labelKey: TranslationKey; stories: string
   inventaire: { labelKey: 'nav_inventaire', stories: 'A-13 · réconciliation' },
   tracabilite: { labelKey: 'nav_tracabilite', stories: 'US-E4' },
   purge: { labelKey: 'nav_purge', stories: 'US-F1 · US-F2' },
+  'attribution-vue': { labelKey: 'nav_attr_vue', stories: 'DASH §5.1' },
+  'attribution-baux': { labelKey: 'nav_attr_baux', stories: 'DASH §5.2' },
+  'attribution-population': { labelKey: 'nav_attr_population', stories: 'DASH §5.4' },
+  'attribution-journal': { labelKey: 'nav_attr_journal', stories: 'DASH §5.5' },
 }
 
 export interface NavItem {
@@ -65,8 +70,13 @@ export interface NavItem {
   roleMin?: RoleLoader
 }
 
-/** Les 8 entrees de la sidebar — jamais plus (regle Yaniv 20/08 : un besoin
- *  nouveau devient un ONGLET d'une section existante, pas une entree). */
+/** Les 9 entrees de la sidebar. La regle du 20/08 disait huit — la
+ *  DEROGATION du 27/08 (Yaniv) est assumee et documentee : la regle existe
+ *  pour empecher l'accumulation de petits sujets, pas pour enterrer un
+ *  domaine entier. L'attribution a quatre ecrans, un cycle de vie propre et
+ *  des interlocuteurs EXTERIEURS a FinZuu ; pendant une campagne c'est
+ *  l'ecran ouvert plusieurs fois par jour — l'enfouir a deux clics coute
+ *  tous les jours. Tout besoin suivant redevient un onglet. */
 export const NAV_ITEMS: NavItem[] = [
   { page: 'tableau-de-bord', labelKey: 'nav_dashboard', icon: LayoutDashboard, stories: 'US-E1' },
   {
@@ -98,6 +108,22 @@ export const NAV_ITEMS: NavItem[] = [
     pages: ['ref-geographie', 'ref-pays-monnaies', 'ref-telcos', 'ref-catalogue'],
   },
   { page: 'configuration', labelKey: 'nav_configuration', icon: Settings2, stories: 'US-B1 · US-B2 · US-B3' },
+  {
+    page: 'attribution-baux',
+    labelKey: 'nav_group_attribution',
+    icon: Smartphone,
+    stories: 'FZ-SPEC-DASHATTRIB-2026-001',
+    pages: [
+      'attribution-vue',
+      'attribution-baux',
+      'attribution-population',
+      'attribution-journal',
+    ],
+    // RBAC — arbitrage Yaniv 27/08 : le tableau de bord montre des etats
+    // civils complets et des soldes. Un role lecteur n'y accede pas ; l'API
+    // (exige_admin) reste seule juge, ceci n'est que la projection.
+    roleMin: 'admin',
+  },
   {
     page: 'inventaire',
     labelKey: 'nav_inventaire_purge',

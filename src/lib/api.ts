@@ -1373,3 +1373,84 @@ export function listerVersions(): Promise<ReponseVersions> {
 export function releverVersions(): Promise<ReponseVersions> {
   return api('/admin/versions/relever', { method: 'POST' })
 }
+
+// ─────────────────────────────────────────────────────────────────────────
+// Attribution — le tableau de bord (FZ-SPEC-DASHATTRIB-2026-001)
+// ─────────────────────────────────────────────────────────────────────────
+
+/** Un bail tel que le recensement le rend — les champs du contrat 0.4 plus
+ *  la face d'exploitation (territoire joint localement, interlocuteur,
+ *  durée accordée vs courante). */
+export interface BailAttribution {
+  msisdn: string
+  attribution_id: string
+  profil: { pays: string; genre: string; categorie: string } | null
+  appareil: string | null
+  attribue_le: string
+  expire_le: string
+  cle_idempotence: string | null
+  accorde_pour_jours: number
+  jours_si_attribue_maintenant: number
+  sous_ancien_reglage: boolean
+  interlocuteur: string | null
+  territoire: {
+    rattache_au_kiosque: string | null
+    quartier: string | null
+    ville: string | null
+    region: string | null
+    pays: string | null
+  } | null
+  etat: 'actif' | 'echu'
+}
+
+export interface RecensementBaux {
+  baux: BailAttribution[]
+  actifs: number
+  sous_ancien_reglage: number
+  reglage_courant: { jours_defaut: number; par_pays: Record<string, number> }
+  /** L'HORLOGE DU SERVEUR au relevé — le compte à rebours se cale sur elle,
+   *  jamais sur le poste (contrat §3 : le serveur est la seule autorité). */
+  releve_le: string
+  note: string
+}
+
+export async function listerBauxAttribution(
+  etat: 'actifs' | 'echus' | 'tous',
+): Promise<RecensementBaux> {
+  return api<RecensementBaux>(`/admin/attributions?etat=${etat}`)
+}
+
+export async function nommerInterlocuteur(
+  msisdn: string,
+  interlocuteur: string,
+): Promise<{ msisdn: string; interlocuteur: string | null }> {
+  return api(`/admin/attributions/${msisdn}/interlocuteur`, {
+    method: 'PUT',
+    body: { interlocuteur },
+  })
+}
+
+/** La reprise d'UN bail depuis l'administration — super_admin, motif
+ *  obligatoire. Le journal la distingue du « rendu par l'appareil ». */
+export async function reprendreBail(
+  msisdn: string,
+  motif: string,
+): Promise<{ msisdn: string }> {
+  return api(`/admin/attributions/${msisdn}`, { method: 'DELETE', body: { motif } })
+}
+
+export interface IssueRevocation {
+  msisdn: string
+  issue: 'revoque' | 'aucun_bail_actif'
+}
+
+/** La fin d'étape : plusieurs baux d'un geste, issue PAR numéro. */
+export async function reprendreBaux(
+  msisdns: string[],
+  motif: string,
+): Promise<{ issues: IssueRevocation[]; revoques: number; sans_bail: number }> {
+  return api('/admin/attributions/revocations', {
+    method: 'POST',
+    body: { msisdns, motif },
+  })
+}
