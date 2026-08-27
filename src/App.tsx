@@ -34,6 +34,7 @@ import { Inventaire } from './pages/Inventaire'
 import { Purge } from './pages/Purge'
 import { EnConstruction } from './pages/EnConstruction'
 import { AttributionBaux } from './pages/AttributionBaux'
+import { AttributionPopulation } from './pages/AttributionPopulation'
 import { SectionOnglets } from './components/SectionOnglets'
 
 function Router() {
@@ -96,10 +97,7 @@ function Router() {
           // jamais une page blanche. Chaque PR d'écran en remplace un.
           { page: 'attribution-vue', element: <EnConstruction page="attribution-vue" /> },
           { page: 'attribution-baux', element: <AttributionBaux /> },
-          {
-            page: 'attribution-population',
-            element: <EnConstruction page="attribution-population" />,
-          },
+          { page: 'attribution-population', element: <AttributionPopulation /> },
           { page: 'attribution-journal', element: <EnConstruction page="attribution-journal" /> },
         ]}
       />

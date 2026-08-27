@@ -1518,3 +1518,26 @@ export async function releveClient(
 ): Promise<{ operations: BlocDossier<{ lignes: LigneReleve[]; total: number }> }> {
   return api(`/admin/attributions/${msisdn}/releve`)
 }
+
+export interface CombinaisonPopulation {
+  pays: string
+  pays_libelle: string
+  genre: string
+  categorie: string
+  total: number
+  attribues: number
+  libres: number
+}
+
+export interface PopulationAttribution {
+  combinaisons: CombinaisonPopulation[]
+  total_clients: number
+  total_attribues: number
+  total_libres: number
+  combinaisons_epuisees: number
+  releve_le: string
+}
+
+export async function populationAttribution(): Promise<PopulationAttribution> {
+  return api<PopulationAttribution>('/admin/attributions/population')
+}
