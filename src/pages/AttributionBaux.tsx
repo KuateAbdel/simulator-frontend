@@ -33,6 +33,7 @@ import {
 import { Card, EmptyState, SectionHeader } from '../components/ui'
 import { Banniere, ConfirmDialog, Skeleton, useToast } from '../components/ui/loader'
 import { CompteARebours } from '../components/CompteARebours'
+import { DossierClient } from '../components/DossierClient'
 import { Pager } from '../components/Pager'
 import { usePagination } from '../hooks/usePagination'
 import { normaliser } from '../components/FiltreListe'
@@ -73,6 +74,7 @@ export function AttributionBaux() {
   const [echeance, setEcheance] = useState<EcheanceFiltre>('toutes')
   const [selection, setSelection] = useState<Set<string>>(new Set())
 
+  const [dossierOuvert, setDossierOuvert] = useState<string | null>(null)
   const [aReprendre, setAReprendre] = useState<string[] | null>(null)
   const [motif, setMotif] = useState('')
   const [repriseEnCours, setRepriseEnCours] = useState(false)
@@ -207,6 +209,7 @@ export function AttributionBaux() {
       setAReprendre(null)
       setMotif('')
       setSelection(new Set())
+      setDossierOuvert((ouvert) => (ouvert && aReprendre.includes(ouvert) ? null : ouvert))
       await charger(true)
     } catch {
       pousser('erreur', t('attr_erreur_chargement'))
@@ -369,6 +372,7 @@ export function AttributionBaux() {
                       coche={selection.has(bail.msisdn)}
                       surCocher={() => basculerSelection(bail.msisdn)}
                       surReprendre={() => setAReprendre([bail.msisdn])}
+                      surOuvrir={() => setDossierOuvert(bail.msisdn)}
                       formaterDate={formaterDate}
                       peutEcrire={peutEcrire}
                       estSuperAdmin={estSuperAdmin}
@@ -386,6 +390,13 @@ export function AttributionBaux() {
           </>
         )}
       </Card>
+
+      <DossierClient
+        msisdn={dossierOuvert}
+        onClose={() => setDossierOuvert(null)}
+        onReprendre={(numero) => setAReprendre([numero])}
+        estSuperAdmin={estSuperAdmin}
+      />
 
       <ConfirmDialog
         ouvert={aReprendre !== null}
@@ -429,7 +440,7 @@ export function AttributionBaux() {
 }
 
 function LigneBail({
-  bail, marque, decalageMs, coche, surCocher, surReprendre, formaterDate,
+  bail, marque, decalageMs, coche, surCocher, surReprendre, surOuvrir, formaterDate,
   peutEcrire, estSuperAdmin, surNomme,
 }: {
   bail: BailAttribution
@@ -438,6 +449,7 @@ function LigneBail({
   coche: boolean
   surCocher: () => void
   surReprendre: () => void
+  surOuvrir: () => void
   formaterDate: (iso: string) => string
   peutEcrire: boolean
   estSuperAdmin: boolean
@@ -511,8 +523,20 @@ function LigneBail({
           <span className="badge-primary" style={{ marginLeft: 6 }}>{marque}</span>
         )}
       </td>
-      <td className="font-mono" style={{ fontVariantNumeric: 'tabular-nums', whiteSpace: 'nowrap' }}>
-        {formaterNumero(bail.msisdn)}
+      <td style={{ whiteSpace: 'nowrap' }}>
+        <button
+          className="font-mono"
+          style={{
+            fontVariantNumeric: 'tabular-nums', background: 'none', border: 'none',
+            padding: 0, cursor: 'pointer', font: 'inherit', color: 'var(--primary-dark)',
+            fontFamily: "'JetBrains Mono', monospace",
+          }}
+          onClick={surOuvrir}
+          aria-label={`${t('dos_ouvrir')} ${formaterNumero(bail.msisdn)}`}
+          title={t('dos_ouvrir')}
+        >
+          {formaterNumero(bail.msisdn)}
+        </button>
       </td>
       <td style={{ whiteSpace: 'nowrap' }}>
         {bail.profil
