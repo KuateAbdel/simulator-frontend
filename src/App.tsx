@@ -35,6 +35,8 @@ import { Purge } from './pages/Purge'
 import { EnConstruction } from './pages/EnConstruction'
 import { AttributionBaux } from './pages/AttributionBaux'
 import { AttributionPopulation } from './pages/AttributionPopulation'
+import { AttributionVue } from './pages/AttributionVue'
+import { AttributionJournal } from './pages/AttributionJournal'
 import { SectionOnglets } from './components/SectionOnglets'
 
 function Router() {
@@ -93,12 +95,10 @@ function Router() {
     return (
       <SectionOnglets
         pages={[
-          // Les écrans non livrés rendent EnConstruction — une porte honnête,
-          // jamais une page blanche. Chaque PR d'écran en remplace un.
-          { page: 'attribution-vue', element: <EnConstruction page="attribution-vue" /> },
+          { page: 'attribution-vue', element: <AttributionVue /> },
           { page: 'attribution-baux', element: <AttributionBaux /> },
           { page: 'attribution-population', element: <AttributionPopulation /> },
-          { page: 'attribution-journal', element: <EnConstruction page="attribution-journal" /> },
+          { page: 'attribution-journal', element: <AttributionJournal /> },
         ]}
       />
     )

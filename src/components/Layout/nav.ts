@@ -109,7 +109,7 @@ export const NAV_ITEMS: NavItem[] = [
   },
   { page: 'configuration', labelKey: 'nav_configuration', icon: Settings2, stories: 'US-B1 · US-B2 · US-B3' },
   {
-    page: 'attribution-baux',
+    page: 'attribution-vue',
     labelKey: 'nav_group_attribution',
     icon: Smartphone,
     stories: 'FZ-SPEC-DASHATTRIB-2026-001',

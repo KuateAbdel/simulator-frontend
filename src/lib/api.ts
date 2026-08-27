@@ -1541,3 +1541,21 @@ export interface PopulationAttribution {
 export async function populationAttribution(): Promise<PopulationAttribution> {
   return api<PopulationAttribution>('/admin/attributions/population')
 }
+
+export interface EvenementAttribution {
+  quand: string
+  operation: string
+  entite: string
+  cible: string
+  acteur: string | null
+  origine: 'appareil' | 'administration' | null
+  issue: string
+  motif: string | null
+  details: Record<string, unknown>
+}
+
+export async function journalAttribution(
+  limite = 200,
+): Promise<{ entrees: EvenementAttribution[]; total: number }> {
+  return api(`/admin/attributions/journal?limite=${limite}`)
+}

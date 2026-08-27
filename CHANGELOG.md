@@ -5,6 +5,43 @@ versionnage [SemVer](https://semver.org/lang/fr/). La version affichée dans
 l'app (bas de sidebar + login) vient de `package.json`, injectée au build
 avec le commit court — elle ne peut pas mentir.
 
+## [1.3.0] — 2026-08-27
+
+**Le tableau de bord d'attribution** — neuvième entrée de la barre latérale
+(dérogation à la règle des huit, documentée), quatre écrans, un dossier
+client. Spécification FZ-SPEC-DASHATTRIB-2026-001, conception v1.1.
+
+### Ajouté
+- **Vue d'ensemble** : quatre indicateurs (baux actifs, expirant sous 24 h,
+  clients disponibles, combinaisons épuisées — le dernier alerte en
+  `--warning`), histogramme des attributions sur 7 jours (dérivé des baux,
+  zéro appel de plus), cinq derniers événements.
+- **Baux actifs** : compte à rebours trois états calé sur l'horloge du
+  SERVEUR, recherche unique à trois champs (dit lequel a répondu),
+  filtres pays/échéance/état, interlocuteur en édition en place, reprise
+  unitaire et en lot (motif obligatoire, journalisé), export CSV.
+- **Dossier client** en panneau latéral : sept blocs, chaque bloc porte sa
+  donnée OU sa raison d'absence ; relevé à la demande ; solde toujours
+  RELU du compte (AFF-01) ; « Rattachée au kiosque », jamais « active
+  chez » (AFF-04).
+- **Population** : les combinaisons par pays, dérivées des données ;
+  l'épuisement dit sa conséquence.
+- **Journal** : attributions, libérations AVEC LEUR ORIGINE (« Rendu par
+  l'appareil » ≠ « Repris depuis l'administration »), expirations dérivées
+  des baux échus, refus.
+- **Socle** : `.btn-danger` (plein/contour/désactivé, jeton `--sur-danger`
+  dans les deux thèmes), `PanneauLateral` (420/380 estompé/plein écran,
+  focus capturé puis rendu, portail vers body), échelle typographique
+  (6 jetons, seul `--fs-kpi` est neuf).
+
+### Décisions tenues
+- `peutEcrire` consommé : un lecteur ne voit aucune action d'écriture
+  active — plus strict que le reste du Loader, assumé.
+- Variables CSS uniquement ; aucun numéro, montant ou échéance en
+  `--text-muted` ; jamais `--danger` pour un cycle normal.
+- Leçon de banc : tout overlay passe par un portail — l'animation d'entrée
+  des écrans capture les `position: fixed`.
+
 ## [1.2.1] — 2026-08-20
 
 ### Modifié
