@@ -154,6 +154,9 @@ export function DossierClient({
                     ? `${dossier.entete.profil.pays} · ${dossier.entete.profil.genre} · ${dossier.entete.profil.categorie}`
                     : ''}
                   {dossier.entete.appareil ? ` · ${dossier.entete.appareil}` : ''}
+                  {dossier.entete.os
+                    ? ` · ${dossier.entete.os === 'ios' ? 'iOS' : 'Android'}`
+                    : ''}
                 </p>
               </div>
               <CompteARebours expireLe={dossier.entete.expire_le} decalageMs={decalageMs} />

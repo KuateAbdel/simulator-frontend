@@ -236,7 +236,7 @@ export function AttributionBaux() {
         cellule(
           bail.profil ? `${bail.profil.pays}/${bail.profil.genre}/${bail.profil.categorie}` : '',
         ),
-        cellule(bail.appareil),
+        cellule(bail.appareil ? `${bail.appareil}${bail.os ? ` (${bail.os})` : ''}` : bail.os),
         cellule(
           bail.territoire
             ? [bail.territoire.ville, bail.territoire.rattache_au_kiosque]
@@ -549,7 +549,21 @@ function LigneBail({
           ? `${bail.profil.pays} · ${bail.profil.genre === 'FEMALE' ? '♀' : '♂'} · ${bail.profil.categorie === 'CORPORATE' ? 'CORP' : 'INDIV'}`
           : t('attr_non_renseigne')}
       </td>
-      <td>{bail.appareil ?? <span style={{ color: 'var(--text-muted)' }}>{t('attr_non_renseigne')}</span>}</td>
+      <td style={{ whiteSpace: 'nowrap' }}>
+        {bail.appareil ?? (
+          <span style={{ color: 'var(--text-muted)' }}>{t('attr_non_renseigne')}</span>
+        )}
+        {/* Le TYPE d'OS, déduit par le serveur du User-Agent — jamais
+            demandé à l'application. Inconnu : rien, on n'invente pas. */}
+        {bail.os && (
+          <span
+            className={bail.os === 'ios' ? 'badge-primary' : 'badge-secondary'}
+            style={{ marginLeft: 6 }}
+          >
+            {bail.os === 'ios' ? 'iOS' : 'Android'}
+          </span>
+        )}
+      </td>
       <td style={{ whiteSpace: 'nowrap' }}>
         {territoire?.ville ?? territoire?.pays ?? (
           <span style={{ color: 'var(--text-muted)' }}>{t('attr_non_renseigne')}</span>

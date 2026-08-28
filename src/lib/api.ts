@@ -1389,6 +1389,8 @@ export interface BailAttribution {
   attribution_id: string
   profil: { pays: string; genre: string; categorie: string } | null
   appareil: string | null
+  /** Type d'OS DÉDUIT par le serveur du User-Agent — android / ios / null. */
+  os: 'android' | 'ios' | null
   attribue_le: string
   expire_le: string
   cle_idempotence: string | null
@@ -1468,6 +1470,7 @@ export interface DossierClient {
     interlocuteur: string | null
     profil: { pays: string; genre: string; categorie: string } | null
     appareil: string | null
+    os: 'android' | 'ios' | null
     attribue_le: string
     expire_le: string
     etat: 'actif' | 'echu'
