@@ -29,6 +29,8 @@ interface Ligne {
   numero: string | null
   origine: 'appareil' | 'administration' | 'systeme' | null
   detail: string | null
+  ip: string | null
+  ipPays: string | null
 }
 
 export function AttributionJournal() {
@@ -53,6 +55,8 @@ export function AttributionJournal() {
           numero: bail.msisdn,
           origine: 'systeme',
           detail: bail.interlocuteur,
+          ip: null,
+          ipPays: null,
         })),
       )
       setEnPanne(false)
@@ -89,6 +93,8 @@ export function AttributionJournal() {
               : genre === 'nommage'
                 ? ((e.details?.interlocuteur as string | undefined) ?? null)
                 : null,
+        ip: e.ip ?? null,
+        ipPays: e.ip_pays ?? null,
       }
     })
     return [...duJournal, ...(expirations ?? [])].sort(
@@ -96,7 +102,7 @@ export function AttributionJournal() {
     )
   }, [evenements, expirations])
 
-  const pagination = usePagination(lignes, 25)
+  const pagination = usePagination(lignes, 10)
   const chargement = evenements === null && !enPanne
 
   const formaterDate = useCallback(
@@ -157,6 +163,7 @@ export function AttributionJournal() {
                     <th>{t('ajr_evenement')}</th>
                     <th>{t('ajr_numero')}</th>
                     <th>{t('ajr_origine')}</th>
+                    <th>{t('ajr_connexion')}</th>
                     <th>{t('ajr_detail')}</th>
                   </tr>
                 </thead>
@@ -172,6 +179,27 @@ export function AttributionJournal() {
                       </td>
                       <td style={{ color: 'var(--text-secondary)' }}>
                         {ligne.origine ? t(`ajr_${ligne.origine}` as never) : ''}
+                      </td>
+                      <td style={{ whiteSpace: 'nowrap' }}>
+                        {/* Le PAYS d'abord — c'est lui que la Direction lit ;
+                            l'adresse en second, en chasse fixe. Une trace
+                            d'avant la capture n'invente rien. */}
+                        {ligne.ipPays && (
+                          <span className="badge-primary" style={{ marginRight: 6 }}>
+                            {ligne.ipPays}
+                          </span>
+                        )}
+                        {ligne.ip ? (
+                          <span className="font-mono" style={{ fontSize: 'var(--fs-etiquette)' }}>
+                            {ligne.ip}
+                          </span>
+                        ) : (
+                          !ligne.ipPays && (
+                            <span style={{ color: 'var(--text-muted)' }}>
+                              {t('attr_non_renseigne')}
+                            </span>
+                          )
+                        )}
                       </td>
                       <td style={{ maxWidth: 320, overflow: 'hidden', textOverflow: 'ellipsis' }}>
                         {ligne.genre === 'refus' ? '' : (ligne.detail ?? '')}
