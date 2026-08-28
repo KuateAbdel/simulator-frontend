@@ -1564,3 +1564,29 @@ export async function journalAttribution(
 ): Promise<{ entrees: EvenementAttribution[]; total: number }> {
   return api(`/admin/attributions/journal?limite=${limite}`)
 }
+
+export interface ReglagesBail {
+  reglages: { jours_defaut: number; par_pays: Record<string, number> }
+  bornes: { min: number; max: number }
+  version: number
+  modifie_par: string | null
+  modifie_le: string | null
+}
+
+export async function lireReglagesBail(): Promise<ReglagesBail> {
+  return api<ReglagesBail>('/admin/attributions/reglages')
+}
+
+/** Règle la durée du bail — super_admin. Les baux existants gardent leur
+ *  échéance (un bail est une promesse datée) : la réponse le CHIFFRE. */
+export async function reglerDureeBail(
+  joursDefaut: number,
+  parPays: Record<string, number>,
+): Promise<
+  ReglagesBail & { baux_existants: { actifs_inchanges: number; plus_longue_echeance: string | null } }
+> {
+  return api('/admin/attributions/reglages', {
+    method: 'PUT',
+    body: { jours_defaut: joursDefaut, par_pays: parPays },
+  })
+}

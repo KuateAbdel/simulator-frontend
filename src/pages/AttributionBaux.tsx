@@ -34,6 +34,7 @@ import { Card, EmptyState, SectionHeader } from '../components/ui'
 import { Banniere, ConfirmDialog, Skeleton, useToast } from '../components/ui/loader'
 import { CompteARebours } from '../components/CompteARebours'
 import { DossierClient } from '../components/DossierClient'
+import { ReglageDuree } from '../components/ReglageDuree'
 import { Pager } from '../components/Pager'
 import { usePagination } from '../hooks/usePagination'
 import { normaliser } from '../components/FiltreListe'
@@ -326,6 +327,11 @@ export function AttributionBaux() {
           <button className="btn-ghost" onClick={exporterCsv} disabled={lignes.length === 0}>
             <Download size={14} /> {t('attr_exporter')}
           </button>
+          <ReglageDuree
+            paysDisponibles={paysDisponibles as string[]}
+            estSuperAdmin={estSuperAdmin}
+            surEnregistre={() => void charger(true)}
+          />
           <button
             className="btn-danger-contour"
             disabled={!estSuperAdmin || selection.size === 0}
