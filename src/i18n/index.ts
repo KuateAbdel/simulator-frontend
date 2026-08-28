@@ -160,6 +160,10 @@ export const translations = {
     ajr_administration: 'administration',
     ajr_systeme: 'échéance',
     ajr_vide: 'Aucun événement sur la période.',
+    ajr_connexion: 'Connexion',
+    tel_en_operation: 'en opération',
+    tel_hors_operation: 'hors opération',
+    tel_voir_hors_operation: 'Afficher aussi les opérateurs hors opération',
 
     nav_attr_baux: 'Baux actifs',
     nav_attr_population: 'Population',
@@ -599,6 +603,7 @@ export const translations = {
     jrn_col_operation: 'Opération',
     jrn_col_entite: 'Entité',
     jrn_col_details: 'Détails',
+    jrn_col_connexion: 'Connexion',
     jrn_vide: 'Aucune action d’administration enregistrée pour l’instant.',
     // V-01 — onglet Versions des services
     ver_onglet: 'Versions',
@@ -1182,6 +1187,10 @@ export const translations = {
     ajr_administration: 'administration',
     ajr_systeme: 'deadline',
     ajr_vide: 'No event over the period.',
+    ajr_connexion: 'Connection',
+    tel_en_operation: 'in operation',
+    tel_hors_operation: 'not in operation',
+    tel_voir_hors_operation: 'Also show operators not in operation',
 
     nav_attr_baux: 'Active leases',
     nav_attr_population: 'Population',
@@ -1618,6 +1627,7 @@ export const translations = {
     jrn_col_operation: 'Operation',
     jrn_col_entite: 'Entity',
     jrn_col_details: 'Details',
+    jrn_col_connexion: 'Connection',
     jrn_vide: 'No administration action recorded yet.',
     // V-01 — service versions tab
     ver_onglet: 'Versions',

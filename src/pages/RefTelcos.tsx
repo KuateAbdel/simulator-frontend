@@ -53,6 +53,22 @@ export function RefTelcos() {
   const [fMotifEtat, setFMotifEtat] = useState('')
   const [etatErreur, setEtatErreur] = useState<string | null>(null)
 
+  // ── VISIBILITÉ (demande Direction 28/08) — jamais une suppression. ──
+  // « En opération » = l'opérateur existe LÀ-BAS, sur config-service. Par
+  // défaut, seuls ceux-là s'affichent — et un pays sans opérateur en
+  // opération n'apparaît pas : la règle C1 interdit de pousser un pays sans
+  // telco, l'écran ne doit pas faire croire le contraire. L'interrupteur
+  // rend les autres visibles (avec leur badge) : quand on pousse un pays,
+  // ses opérateurs arrivent là-bas et entrent d'eux-mêmes dans la vue.
+  // HOOKS EN TÊTE, avant tout retour de phase — leçon du banc (28/08) :
+  // posés après un retour anticipé, ils cassaient le rendu (« more hooks
+  // than during the previous render »).
+  const [voirHorsOperation, setVoirHorsOperation] = useState(false)
+  const nomsEnOperation = useMemo(
+    () => new Set((configTelcos ?? []).map((tc) => tc.nom.trim().toLowerCase())),
+    [configTelcos],
+  )
+
   const chargerConfig = useCallback(async () => {
     setConfigErreur(null)
     try {
@@ -183,6 +199,9 @@ export function RefTelcos() {
         exemple_msisdn: fExemple.trim(),
       })
       pousser('succes', `${t('tel_cree')} ${reponse.somme_parts_du_pays}%`)
+      // L'opérateur qu'on vient d'ajouter n'est PAS encore en opération :
+      // sans cela, il serait invisible à l'instant même de sa création.
+      setVoirHorsOperation(true)
       setFormulaireOuvert(false)
       setFNom('')
       setFCode('')
@@ -232,7 +251,18 @@ export function RefTelcos() {
     )
   }
 
-  const codesPays = Object.keys(etat.telcos).sort()
+  const enOperation = (nom: string) => nomsEnOperation.has(nom.trim().toLowerCase())
+
+  const codesPays = Object.keys(etat.telcos)
+    .sort()
+    .filter((code) => {
+      const liste = etat.telcos[code] ?? []
+      if (liste.length === 0) return false // un pays VIDE ne s'affiche jamais
+      return voirHorsOperation || liste.some((telco) => enOperation(telco.nom))
+    })
+  const horsOperation = Object.values(etat.telcos)
+    .flat()
+    .filter((telco) => !enOperation(telco.nom)).length
 
   return (
     <div className="animate-fade-in">
@@ -457,9 +487,24 @@ export function RefTelcos() {
         )}
       </ConfirmDialog>
 
+      {horsOperation > 0 && (
+        <label
+          className="flex items-center gap-2 mb-3"
+          style={{ fontSize: 'var(--fs-note)', color: 'var(--text-secondary)', cursor: 'pointer' }}
+        >
+          <input
+            type="checkbox"
+            checked={voirHorsOperation}
+            onChange={(e) => setVoirHorsOperation(e.target.checked)}
+          />
+          {t('tel_voir_hors_operation')} ({horsOperation})
+        </label>
+      )}
       <div className="grid md:grid-cols-2 gap-4">
         {codesPays.map((code) => {
-          const liste = etat.telcos[code]
+          const liste = (etat.telcos[code] ?? []).filter(
+            (telco) => voirHorsOperation || enOperation(telco.nom),
+          )
           const somme = liste.reduce((total, telco) => total + telco.part_marche, 0)
           return (
             <Card key={code}>
@@ -482,7 +527,12 @@ export function RefTelcos() {
                   <div key={telco.code} className="rounded-lg px-3 py-2" style={{ background: 'var(--surface)' }}>
                     <div className="flex items-center justify-between gap-2">
                       <span className="text-xs font-semibold" style={{ color: 'var(--text-primary)' }}>
-                        {telco.nom}
+                        {telco.nom}{' '}
+                        {enOperation(telco.nom) ? (
+                          <span className="badge-secondary">{t('tel_en_operation')}</span>
+                        ) : (
+                          <span className="badge-warning">{t('tel_hors_operation')}</span>
+                        )}
                       </span>
                       <span className="text-[10px] font-mono" style={{ color: 'var(--text-secondary)' }}>
                         {telco.part_marche}%

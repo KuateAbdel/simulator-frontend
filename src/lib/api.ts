@@ -1129,6 +1129,9 @@ export type EntreeJournal = {
   entite: string
   cible: string
   acteur: string | null
+  /** D'où venait le geste (28/08) — null sur les traces antérieures. */
+  ip?: string | null
+  ip_pays?: string | null
   details: Record<string, unknown>
 }
 
@@ -1549,6 +1552,8 @@ export interface EvenementAttribution {
   cible: string
   acteur: string | null
   origine: 'appareil' | 'administration' | null
+  ip: string | null
+  ip_pays: string | null
   issue: string
   motif: string | null
   details: Record<string, unknown>

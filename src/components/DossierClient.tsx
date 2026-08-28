@@ -14,6 +14,8 @@
 // aujourd'hui, des dizaines avec le module de vie. Il se déplie sur demande.
 
 import { useCallback, useEffect, useState } from 'react'
+import { Pager } from './Pager'
+import { usePagination } from '../hooks/usePagination'
 import {
   dossierClient,
   releveClient,
@@ -73,6 +75,10 @@ export function DossierClient({
       setReleveEnCours(false)
     }
   }, [msisdn, t])
+
+  //: §5.3 — le relevé « se déplie sur demande, et se pagine » : une ligne
+  //: aujourd'hui, des dizaines avec le module de vie.
+  const pgReleve = usePagination(releve ?? [], 10, msisdn)
 
   const formaterDate = useCallback(
     (iso: string) =>
@@ -269,7 +275,7 @@ export function DossierClient({
           {releve && releve.length === 0 && <Absent raison={t('dos_releve_vide')} />}
           {releve && releve.length > 0 && (
             <div style={{ display: 'grid', gap: 8 }}>
-              {releve.map((op, i) => (
+              {pgReleve.pageItems.map((op, i) => (
                 <div key={op.reference ?? i} className="card" style={{ padding: 10 }}>
                   <div className="flex items-center justify-between gap-2">
                     <span style={{ fontSize: 'var(--fs-corps)', fontWeight: 500 }}>
@@ -289,6 +295,11 @@ export function DossierClient({
                   </p>
                 </div>
               ))}
+              <Pager
+                page={pgReleve.page} nbPages={pgReleve.nbPages} size={pgReleve.size}
+                total={pgReleve.total} from={pgReleve.from} to={pgReleve.to}
+                onPage={pgReleve.setPage} onSize={pgReleve.setSize}
+              />
             </div>
           )}
         </section>

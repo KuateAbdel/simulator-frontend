@@ -79,6 +79,7 @@ export function JournalOnglet() {
                       <th>{t('jrn_col_acteur')}</th>
                       <th>{t('jrn_col_operation')}</th>
                       <th>{t('jrn_col_entite')}</th>
+                      <th>{t('jrn_col_connexion')}</th>
                       <th>{t('jrn_col_details')}</th>
                     </tr>
                   </thead>
@@ -93,6 +94,23 @@ export function JournalOnglet() {
                           <span className="badge-primary">{e.operation}</span>
                         </td>
                         <td className="text-[11px]">{e.entite}</td>
+                        <td className="text-[11px] whitespace-nowrap">
+                          {/* Le PAYS d'abord — c'est lui qu'on lit ; l'adresse
+                              en chasse fixe. Trace d'avant la capture : rien,
+                              on n'invente jamais. */}
+                          {e.ip_pays && (
+                            <span className="badge-primary" style={{ marginRight: 6 }}>
+                              {e.ip_pays}
+                            </span>
+                          )}
+                          {e.ip ? (
+                            <span className="font-mono" style={{ fontSize: 'var(--fs-etiquette)' }}>
+                              {e.ip}
+                            </span>
+                          ) : (
+                            !e.ip_pays && <span style={{ color: 'var(--text-muted)' }}>—</span>
+                          )}
+                        </td>
                         <td className="text-[11px]" style={{ color: 'var(--text-secondary)' }}>
                           {resumeDetails(e.details)}
                         </td>
@@ -100,7 +118,7 @@ export function JournalOnglet() {
                     ))}
                     {pg.total === 0 && (
                       <tr>
-                        <td colSpan={5} className="text-center text-xs py-6" style={{ color: 'var(--text-muted)' }}>
+                        <td colSpan={6} className="text-center text-xs py-6" style={{ color: 'var(--text-muted)' }}>
                           {t('jrn_vide')}
                         </td>
                       </tr>
